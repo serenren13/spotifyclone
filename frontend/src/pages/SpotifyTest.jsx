@@ -1,52 +1,94 @@
 import { useEffect, useState } from "react";
-import { SpotifyApi, AuthorizationCodeWithPKCEStrategy } from "@spotify/web-api-ts-sdk";
+import axios from "axios";
 
-const authStrategy = new AuthorizationCodeWithPKCEStrategy(
-  import.meta.env.VITE_SPOTIFY_CLIENT_ID,
-  import.meta.env.VITE_SPOTIFY_REDIRECT_URI,
-  ["user-read-private", "user-read-email", "user-top-read"]
-);
-
-const sdk = new SpotifyApi(authStrategy);
+const backendAPI = axios.create({
+    baseURL: "http://127.0.0.1:5001/api/spotify",
+});
 
 function SpotifyTest() {
-  const [profile, setProfile] = useState(null);
+    const [token, setToken] = useState(null);
+    const [profile, setProfile] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    sdk.currentUser.profile()
-      .then((data) => setProfile(data))
-      .catch((err) => console.log("Not authenticated yet"));
-  }, []);
+    const handleLogout = () => {
+        localStorage.removeItem("spotify_access_token");
+        setToken(null);
+        setProfile(null);
+    };
 
-  const handleLogin = async () => {
-    await sdk.authenticate();
-  };
+    useEffect(() => {
+        const fetchProfile = async (accessToken) => {
+            try {
+                const response = await backendAPI.get("/user/profile", {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                });
+                setProfile(response.data);
+            } catch (err) {
+                console.error("Error fetching profile from backend:", err);
+                handleLogout();
+            } finally {
+                setLoading(false);
+            }
+        };
 
-  const handleLogout = () => {
-    sdk.logOut();
-    setProfile(null);
-  };
+        const initializeAuth = async () => {
+            const storedToken = localStorage.getItem("spotify_access_token");
 
-  return (
-    <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
-      <h1>Spotify Simple App</h1>
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlToken = urlParams.get("access_token");
 
-      {!profile ? (
-        <button onClick={() => handleLogin()} style={{ padding: "10px 20px", cursor: "pointer" }}>
-          Log in with Spotify
-        </button>
-      ) : (
-        <div>
-          <button onClick={() => handleLogout()} style={{ marginBottom: "20px" }}>Log Out</button>
-          <h2>Welcome, {profile.display_name}!</h2>
-          <p>Email: {profile.email}</p>
-          {profile.images?.[0] && (
-            <img src={profile.images[0].url} alt="Profile" style={{ borderRadius: "50%", width: "120px" }} />
-          )}
+            let activeToken = storedToken;
+
+            if (urlToken) {
+                localStorage.setItem("spotify_access_token", urlToken);
+                activeToken = urlToken;
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            if (activeToken) {
+                setToken(activeToken);
+                await fetchProfile(activeToken);
+            } else {
+                setLoading(false);
+            }
+        };
+
+        initializeAuth();
+    }, []);
+
+    const handleLogin = () => {
+        window.location.href = "http://127.0.0.1:5001/api/spotify/auth/login";
+    };
+
+    if (loading) return <div style={{ padding: "2rem" }}>Loading App...</div>;
+
+    return (
+        <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
+            <h1>Spotify App Hub</h1>
+
+            {!profile ? (
+                <button onClick={handleLogin}>
+                    Log in with Spotify
+                </button>
+            ) : (
+                <div>
+                    <button onClick={handleLogout}>Log Out</button>
+                    <h2>Welcome, {profile.display_name}!</h2>
+                    <p>Email: {profile.email}</p>
+
+                    {profile.images?.[0] && (
+                        <img
+                            src={profile.images[0].url}
+                            alt="Profile"
+                            style={{ borderRadius: "50%", width: "120px" }}
+                        />
+                    )}
+                </div>
+            )}
         </div>
-      )}
-    </div>
-  );
+    );
 }
 
 export default SpotifyTest;
