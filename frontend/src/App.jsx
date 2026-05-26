@@ -1,31 +1,21 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import SpotifyTest from "./pages/SpotifyTest";
-import LandingPage from "./pages/Landing"
-import LikedSongs from "./pages/LikedSongs";
-import TopArtists from "./pages/TopArtists";
-import TopSongs from "./pages/TopSongs";
-import Profile from "./pages/Profile";
-import Discover from "./pages/Discover";
-import Inbox from "./pages/Inbox";
-import Forums from "./pages/Forums";
+import { Outlet, Link } from "react-router-dom";
 
-function App() {
-
+export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/spotify-test" element={<SpotifyTest />} />
-        <Route path="/liked-songs" element={<LikedSongs />} />
-        <Route path="/top-artists" element={<TopArtists />} />
-        <Route path="/top-songs" element={<TopSongs />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/discover" element={<Discover />} />
-        <Route path="/inbox" element={<Inbox />} />
-        <Route path="/forums" element={<Forums />} />
-      </Routes>
-    </BrowserRouter>
-  )
-}
+    <>
+      <nav>
+        <Link to="/">Home</Link>{" | "}
+        <Link to="/liked-songs">Liked Songs</Link>{" | "}
+        <Link to="/top-artists">Top Artists</Link>{" | "}
+        <Link to="/top-songs">Top Songs</Link>{" | "}
+        <Link to="/profile">Profile</Link>{" | "}
+        <Link to="/discover">Discover</Link>{" | "}
+        <Link to="/inbox">Inbox</Link>{" | "}
+        <Link to="/forums">Forums</Link>{" | "}
+        <Link to="/spotify-test">Spotify Test</Link>
+      </nav>
 
-export default App
+      <Outlet />
+    </>
+  );
+}
