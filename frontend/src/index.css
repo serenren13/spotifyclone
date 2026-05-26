@@ -1,5 +1,3 @@
-/* src/index.css */
-
 :root {
   /* Core Palette Colors */
   --color-almond-silk: #ebd4cb;
@@ -8,7 +6,7 @@
   --color-burgundy: #890620;
   --color-rich-mahogany: #2c0703;
 
-  /* Semantic UI Mapping (Makes changing themes easier later) */
+  /* Semantic UI Mapping - DEFAULT LIGHT MODE VALUES */
   --bg-primary: var(--color-almond-silk);
   --bg-dark: var(--color-rich-mahogany);
   --text-primary: var(--color-rich-mahogany);
@@ -25,12 +23,31 @@
   --gradient-radial: radial-gradient(var(--color-almond-silk), var(--color-rosy-taupe), var(--color-berry-crush), var(--color-burgundy), var(--color-rich-mahogany));
 }
 
+/* OVERRIDE VALUES WHEN THE DARK CLASS IS ACTIVE ON THE BODY */
+body.dark {
+  --bg-primary: var(--color-rich-mahogany);
+  --bg-dark: var(--color-almond-silk);
+  --text-primary: var(--color-almond-silk);
+  --text-light: var(--color-rich-mahogany);
+  --accent-primary: var(--color-rosy-taupe);
+  --accent-secondary: var(--color-berry-crush);
+  --brand-color: var(--color-berry-crush);
+
+  /* Reverse Gradients for Dark Mode Harmony */
+  --gradient-linear-top: linear-gradient(0deg, var(--color-rich-mahogany), var(--color-burgundy), var(--color-berry-crush), var(--color-rosy-taupe), var(--color-almond-silk));
+  --gradient-linear-right: linear-gradient(90deg, var(--color-rich-mahogany), var(--color-burgundy), var(--color-berry-crush), var(--color-rosy-taupe), var(--color-almond-silk));
+  --gradient-linear-bottom: linear-gradient(180deg, var(--color-rich-mahogany), var(--color-burgundy), var(--color-berry-crush), var(--color-rosy-taupe), var(--color-almond-silk));
+  --gradient-linear-left: linear-gradient(270deg, var(--color-rich-mahogany), var(--color-burgundy), var(--color-berry-crush), var(--color-rosy-taupe), var(--color-almond-silk));
+  --gradient-radial: radial-gradient(var(--color-rich-mahogany), var(--color-burgundy), var(--color-berry-crush), var(--color-rosy-taupe), var(--color-almond-silk));
+}
+
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: system-ui, -apple-system, sans-serif;
   margin: 0;
   padding: 0;
+  transition: background-color 0.3s ease, color 0.3s ease, background 0.3s ease;
 }
 
 /* Quick Utility Classes for Gradients */
@@ -46,7 +63,7 @@ body {
   background: var(--gradient-radial);
 }
 
-
+/* Standard Buttons */
 .btn-primary {
   background-color: var(--brand-color);
   color: var(--text-light);
@@ -54,10 +71,36 @@ body {
   padding: 0.5rem 1rem;
   border-radius: 6px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .btn-primary:hover {
   background-color: var(--accent-primary);
 }
 
+/* Radix UI Toggle Custom Styles */
+.ToggleRoot {
+  background-color: var(--brand-color);
+  color: var(--text-light);
+  border: none;
+  padding: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.1s ease;
+}
+
+.ToggleRoot:hover {
+  background-color: var(--accent-primary);
+}
+
+.ToggleRoot:active {
+  transform: scale(0.95);
+}
+
+.ToggleRoot:focus-visible {
+  outline: 2px solid var(--accent-secondary);
+  outline-offset: 2px;
+}
