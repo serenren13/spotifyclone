@@ -19,7 +19,6 @@ const saveUser = async (userId, userData) => {
             displayName: userData.displayName || "Anonymous",
             bio: userData.bio || "",
             isPrivate: userData.isPrivate ?? true,
-            spotifyId: userData.spotifyId,
             email: userData.email,
             profileImage: userData.profileImage || null,
         },
