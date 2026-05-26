@@ -1,4 +1,4 @@
-import {
+const {
     collection,
     getDocs,
     addDoc,
@@ -8,8 +8,8 @@ import {
     query,
     where,
     setDoc,
-} from "firebase/firestore";
-import { db } from "../firebase.js";
+} = require("firebase/firestore");
+const { db } = require("../firebase.js");
 
 const saveUser = async (userId, userData) => {
     const userRef = doc(db, "users", userId);
@@ -39,4 +39,9 @@ const fetchPublicUsers = async () => {
     return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
 };
 
-export { saveUser, userFromId, fetchPublicUsers };
+const updateUserProfile = async (userId, updates) => {
+    const userRef = doc(db, "users", userId);
+    await updateDoc(userRef, updates);
+};
+ 
+module.exports = { saveUser, userFromId, fetchPublicUsers, updateUserProfile };

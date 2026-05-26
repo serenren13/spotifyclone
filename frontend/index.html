@@ -1,13 +1,253 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Backend Integration Tester</title>
+</head>
+
+<body>
+
+  <h1>Backend API Testing Panel</h1>
+  <p>Open your browser console (F12) to monitor detailed JSON payloads and structural responses.</p>
+
+  <hr />
+
+  <h2>1. Users Module Testing</h2>
+
+  <h3>Create or Sync User (POST /api/users)</h3>
+  <form id="user-form">
+    <label>User ID: <input type="text" id="u-id" required placeholder="e.g. user_01"></label><br />
+    <label>Display Name: <input type="text" id="u-name" placeholder="John Doe"></label><br />
+    <label>Bio: <input type="text" id="u-bio" placeholder="Hello world"></label><br />
+    <label>Private Profile: <input type="checkbox" id="u-private"></label><br />
+    <label>Spotify ID: <input type="text" id="u-spotify" placeholder="spotify_uri_123"></label><br />
+    <label>Email: <input type="email" id="u-email" placeholder="john@test.com"></label><br />
+    <button type="submit">Sync / Create User</button>
+  </form>
+
+  <h3>Get User Profile (GET /api/users/:id)</h3>
+  <label>Find User ID: <input type="text" id="search-uid-input" placeholder="user_01"></label>
+  <button onclick="fetchUserProfile()">Fetch Profile</button>
+
+  <h3>Fetch All Public Users (GET /api/users/discover)</h3>
+  <button onclick="fetchDiscoverUsers()">Load Discover Feed</button>
+  <div id="discover-output"></div>
+
+  <hr />
+
+  <h2>2. Conversations & Messaging Module</h2>
+
+  <h3>Initialize / Get Conversation Room (POST /api/conversations/initialize)</h3>
+  <form id="chat-init-form">
+    <label>User 1 ID: <input type="text" id="chat-u1" required placeholder="user_01"></label><br />
+    <label>User 2 ID: <input type="text" id="chat-u2" required placeholder="user_02"></label><br />
+    <button type="submit">Open / Create Room</button>
+  </form>
+
+  <h3>Fetch User Inbox (GET /api/conversations/inbox/:userId)</h3>
+  <label>Inbox User ID: <input type="text" id="inbox-uid-input" placeholder="user_01"></label>
+  <button onclick="fetchInbox()">Fetch Inbox Rooms</button>
+  <div id="inbox-output"></div>
+
+  <h3>Send Message & View History</h3>
+  <label>Active Conversation ID: <input type="text" id="active-conv-id"
+      placeholder="Paste generated room ID here"></label>
+  <button onclick="loadChatHistory()">Refresh Messages</button>
+
+  <div id="chat-history-output" style="border: 1px solid black; min-height: 50px; padding: 5px; margin-top: 5px;">
+    (Messages will populate here)
+  </div>
+
+  <form id="send-msg-form" style="margin-top: 5px;">
+    <label>Sender ID: <input type="text" id="msg-sender" required placeholder="user_01"></label>
+    <label>Text: <input type="text" id="msg-text" required placeholder="Type a message..."></label>
+    <button type="submit">Send</button>
+  </form>
+
+  <hr />
+
+  <h2>3. Forums Module Testing</h2>
+
+  <h3>Create Forum Post (POST /api/forums)</h3>
+  <form id="forum-create-form">
+    <label>Title: <input type="text" id="f-title" required></label><br />
+    <label>Content: <textarea id="f-content" required></textarea></label><br />
+    <label>Created By (User ID): <input type="text" id="f-author" required></label><br />
+    <button type="submit">Publish Forum</button>
+  </form>
+
+  <h3>Forums List & Search (GET /api/forums)</h3>
+  <label>Search Query (Optional): <input type="text" id="forum-search-query" placeholder="Leave empty for all"></label>
+  <button onclick="loadForums()">Load / Search Forums</button>
+  <div id="forums-list-output"></div>
+
+  <h3>Active Forum Interaction (Comments & Upvotes)</h3>
+  <label>Selected Forum ID: <input type="text" id="active-forum-id" placeholder="Paste forum ID here"></label>
+  <button onclick="likeForum(1)">👍 Like Post (+1)</button>
+  <button onclick="loadForumComments()">Load Comments</button>
+
+  <div id="forum-comments-output" style="border: 1px solid black; min-height: 50px; padding: 5px; margin-top: 5px;">
+    (Comments will populate here)
+  </div>
+
+  <form id="forum-comment-form" style="margin-top: 5px;">
+    <label>Author ID: <input type="text" id="fc-author" required></label>
+    <label>Comment: <input type="text" id="fc-text" required></label>
+    <button type="submit">Post Comment</button>
+  </form>
+
+
+  <script>
+    const API_BASE = "http://localhost:5001/api";
+
+    // Global Helper for Fetch calls
+    async function makeRequest(url, method = 'GET', body = null) {
+      const options = {
+        method,
+        headers: { 'Content-Type': 'application/json' }
+      };
+      if (body) options.body = JSON.stringify(body);
+
+      try {
+        const response = await fetch(`${API_BASE}${url}`, options);
+        const data = await response.json();
+        console.log(`[${method}] ${url} Response:`, data);
+        return data;
+      } catch (err) {
+        console.error(`Error on [${method}] ${url}:`, err);
+        alert(`API Error: See console logs.`);
+        throw err;
+      }
+    }
+
+    // --- USERS MODULE HANDLERS ---
+    document.getElementById('user-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        userId: document.getElementById('u-id').value,
+        displayName: document.getElementById('u-name').value,
+        bio: document.getElementById('u-bio').value,
+        isPrivate: document.getElementById('u-private').checked,
+        spotifyId: document.getElementById('u-spotify').value,
+        email: document.getElementById('u-email').value
+      };
+      const result = await makeRequest('/users', 'POST', payload);
+      alert(`User Synced successfully! Unique ID: ${result.id}`);
+    });
+
+    async function fetchUserProfile() {
+      const uid = document.getElementById('search-uid-input').value;
+      if (!uid) return alert('Enter a User ID');
+      const data = await makeRequest(`/users/${uid}`);
+      alert(`User profile details found:\nName: ${data.displayName}\nBio: ${data.bio}`);
+    }
+
+    async function fetchDiscoverUsers() {
+      const users = await makeRequest('/users/discover');
+      const output = document.getElementById('discover-output');
+      output.innerHTML = '<h4>Public Directory</h4><ul>' +
+        users.map(u => `<li><strong>${u.displayName}</strong> (ID: ${u.id}) - Bio: ${u.bio}</li>`).join('') +
+        '</ul>';
+    }
+
+    // --- CONVERSATIONS MODULE HANDLERS ---
+    document.getElementById('chat-init-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        user1: document.getElementById('chat-u1').value,
+        user2: document.getElementById('chat-u2').value
+      };
+      const room = await makeRequest('/conversations/initialize', 'POST', payload);
+      document.getElementById('active-conv-id').value = room.id;
+      alert(`Chat room ready! Room ID: ${room.id}`);
+      loadChatHistory();
+    });
+
+    async function fetchInbox() {
+      const uid = document.getElementById('inbox-uid-input').value;
+      if (!uid) return alert('Enter a User ID to fetch inbox');
+      const rooms = await makeRequest(`/conversations/inbox/${uid}`);
+      const output = document.getElementById('inbox-output');
+      output.innerHTML = '<h4>Inbox Rooms</h4><ul>' +
+        rooms.map(r => `<li>Room ID: <strong>${r.id}</strong> | Last Msg: "${r.lastMessage || 'none'}"</li>`).join('') +
+        '</ul>';
+    }
+
+    async function loadChatHistory() {
+      const cid = document.getElementById('active-conv-id').value;
+      if (!cid) return alert('Enter a room ID first');
+      const messages = await makeRequest(`/conversations/${cid}/messages`);
+      const container = document.getElementById('chat-history-output');
+      container.innerHTML = messages.map(m => `<div><strong>${m.senderId}:</strong> ${m.text}</div>`).join('') || 'No history found.';
+    }
+
+    document.getElementById('send-msg-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const cid = document.getElementById('active-conv-id').value;
+      if (!cid) return alert('Set an Active Conversation ID');
+      const payload = {
+        senderId: document.getElementById('msg-sender').value,
+        text: document.getElementById('msg-text').value
+      };
+      await makeRequest(`/conversations/${cid}/messages', 'POST', payload);
+            document.getElementById('msg-text').value = '';
+            loadChatHistory();
+        });
+
+        // --- FORUMS MODULE HANDLERS ---
+        document.getElementById('forum-create-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                title: document.getElementById('f-title').value,
+                content: document.getElementById('f-content').value,
+                createdBy: document.getElementById('f-author').value
+            };
+            const res = await makeRequest('/forums', 'POST', payload);
+            alert(`Forum thread live! ID: ${ res.id }`);
+            document.getElementById('active-forum-id').value = res.id;
+            loadForums();
+        });
+
+        async function loadForums() {
+            const query = document.getElementById('forum-search-query').value;
+            const url = query ? `/ forums ? search = ${ encodeURIComponent(query) }` : '/forums';
+            const forums = await makeRequest(url);
+            const output = document.getElementById('forums-list-output');
+            output.innerHTML = '<h4>Forums Feed</h4>' + 
+                forums.map(f => `< div > <strong>[ID: ${f.id}] ${f.title}</strong> by ${ f.createdBy }(${ f.likes || 0 } Likes) < p > ${ f.content }</p ></div > <hr />`).join('');
+        }
+
+        async function likeForum(val) {
+            const fid = document.getElementById('active-forum-id').value;
+            if(!fid) return alert('Enter an Active Forum ID');
+            // Backend patch route structure adjustment query fallback handler
+            await makeRequest(`/ forums / ${ fid } / like ? amount = ${ val }`, 'PATCH');
+            alert('Like registered! Refresh the list to check the updated count.');
+        }
+
+        async function loadForumComments() {
+            const fid = document.getElementById('active-forum-id').value;
+            if(!fid) return alert('Enter an Active Forum ID');
+            const comments = await makeRequest(`/ forums / ${ fid } / comments`);
+            const container = document.getElementById('forum-comments-output');
+            container.innerHTML = comments.map(c => `< div > <strong>${c.authorId}:</strong> ${ c.comment }</div > `).join('') || 'No comments found.';
+        }
+
+        document.getElementById('forum-comment-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fid = document.getElementById('active-forum-id').value;
+            if(!fid) return alert('Enter an Active Forum ID');
+            const payload = {
+                authorId: document.getElementById('fc-author').value,
+                comment: document.getElementById('fc-text').value
+            };
+            await makeRequest(`/ forums / ${ fid } / comments`, 'POST', payload);
+            document.getElementById('fc-text').value = '';
+            loadForumComments();
+        });
+  </script>
+</body>
+
 </html>

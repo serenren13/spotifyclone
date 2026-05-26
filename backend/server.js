@@ -12,6 +12,9 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/spotify", spotifyRoutes);
+app.use("/api/users", usersRoutes);
+app.use("/api/conversations", conversationsRoutes);
+app.use("/api/forums", forumsRoutes);
 
 app.get("/", (req, res) => {
   res.send("Express backend is running and Firebase is connected");

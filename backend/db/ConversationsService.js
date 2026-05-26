@@ -1,4 +1,4 @@
-import {
+const {
     collection,
     getDocs,
     addDoc,
@@ -9,8 +9,8 @@ import {
     where,
     orderBy,
     serverTimestamp,
-} from "firebase/firestore";
-import { db } from "../firebase.js";
+} = require("firebase/firestore");
+const { db } = require("../firebase.js");
 
 const getOrCreateConversation = async (user1, user2) => {
     const sortedParticipants = [user1, user2].sort();
@@ -71,7 +71,7 @@ const fetchUserInbox = async (userId) => {
     return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
 };
 
-export {
+module.exports = {
     getOrCreateConversation,
     sendMessage,
     fetchMessagesForConversation,

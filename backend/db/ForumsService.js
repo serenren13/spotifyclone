@@ -1,4 +1,4 @@
-import {
+const {
     collection,
     getDocs,
     addDoc,
@@ -10,8 +10,8 @@ import {
     orderBy,
     increment,
     serverTimestamp,
-} from "firebase/firestore";
-import { db } from "../firebase.js";
+} = require("firebase/firestore");
+const { db } = require("../firebase.js");
 
 
 const createForum = async (title, content, createdBy) => {
@@ -77,12 +77,12 @@ const likeForumComment = async (forumId, commentId, amount) => {
     });
 }
 
-export {
+module.exports = {
     createForum,
     fetchAllForums,
     searchForumsByName,
     likeForumPost,
     addCommentToForum,
     fetchForumComments,
-    likeForumComment
+    likeForumComment,
 };
