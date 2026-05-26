@@ -1,3 +1,5 @@
+// Defines Spotify-related routes/endpoints
+
 const express = require("express");
 const SpotifyWebApi = require("spotify-web-api-node");
 const router = express.Router();
