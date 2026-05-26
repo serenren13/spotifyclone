@@ -23,7 +23,12 @@ function Inbox() {
     const [allUsers, setAllUsers] = useState(TEST_USERS);
     const [otherUserId, setOtherUserId] = useState(null);
 
-    const userMap = Object.fromEntries(allUsers.map((u) => [u.id, u]));
+    const toUserEntry = (user) => [user.id, user];
+    const userMap = Object.fromEntries(allUsers.map(toUserEntry));
+
+    const handleUsersLoaded = (res) => setAllUsers(res.data);
+    const handleUsersError = (err) => console.error("Error loading users:", err);
+    const handleSaveUserError = (err) => console.error("Error saving user:", err);
 
     useEffect(() => {
         const user = userProfile
@@ -37,11 +42,11 @@ function Inbox() {
             email: user.email,
             spotifyId: user.id,
             isPrivate: false,
-        }).catch(() => {});
+        }).catch(handleSaveUserError);
 
         api.get("/users/discover")
-            .then((res) => setAllUsers(res.data))
-            .catch(() => {});
+            .then(handleUsersLoaded)
+            .catch(handleUsersError);
     }, [userProfile]);
 
     const handleSelectConversation = (id, otherId) => {

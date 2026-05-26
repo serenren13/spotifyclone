@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
-import * as Avatar from "@radix-ui/react-avatar";
 import axios from "axios";
 import MessageBubble from "./MessageBubble";
 import MessageInput from "./MessageInput";
@@ -11,7 +10,6 @@ function ChatPanel({ currentUser, conversationId, otherUser, messages, setMessag
     const bottomRef = useRef(null);
     const pollRef = useRef(null);
 
-    const initials = (otherUser?.displayName || "?").slice(0, 2).toUpperCase();
 
     const fetchMessages = async () => {
         try {
@@ -25,7 +23,6 @@ function ChatPanel({ currentUser, conversationId, otherUser, messages, setMessag
     useEffect(() => {
         if (!conversationId) return;
         fetchMessages();
-        // poll every 3 seconds for new messages
         pollRef.current = setInterval(fetchMessages, 3000);
         return () => clearInterval(pollRef.current);
     }, [conversationId]);
@@ -50,23 +47,9 @@ function ChatPanel({ currentUser, conversationId, otherUser, messages, setMessag
         <div className="flex flex-col h-full">
 <ScrollArea.Root className="flex-1 overflow-hidden">
                 <ScrollArea.Viewport className="h-full w-full px-4 py-4">
-                    {messages.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center h-full gap-4 py-16">
-                            <Avatar.Root className="w-24 h-24 rounded-full bg-[var(--brand-color)] flex items-center justify-center">
-                                <Avatar.Fallback className="text-3xl font-bold text-[var(--text-light)]">
-                                    {initials}
-                                </Avatar.Fallback>
-                            </Avatar.Root>
-                            <div className="text-center">
-                                <p className="text-xl font-semibold text-[var(--text-primary)]">{otherUser.displayName}</p>
-                                <p className="text-sm text-[var(--accent-secondary)] mt-1">No messages yet. Say hi!</p>
-                            </div>
-                        </div>
-                    ) : (
-                        messages.map((msg) => (
-                            <MessageBubble key={msg.id} message={msg} currentUser={currentUser} />
-                        ))
-                    )}
+                    {messages.map((msg) => (
+                        <MessageBubble key={msg.id} message={msg} currentUser={currentUser} />
+                    ))}
                     <div ref={bottomRef} />
                 </ScrollArea.Viewport>
                 <ScrollArea.Scrollbar orientation="vertical" className="w-1">

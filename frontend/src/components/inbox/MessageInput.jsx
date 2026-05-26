@@ -1,7 +1,10 @@
 import { useState } from "react";
+import { PaperPlaneIcon } from "@radix-ui/react-icons";
 
 function MessageInput({ onSend }) {
     const [text, setText] = useState("");
+
+    const handleChange = (e) => setText(e.target.value);
 
     const handleSend = () => {
         if (!text.trim()) return;
@@ -20,7 +23,7 @@ function MessageInput({ onSend }) {
         <div className="flex items-end gap-3 px-4 py-3 border-t border-[var(--accent-secondary)]/30">
             <textarea
                 value={text}
-                onChange={(e) => setText(e.target.value)}
+                onChange={handleChange}
                 onKeyDown={handleKeyDown}
                 placeholder="Message..."
                 rows={1}
@@ -32,9 +35,7 @@ function MessageInput({ onSend }) {
                 className="shrink-0 text-[var(--brand-color)] disabled:opacity-30 hover:text-[var(--accent-primary)] transition-colors pb-2"
                 aria-label="Send"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                </svg>
+                <PaperPlaneIcon className="w-5 h-5" />
             </button>
         </div>
     );

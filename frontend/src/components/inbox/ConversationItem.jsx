@@ -15,9 +15,11 @@ function ConversationItem({ conversation, currentUser, userMap, isSelected, onSe
     const otherUser = userMap[otherId] || { displayName: otherId || "Unknown" };
     const initials = (otherUser.displayName || "?").slice(0, 2).toUpperCase();
 
+    const handleSelect = () => onSelect(conversation.id, otherId);
+
     return (
         <button
-            onClick={() => onSelect(conversation.id, otherId)}
+            onClick={handleSelect}
             className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-[var(--bg-dark)] transition-colors text-left border-b border-[var(--accent-secondary)]/20 ${
                 isSelected ? "bg-[var(--bg-dark)]" : ""
             }`}

@@ -20,14 +20,17 @@ function ConversationList({ currentUser, conversationId, userMap, allUsers, onSe
             .catch((err) => console.error("Error fetching inbox:", err));
     }, [currentUser?.id]);
 
+    const openModal = () => setModalOpen(true);
+    const closeModal = () => setModalOpen(false);
+
     const handleNewConversation = (newConversationId, otherUserId) => {
-        setModalOpen(false);
+        closeModal();
         api.get(`/conversations/inbox/${currentUser.id}`)
             .then((res) => {
                 setConversations(res.data);
                 onConversationsLoaded?.(res.data);
             })
-            .catch(() => {});
+            .catch((err) => console.error("Error refreshing inbox:", err));
         onSelectConversation(newConversationId, otherUserId);
     };
 
@@ -41,7 +44,7 @@ function ConversationList({ currentUser, conversationId, userMap, allUsers, onSe
                     <span className="font-bold text-[var(--text-primary)]">{currentUser.displayName}</span>
                 </div>
                 <button
-                    onClick={() => setModalOpen(true)}
+                    onClick={openModal}
                     className="text-[var(--accent-secondary)] hover:text-[var(--text-primary)] transition-colors"
                     aria-label="New message"
                 >
@@ -58,13 +61,13 @@ function ConversationList({ currentUser, conversationId, userMap, allUsers, onSe
                             No conversations yet. Hit + to start one!
                         </p>
                     ) : (
-                        conversations.map((conv) => (
+                        conversations.map((conversation) => (
                             <ConversationItem
-                                key={conv.id}
-                                conversation={conv}
+                                key={conversation.id}
+                                conversation={conversation}
                                 currentUser={currentUser}
                                 userMap={userMap}
-                                isSelected={conv.id === conversationId}
+                                isSelected={conversation.id === conversationId}
                                 onSelect={onSelectConversation}
                             />
                         ))
@@ -77,7 +80,7 @@ function ConversationList({ currentUser, conversationId, userMap, allUsers, onSe
 
             <NewConversationModal
                 open={modalOpen}
-                onClose={() => setModalOpen(false)}
+                onClose={closeModal}
                 currentUser={currentUser}
                 allUsers={allUsers}
                 onConversationStarted={handleNewConversation}
