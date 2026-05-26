@@ -3,7 +3,10 @@ const cors = require("cors");
 require("dotenv").config();
 
 const db = require("./firebase");
-const spotifyRoutes = require("./routes/spotify");
+const spotifyRoutes = require("./routes/SpotifyRouter");
+const usersRoutes = require("./routes/UsersRouter");
+const conversationsRoutes = require("./routes/ConversationsRouter");
+const forumsRoutes = require("./routes/ForumsRouter");
 
 const app = express();
 const PORT = process.env.PORT || 5001;
