@@ -1,10 +1,11 @@
+import LandingPage from "./pages/Landing"
 import SpotifyTest from "./pages/SpotifyTest"
 
 function App() {
 
   return (
     <>
-      <SpotifyTest />
+      <LandingPage />
     </>
   )
 }
