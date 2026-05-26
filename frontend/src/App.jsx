@@ -1,10 +1,10 @@
-import SpotifyTest from "./pages/SpotifyTest"
+import Profile from './pages/Profile'
 
 function App() {
 
   return (
     <>
-      <SpotifyTest />
+      <Profile />
     </>
   )
 }
