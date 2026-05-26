@@ -47,4 +47,27 @@ router.get("/user/profile", async (req, res) => {
   }
 });
 
+// get user top tracks /api/spotify/top-tracks
+router.get("/top-tracks", async (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.status(401).json({ error: "No token provided" });
+
+  try {
+    const userSpecificApi = new SpotifyWebApi({ clientId: process.env.SPOTIFY_CLIENT_ID });
+    userSpecificApi.setAccessToken(token);
+
+    const timeRange = req.query.time_range || 'long_term';
+
+    const data = await userSpecificApi.getMyTopTracks({ 
+        time_range: timeRange, 
+        limit: 10 
+    });
+    res.json(data.body.items);
+    
+  } catch (err) {
+    console.error("Spotify API Error:", err);
+    res.status(400).json({ error: "Failed to fetch top tracks" });
+  }
+});
+
 module.exports = router;

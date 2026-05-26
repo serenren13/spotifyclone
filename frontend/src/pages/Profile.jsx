@@ -1,30 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './Profile.css';
 
 const Profile = () => {
-  // Toggle this to 'false' to test what OTHER users see when clicking your profile!
   const isOwnProfile = true; 
-
   const [isEditing, setIsEditing] = useState(false);
-  const [profileData, setProfileData] = useState({
-    username: "Ashish_Music_Fan",
-    bio: "I listen to way too much indie pop.",
-    isPublic: true
-  });
+  
+  // 1. Set up empty state variables
+  const [profileData, setProfileData] = useState(null);
+  
+  // We'll keep the dummy data for songs/artists until Srihan finishes the Spotify routes!
+  const [pinnedArtists, setPinnedArtists] = useState([{ id: 1, name: "Artist 1" }]);
+  const [topSongs, setTopSongs] = useState([{ id: 1, title: "Song 1", artist: "Artist A" }]);
 
-  // Dummy Data for UI testing
-  const pinnedArtists = [
-    { id: 1, name: "Placeholder Artist 1" },
-    { id: 2, name: "Placeholder Artist 2" },
-    { id: 3, name: "Placeholder Artist 3" },
-    { id: 4, name: "Placeholder Artist 4" }
-  ];
+  // 2. The useEffect hook to fetch the Firebase data
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        // We are using a test ID here (e.g., "123"). 
+        // Later, this will be the actual logged-in user's ID!
+        const testUserId = "123"; 
+        const response = await axios.get(`http://localhost:5001/api/users/${testUserId}`);
+        
+        // Update the state with the database info
+        setProfileData({
+          username: response.data.displayName || "Unknown User",
+          bio: response.data.bio || "No bio yet.",
+          isPublic: !response.data.isPrivate // Note: Srihan's DB uses 'isPrivate', your UI uses 'isPublic'
+        });
+        
+      } catch (error) {
+        console.error("Error fetching user data from Firebase:", error);
+        // Fallback data so your UI doesn't crash during testing
+        setProfileData({ username: "Test_User", bio: "Testing the connection...", isPublic: true });
+      }
+    };
 
-  const topSongs = [
-    { id: 1, title: "Cool Song 1", artist: "Artist A" },
-    { id: 2, title: "Cool Song 2", artist: "Artist B" },
-    { id: 3, title: "Cool Song 3", artist: "Artist C" }
-  ];
+    fetchUserData();
+  }, []);
+
+  // 4. Add a quick loading screen so the app doesn't crash before the data arrives
+  if (!profileData) {
+    return <div style={{ color: 'white', padding: '40px' }}>Loading your profile...</div>;
+  }
 
   return (
     <div className="profile-page">
