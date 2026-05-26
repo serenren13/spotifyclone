@@ -1,14 +1,13 @@
-// Defines Spotify-related routes/endpoints
-
 const express = require("express");
 const SpotifyWebApi = require("spotify-web-api-node");
 const router = express.Router();
+const { saveUser } = require("../db/UsersService.js");
 
 const spotifyApi = new SpotifyWebApi({
-    clientId: process.env.SPOTIFY_CLIENT_ID,
-    clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-    redirectUri: process.env.SPOTIFY_REDIRECT_URI,
-  });
+  clientId: process.env.SPOTIFY_CLIENT_ID,
+  clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+  redirectUri: process.env.SPOTIFY_REDIRECT_URI,
+});
 
 // redirect to login /api/spotify/auth/login
 router.get("/auth/login", (req, res) => {
@@ -22,12 +21,30 @@ router.get("/auth/callback", async (req, res) => {
   const { code } = req.query;
   try {
     const data = await spotifyApi.authorizationCodeGrant(code);
-    const { access_token, refresh_token, expires_in } = data.body;
+    const { access_token } = data.body;
 
-    const frontendUrl = `http://127.0.0.1:5173/?access_token=${access_token}&refresh_token=${refresh_token}`;
+    const userSpecificApi = new SpotifyWebApi({ clientId: process.env.SPOTIFY_CLIENT_ID });
+    userSpecificApi.setAccessToken(access_token);
+
+    const spotifyUser = await userSpecificApi.getMe();
+
+    const userId = spotifyUser.body.id;
+    const email = spotifyUser.body.email;
+    const displayName = spotifyUser.body.display_name;
+    const profileImage = spotifyUser.body.images?.[0]?.url || null;
+
+    await saveUser(userId, {
+      displayName,
+      email,
+      spotifyId: userId,
+      profileImage,
+    });
+
+    const frontendUrl = `http://127.0.0.1:5173/?access_token=${access_token}`;
     res.redirect(frontendUrl);
   } catch (err) {
-    res.status(400).json({ error: "Authentication failed" });
+    console.error("Auth callback error:", err);
+    res.status(400).json({ error: "Authentication and profile sync failed" });
   }
 });
 

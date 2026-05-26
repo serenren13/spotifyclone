@@ -18,9 +18,9 @@ const saveUser = async (userId, userData) => {
         {
             displayName: userData.displayName || "Anonymous",
             bio: userData.bio || "",
-            isPrivate: userData.isPrivate ?? false,
-            spotifyId: userData.spotifyId,
+            isPrivate: userData.isPrivate ?? true,
             email: userData.email,
+            profileImage: userData.profileImage || null,
         },
         { merge: true } // this make it so this function works for create or update
     );

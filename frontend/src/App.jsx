@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
 import SpotifyTest from "./pages/SpotifyTest";
-import Home from "./pages/Home";
+import LandingPage from "./pages/Landing"
 import LikedSongs from "./pages/LikedSongs";
 import TopArtists from "./pages/TopArtists";
 import TopSongs from "./pages/TopSongs";
@@ -15,7 +14,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/spotify-test" element={<SpotifyTest />} />
         <Route path="/liked-songs" element={<LikedSongs />} />
         <Route path="/top-artists" element={<TopArtists />} />
