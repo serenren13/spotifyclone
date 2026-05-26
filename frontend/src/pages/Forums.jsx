@@ -2,9 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSpotify } from '../context/SpotifyContext';
 import axios from 'axios';
 
-const backendAPI = axios.create({
-    baseURL: 'http://127.0.0.1:5001/api',
-});
+const api = axios.create({ baseURL: 'http://127.0.0.1:5001/api' });
 
 export default function Forums() {
     const { userProfile } = useSpotify();
@@ -17,14 +15,13 @@ export default function Forums() {
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
 
-    // fetch all forums on load
     useEffect(() => {
         fetchForums();
     }, []);
 
     const fetchForums = async () => {
         try {
-            const res = await backendAPI.get('/forums');
+            const res = await api.get('/forums');
             setForums(res.data);
         } catch (err) {
             console.error('Error fetching forums:', err);
@@ -35,7 +32,7 @@ export default function Forums() {
         const query = e.target.value;
         setSearchQuery(query);
         try {
-            const res = await backendAPI.get(`/forums?search=${query}`);
+            const res = await api.get(`/forums?search=${query}`);
             setForums(res.data);
         } catch (err) {
             console.error('Error searching forums:', err);
@@ -45,7 +42,7 @@ export default function Forums() {
     const handleCreateForum = async () => {
         if (!newTitle.trim() || !newContent.trim()) return;
         try {
-            await backendAPI.post('/forums', {
+            await api.post('/forums', {
                 title: newTitle,
                 content: newContent,
                 createdBy: userProfile?.display_name || 'Anonymous',
@@ -62,7 +59,7 @@ export default function Forums() {
     const handleSelectForum = async (forum) => {
         setSelectedForum(forum);
         try {
-            const res = await backendAPI.get(`/forums/${forum.id}/comments`);
+            const res = await api.get(`/forums/${forum.id}/comments`);
             setComments(res.data);
         } catch (err) {
             console.error('Error fetching comments:', err);
@@ -72,7 +69,7 @@ export default function Forums() {
     const handleAddComment = async () => {
         if (!newComment.trim()) return;
         try {
-            await backendAPI.post(`/forums/${selectedForum.id}/comments`, {
+            await api.post(`/forums/${selectedForum.id}/comments`, {
                 authorId: userProfile?.display_name || 'Anonymous',
                 comment: newComment,
             });
@@ -85,7 +82,7 @@ export default function Forums() {
 
     const handleLike = async (forumId) => {
         try {
-            await backendAPI.patch(`/forums/${forumId}/like/1`);
+            await api.patch(`/forums/${forumId}/like/1`);
             fetchForums();
         } catch (err) {
             console.error('Error liking forum:', err);
@@ -95,30 +92,57 @@ export default function Forums() {
     // forum detail view
     if (selectedForum) {
         return (
-            <div style={{ padding: '2rem', color: 'var(--color-almond-silk)' }}>
-                <button onClick={() => setSelectedForum(null)}>← Back</button>
-                <h1>{selectedForum.title}</h1>
-                <p>{selectedForum.content}</p>
-                <p>by {selectedForum.createdBy} · {selectedForum.likes} likes</p>
-                <button onClick={() => handleLike(selectedForum.id)}>❤️ Like</button>
+            <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] p-8">
+                <button
+                    onClick={() => setSelectedForum(null)}
+                    className="mb-6 text-[var(--accent-primary)] hover:opacity-80 flex items-center gap-2"
+                >
+                    ← Back to Forums
+                </button>
 
-                <h2>Comments</h2>
-                {comments.map(c => (
-                    <div key={c.id} style={{ marginBottom: '1rem', padding: '0.5rem', border: '1px solid #333' }}>
-                        <strong>{c.authorId}</strong>
-                        <p>{c.comment}</p>
+                <div className="max-w-3xl mx-auto">
+                    <div className="bg-[var(--bg-dark)] rounded-2xl p-6 mb-6 border border-[var(--accent-secondary)]/20">
+                        <h1 className="text-2xl font-bold mb-2">{selectedForum.title}</h1>
+                        <p className="text-[var(--text-light)] mb-4">{selectedForum.content}</p>
+                        <div className="flex items-center justify-between">
+                            <span className="text-sm text-[var(--accent-secondary)]">by {selectedForum.createdBy}</span>
+                            <button
+                                onClick={() => handleLike(selectedForum.id)}
+                                className="flex items-center gap-1 text-[var(--accent-primary)] hover:opacity-80"
+                            >
+                                ❤️ {selectedForum.likes}
+                            </button>
+                        </div>
                     </div>
-                ))}
 
-                <div style={{ marginTop: '1rem' }}>
-                    <input
-                        type="text"
-                        placeholder="Add a comment..."
-                        value={newComment}
-                        onChange={e => setNewComment(e.target.value)}
-                        style={{ width: '100%', padding: '0.5rem', marginBottom: '0.5rem' }}
-                    />
-                    <button onClick={handleAddComment}>Post Comment</button>
+                    <h2 className="text-lg font-semibold mb-4">Comments</h2>
+
+                    {comments.length === 0 && (
+                        <p className="text-[var(--accent-secondary)] text-sm mb-4">No comments yet. Be the first!</p>
+                    )}
+
+                    {comments.map(c => (
+                        <div key={c.id} className="bg-[var(--bg-dark)] rounded-xl p-4 mb-3 border border-[var(--accent-secondary)]/20">
+                            <p className="text-sm font-semibold text-[var(--accent-primary)] mb-1">{c.authorId}</p>
+                            <p className="text-[var(--text-light)]">{c.comment}</p>
+                        </div>
+                    ))}
+
+                    <div className="mt-6 flex gap-3">
+                        <input
+                            type="text"
+                            placeholder="Add a comment..."
+                            value={newComment}
+                            onChange={e => setNewComment(e.target.value)}
+                            className="flex-1 bg-[var(--bg-dark)] border border-[var(--accent-secondary)]/30 rounded-xl px-4 py-2 text-[var(--text-primary)] placeholder-[var(--accent-secondary)] focus:outline-none"
+                        />
+                        <button
+                            onClick={handleAddComment}
+                            className="bg-[var(--accent-primary)] text-white px-4 py-2 rounded-xl hover:opacity-90"
+                        >
+                            Post
+                        </button>
+                    </div>
                 </div>
             </div>
         );
@@ -126,51 +150,70 @@ export default function Forums() {
 
     // forum list view
     return (
-        <div style={{ padding: '2rem', color: 'var(--color-almond-silk)' }}>
-            <h1>Forums</h1>
-
-            <input
-                type="text"
-                placeholder="Search forums..."
-                value={searchQuery}
-                onChange={handleSearch}
-                style={{ width: '100%', padding: '0.75rem', marginBottom: '1rem' }}
-            />
-
-            <button onClick={() => setShowForm(!showForm)} style={{ marginBottom: '1rem' }}>
-                {showForm ? 'Cancel' : '+ New Post'}
-            </button>
-
-            {showForm && (
-                <div style={{ marginBottom: '1.5rem' }}>
-                    <input
-                        type="text"
-                        placeholder="Title"
-                        value={newTitle}
-                        onChange={e => setNewTitle(e.target.value)}
-                        style={{ width: '100%', padding: '0.5rem', marginBottom: '0.5rem' }}
-                    />
-                    <textarea
-                        placeholder="What's on your mind?"
-                        value={newContent}
-                        onChange={e => setNewContent(e.target.value)}
-                        style={{ width: '100%', padding: '0.5rem', marginBottom: '0.5rem' }}
-                    />
-                    <button onClick={handleCreateForum}>Post</button>
+        <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] p-8">
+            <div className="max-w-3xl mx-auto">
+                <div className="flex items-center justify-between mb-8">
+                    <h1 className="text-3xl font-bold">Forums</h1>
+                    <button
+                        onClick={() => setShowForm(!showForm)}
+                        className="bg-[var(--accent-primary)] text-white px-4 py-2 rounded-xl hover:opacity-90"
+                    >
+                        {showForm ? 'Cancel' : '+ New Post'}
+                    </button>
                 </div>
-            )}
 
-            {forums.map(forum => (
-                <div
-                    key={forum.id}
-                    onClick={() => handleSelectForum(forum)}
-                    style={{ padding: '1rem', marginBottom: '1rem', border: '1px solid #444', cursor: 'pointer' }}
-                >
-                    <h2>{forum.title}</h2>
-                    <p>{forum.content}</p>
-                    <p>by {forum.createdBy} · ❤️ {forum.likes}</p>
-                </div>
-            ))}
+                <input
+                    type="text"
+                    placeholder="Search forums..."
+                    value={searchQuery}
+                    onChange={handleSearch}
+                    className="w-full bg-[var(--bg-dark)] border border-[var(--accent-secondary)]/30 rounded-xl px-4 py-3 mb-6 text-[var(--text-primary)] placeholder-[var(--accent-secondary)] focus:outline-none"
+                />
+
+                {showForm && (
+                    <div className="bg-[var(--bg-dark)] rounded-2xl p-6 mb-6 border border-[var(--accent-secondary)]/20">
+                        <input
+                            type="text"
+                            placeholder="Title"
+                            value={newTitle}
+                            onChange={e => setNewTitle(e.target.value)}
+                            className="w-full bg-[var(--bg-primary)] border border-[var(--accent-secondary)]/30 rounded-xl px-4 py-2 mb-3 text-[var(--text-primary)] placeholder-[var(--accent-secondary)] focus:outline-none"
+                        />
+                        <textarea
+                            placeholder="What's on your mind?"
+                            value={newContent}
+                            onChange={e => setNewContent(e.target.value)}
+                            rows={4}
+                            className="w-full bg-[var(--bg-primary)] border border-[var(--accent-secondary)]/30 rounded-xl px-4 py-2 mb-3 text-[var(--text-primary)] placeholder-[var(--accent-secondary)] focus:outline-none resize-none"
+                        />
+                        <button
+                            onClick={handleCreateForum}
+                            className="bg-[var(--accent-primary)] text-white px-6 py-2 rounded-xl hover:opacity-90"
+                        >
+                            Post
+                        </button>
+                    </div>
+                )}
+
+                {forums.length === 0 && (
+                    <p className="text-center text-[var(--accent-secondary)] mt-12">No forums yet. Be the first to post!</p>
+                )}
+
+                {forums.map(forum => (
+                    <div
+                        key={forum.id}
+                        onClick={() => handleSelectForum(forum)}
+                        className="bg-[var(--bg-dark)] rounded-2xl p-6 mb-4 border border-[var(--accent-secondary)]/20 cursor-pointer hover:border-[var(--accent-primary)]/50 transition-all"
+                    >
+                        <h2 className="text-xl font-semibold mb-2">{forum.title}</h2>
+                        <p className="text-[var(--text-light)] text-sm mb-4 line-clamp-2">{forum.content}</p>
+                        <div className="flex items-center justify-between text-sm text-[var(--accent-secondary)]">
+                            <span>by {forum.createdBy}</span>
+                            <span>❤️ {forum.likes}</span>
+                        </div>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }
