@@ -1,10 +1,10 @@
-import Profile from './pages/Profile'
+import TopSongs from './pages/TopSongs';
 
 function App() {
 
   return (
     <>
-      <Profile />
+      <TopSongs />
     </>
   )
 }
