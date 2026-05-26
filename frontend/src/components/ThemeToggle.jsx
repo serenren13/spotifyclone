@@ -16,7 +16,7 @@ const ThemeToggle = () => {
             className="ToggleRoot"
             aria-label="Toggle dark mode"
         >
-            {isDark ? <MoonIcon size={20} /> : <SunIcon size={20} />}
+            {isDark ? <SunIcon size={20} /> : <MoonIcon size={20} /> }
         </Toggle.Root>
     );
 };

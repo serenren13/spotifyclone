@@ -1,44 +1,50 @@
 :root {
-  /* Core Palette Colors */
-  --color-almond-silk: #ebd4cb;
-  --color-rosy-taupe: #da9f93;
-  --color-berry-crush: #b6465f;
-  --color-burgundy: #890620;
-  --color-rich-mahogany: #2c0703;
+  /* Core Palette Colors - Renamed to match actual hex values */
+  --color-sky-blue: #e0f2fe;
+  /* Was almond-silk */
+  --color-lavender: #c084fc;
+  /* Was rosy-taupe */
+  --color-mint-teal: #2dd4bf;
+  /* Was berry-crush */
+  --color-coral-rose: #f43f5e;
+  /* Was burgundy */
+  --color-space-black: #030712;
+  /* Was rich-mahogany */
 
   /* Semantic UI Mapping - DEFAULT LIGHT MODE VALUES */
-  --bg-primary: var(--color-almond-silk);
-  --bg-dark: var(--color-rich-mahogany);
-  --text-primary: var(--color-rich-mahogany);
-  --text-light: var(--color-almond-silk);
-  --accent-primary: var(--color-berry-crush);
-  --accent-secondary: var(--color-rosy-taupe);
-  --brand-color: var(--color-burgundy);
+  --bg-primary: #f0fdf4;
+  /* Soft minty white */
+  --bg-dark: var(--color-space-black);
+  --text-primary: var(--color-space-black);
+  --text-light: #ffffff;
+  --accent-primary: var(--color-mint-teal);
+  --accent-secondary: var(--color-lavender);
+  --brand-color: #0d9488;
+  /* Deep teal */
 
   /* Gradients */
-  --gradient-linear-top: linear-gradient(0deg, var(--color-almond-silk), var(--color-rosy-taupe), var(--color-berry-crush), var(--color-burgundy), var(--color-rich-mahogany));
-  --gradient-linear-right: linear-gradient(90deg, var(--color-almond-silk), var(--color-rosy-taupe), var(--color-berry-crush), var(--color-burgundy), var(--color-rich-mahogany));
-  --gradient-linear-bottom: linear-gradient(180deg, var(--color-almond-silk), var(--color-rosy-taupe), var(--color-berry-crush), var(--color-burgundy), var(--color-rich-mahogany));
-  --gradient-linear-left: linear-gradient(270deg, var(--color-almond-silk), var(--color-rosy-taupe), var(--color-berry-crush), var(--color-burgundy), var(--color-rich-mahogany));
-  --gradient-radial: radial-gradient(var(--color-almond-silk), var(--color-rosy-taupe), var(--color-berry-crush), var(--color-burgundy), var(--color-rich-mahogany));
+  --gradient-linear-top: linear-gradient(to top, var(--color-space-black), var(--color-lavender), var(--color-mint-teal), var(--color-sky-blue));
+  --gradient-linear-right: linear-gradient(to right, var(--color-space-black), var(--color-lavender), var(--color-mint-teal), var(--color-sky-blue));
+  --gradient-linear-bottom: linear-gradient(to bottom, var(--color-space-black), var(--color-lavender), var(--color-mint-teal), var(--color-sky-blue));
+  --gradient-linear-left: linear-gradient(to left, var(--color-space-black), var(--color-lavender), var(--color-mint-teal), var(--color-sky-blue));
+  --gradient-radial: radial-gradient(var(--color-space-black), var(--color-lavender), var(--color-mint-teal), var(--color-sky-blue));
 }
 
-/* OVERRIDE VALUES WHEN THE DARK CLASS IS ACTIVE ON THE BODY */
 body.dark {
-  --bg-primary: var(--color-rich-mahogany);
-  --bg-dark: var(--color-almond-silk);
-  --text-primary: var(--color-almond-silk);
-  --text-light: var(--color-rich-mahogany);
-  --accent-primary: var(--color-rosy-taupe);
-  --accent-secondary: var(--color-berry-crush);
-  --brand-color: var(--color-berry-crush);
+  --bg-primary: var(--color-space-black);
+  --bg-dark: #f0fdf4;
+  --text-primary: var(--color-sky-blue);
+  --text-light: var(--color-space-black);
+  --accent-primary: var(--color-mint-teal);
+  --accent-secondary: var(--color-coral-rose);
+  --brand-color: var(--color-lavender);
 
   /* Reverse Gradients for Dark Mode Harmony */
-  --gradient-linear-top: linear-gradient(0deg, var(--color-rich-mahogany), var(--color-burgundy), var(--color-berry-crush), var(--color-rosy-taupe), var(--color-almond-silk));
-  --gradient-linear-right: linear-gradient(90deg, var(--color-rich-mahogany), var(--color-burgundy), var(--color-berry-crush), var(--color-rosy-taupe), var(--color-almond-silk));
-  --gradient-linear-bottom: linear-gradient(180deg, var(--color-rich-mahogany), var(--color-burgundy), var(--color-berry-crush), var(--color-rosy-taupe), var(--color-almond-silk));
-  --gradient-linear-left: linear-gradient(270deg, var(--color-rich-mahogany), var(--color-burgundy), var(--color-berry-crush), var(--color-rosy-taupe), var(--color-almond-silk));
-  --gradient-radial: radial-gradient(var(--color-rich-mahogany), var(--color-burgundy), var(--color-berry-crush), var(--color-rosy-taupe), var(--color-almond-silk));
+  --gradient-linear-top: linear-gradient(to top, var(--color-sky-blue), var(--color-mint-teal), var(--color-lavender), var(--color-space-black));
+  --gradient-linear-right: linear-gradient(to right, var(--color-sky-blue), var(--color-mint-teal), var(--color-lavender), var(--color-space-black));
+  --gradient-linear-bottom: linear-gradient(to bottom, var(--color-sky-blue), var(--color-mint-teal), var(--color-lavender), var(--color-space-black));
+  --gradient-linear-left: linear-gradient(to left, var(--color-sky-blue), var(--color-mint-teal), var(--color-lavender), var(--color-space-black));
+  --gradient-radial: radial-gradient(var(--color-sky-blue), var(--color-mint-teal), var(--color-lavender), var(--color-space-black));
 }
 
 body {
@@ -103,4 +109,10 @@ body {
 .ToggleRoot:focus-visible {
   outline: 2px solid var(--accent-secondary);
   outline-offset: 2px;
+}
+
+.nav-bar {
+    display: 'flex';
+    justify-content: 'space-between';
+    margin-bottom: '10vh';
 }
