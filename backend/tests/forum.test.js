@@ -1,6 +1,27 @@
 const request = require("supertest");
 const app = require("../app");
 
+jest.mock('../db/ForumsService.js', () => ({
+    fetchAllForums: jest.fn().mockResolvedValue([
+        { id: 'forum1', title: 'Test Forum', content: 'Content', createdBy: 'testuser', likes: 0 }
+    ]),
+    searchForumsByName: jest.fn().mockResolvedValue([]),
+    createForum: jest.fn().mockResolvedValue('forum1'),
+    likeForumPost: jest.fn().mockResolvedValue(),
+    fetchForumComments: jest.fn().mockResolvedValue([]),
+    addCommentToForum: jest.fn().mockResolvedValue('comment1'),
+    likeForumComment: jest.fn().mockResolvedValue(),
+}));
+
+jest.mock('firebase/firestore', () => ({
+    deleteDoc: jest.fn().mockResolvedValue(),
+    doc: jest.fn(),
+}));
+
+jest.mock('../firebase.js', () => ({
+    db: {},
+}));
+
 describe("Forum Routes", () => {
 
     // GET /api/forums
@@ -21,11 +42,7 @@ describe("Forum Routes", () => {
     // GET /:id
     describe("GET /api/forums/:id", () => {
         test("returns 200 and a forum object for valid id", async () => {
-            // first get all forums to get a real id
-            const allForums = await request(app).get("/api/forums");
-            const realId = allForums.body[0].id;
-
-            const res = await request(app).get(`/api/forums/${realId}`);
+            const res = await request(app).get("/api/forums/forum1");
             expect(res.status).toBe(200);
             expect(res.body).toHaveProperty("id");
         });
@@ -60,15 +77,7 @@ describe("Forum Routes", () => {
     // DELETE /:id
     describe("DELETE /api/forums/:id", () => {
         test("returns 200 and deletes forum test", async () => {
-            // first create a forum to delete
-            const created = await request(app).post("/api/forums").send({
-                title: "Forum to delete",
-                content: "This will be deleted",
-                createdBy: "testuser"
-            });
-            const forumId = created.body.id;
-
-            const res = await request(app).delete(`/api/forums/${forumId}`);
+            const res = await request(app).delete("/api/forums/forum1");
             expect(res.status).toBe(200);
             expect(res.body).toHaveProperty("message", "Forum deleted successfully");
         });
@@ -77,14 +86,7 @@ describe("Forum Routes", () => {
     // PATCH /:id/like/:amount
     describe("PATCH /api/forums/:id/like/:amount", () => {
         test("returns 200 and likes a forum post", async () => {
-            const created = await request(app).post("/api/forums").send({
-                title: "Forum to like",
-                content: "Like this post",
-                createdBy: "testuser"
-            });
-            const forumId = created.body.id;
-
-            const res = await request(app).patch(`/api/forums/${forumId}/like/1`);
+            const res = await request(app).patch("/api/forums/forum1/like/1");
             expect(res.status).toBe(200);
             expect(res.body).toHaveProperty("message", "Forum post liked successfully");
         });
@@ -93,14 +95,7 @@ describe("Forum Routes", () => {
     // GET /:id/comments
     describe("GET /api/forums/:id/comments", () => {
         test("returns 200 and an array of comments", async () => {
-            const created = await request(app).post("/api/forums").send({
-                title: "Forum for Comments",
-                content: "Check thecomments",
-                createdBy: "testuser"
-            });
-            const forumId = created.body.id;
-
-            const res = await request(app).get(`/api/forums/${forumId}/comments`);
+            const res = await request(app).get("/api/forums/forum1/comments");
             expect(res.status).toBe(200);
             expect(Array.isArray(res.body)).toBe(true);
         });
@@ -108,20 +103,9 @@ describe("Forum Routes", () => {
 
     // POST /:id/comments
     describe("POST /api/forums/:id/comments", () => {
-        let forumId;
-
-        beforeAll(async () => {
-            const created = await request(app).post("/api/forums").send({
-                title: "Forums for Comment Tests",
-                content: "Testing comment routes",
-                createdBy: "testuser"
-            });
-            forumId = created.body.id;
-        });
-
         test("returns 201 and creates comment with valid data", async () => {
             const res = await request(app)
-                .post(`/api/forums/${forumId}/comments`)
+                .post("/api/forums/forum1/comments")
                 .send({ authorId: "testuser", comment: "Great post!" });
             expect(res.status).toBe(201);
             expect(res.body).toHaveProperty("id");
@@ -129,7 +113,7 @@ describe("Forum Routes", () => {
 
         test("returns 400 when missing required fields", async () => {
             const res = await request(app)
-                .post(`/api/forums/${forumId}/comments`)
+                .post("/api/forums/forum1/comments")
                 .send({});
             expect(res.status).toBe(400);
         });
@@ -138,20 +122,8 @@ describe("Forum Routes", () => {
     // PATCH /:id/comments/:commentId/like/:amount
     describe("PATCH /api/forums/:id/comments/:commentId/like/:amount", () => {
         test("returns 200 and likes a comment", async () => {
-            const forum = await request(app).post("/api/forums").send({
-                title: "Forum for Comment Like",
-                content: "Like a comment here",
-                createdBy: "testuser"
-            });
-            const forumId = forum.body.id;
-
-            const comment = await request(app)
-                .post(`/api/forums/${forumId}/comments`)
-                .send({ authorId: "testuser", comment: "Like me!" });
-            const commentId = comment.body.id;
-
             const res = await request(app).patch(
-                `/api/forums/${forumId}/comments/${commentId}/like/1`
+                "/api/forums/forum1/comments/comment1/like/1"
             );
             expect(res.status).toBe(200);
             expect(res.body).toHaveProperty("message", "Comment liked successfully");
@@ -161,20 +133,8 @@ describe("Forum Routes", () => {
     // DELETE /:id/comments/:commentId
     describe("DELETE /api/forums/:id/comments/:commentId", () => {
         test("returns 200 and deletes a comment", async () => {
-            const forum = await request(app).post("/api/forums").send({
-                title: "Forum for Comment Delete",
-                content: "Delete a comment here",
-                createdBy: "testuser"
-            });
-            const forumId = forum.body.id;
-
-            const comment = await request(app)
-                .post(`/api/forums/${forumId}/comments`)
-                .send({ authorId: "testuser", comment: "Delete me!" });
-            const commentId = comment.body.id;
-
             const res = await request(app).delete(
-                `/api/forums/${forumId}/comments/${commentId}`
+                "/api/forums/forum1/comments/comment1"
             );
             expect(res.status).toBe(200);
             expect(res.body).toHaveProperty("message", "Comment deleted successfully");
