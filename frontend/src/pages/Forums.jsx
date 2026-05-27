@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSpotify } from '../context/SpotifyContext';
+import LikeButton from '../components/forums/LikeButton';
 import { Link } from 'react-router-dom';
 import ForumCard from '../components/forums/ForumCard';
 import axios from 'axios';
@@ -86,8 +87,13 @@ export default function Forums() {
 
     const handleLike = async (forumId) => {
         try {
-            await api.patch(`/forums/${forumId}/like/1`);
+            await api.patch(`/forums/${forumId}/like`, { userId: userProfile?.id });
             fetchForums();
+            
+            if (selectedForum && selectedForum.id === forumId) {
+                const res = await api.get(`/forums/${forumId}`);
+                setSelectedForum(res.data);
+            }
         } catch (err) {
             console.error('Error liking forum:', err);
         }
@@ -118,12 +124,15 @@ export default function Forums() {
                                     {selectedForum.createdBy}
                                 </Link>
                             </span>
-                            <button
-                                onClick={() => handleLike(selectedForum.id)}
-                                className="flex items-center gap-1 text-[var(--accent-primary)] hover:opacity-80"
-                            >
-                                ❤️ {selectedForum.likes}
-                            </button>
+                            <LikeButton
+                                likes={selectedForum.likes}
+                                likedBy={selectedForum.likedBy}
+                                userId={userProfile?.id}
+                                onLike={(e) => {
+                                    e.stopPropagation();
+                                    handleLike(selectedForum.id);
+                                }}
+                            />
                         </div>
                     </div>
 
@@ -221,7 +230,7 @@ export default function Forums() {
                         forum={forum}
                         userId={userProfile?.id}
                         onSelect={handleSelectForum}
-                        onLike={handleLike}
+                        onLike={(e, id) => handleLike(id)} 
                     />
                 ))}
             </div>
