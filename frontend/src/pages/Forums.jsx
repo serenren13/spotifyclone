@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSpotify } from '../context/SpotifyContext';
 import { Link } from 'react-router-dom';
+import ForumCard from '../components/forums/ForumCard';
 import axios from 'axios';
 
 const api = axios.create({ baseURL: 'http://127.0.0.1:5001/api' });
@@ -47,7 +48,7 @@ export default function Forums() {
                     title: newTitle,
                     content: newContent,
                     createdBy: userProfile?.display_name || 'Anonymous',
-                    creatorId: userProfile?.id 
+                    creatorId: userProfile?.id // Ensure this matches the ID of the document in 'users'
                 });
                 setNewTitle('');
                 setNewContent('');
@@ -215,27 +216,13 @@ export default function Forums() {
                 )}
 
                 {forums.map(forum => (
-                    <div
+                    <ForumCard
                         key={forum.id}
-                        onClick={() => handleSelectForum(forum)}
-                        className="bg-[var(--bg-dark)] rounded-2xl p-6 mb-4 border border-[var(--accent-secondary)]/20 cursor-pointer hover:border-[var(--accent-primary)]/50 transition-all"
-                    >
-                        <h2 className="text-xl font-semibold mb-2">{forum.title}</h2>
-                        <p className="text-[var(--text-light)] text-sm mb-4 line-clamp-2">{forum.content}</p>
-                        <div className="flex items-center justify-between text-sm text-[var(--accent-secondary)]">
-                            <span>
-                                by{" "}
-                                <Link 
-                                    to={`/user/${forum.creatorId}`} 
-                                    onClick={(e) => e.stopPropagation()} 
-                                    className="text-[var(--accent-primary)] hover:underline"
-                                >
-                                    {forum.createdBy}
-                                </Link>
-                            </span>
-                            <span>❤️ {forum.likes}</span>
-                        </div>
-                    </div>
+                        forum={forum}
+                        userId={userProfile?.id}
+                        onSelect={handleSelectForum}
+                        onLike={handleLike}
+                    />
                 ))}
             </div>
         </div>

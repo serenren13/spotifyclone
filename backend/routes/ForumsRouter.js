@@ -72,13 +72,15 @@ router.delete('/:id', async (req, res) => {
 });
 
 // increment like for forum (+1 or -1)
-router.patch('/:id/like/:amount', async (req, res) => {
+router.patch('/:id/like', async (req, res) => {
+    const { userId } = req.body;
+    if (!userId) return res.status(400).json({ message: 'userId required' });
     try {
-        await likeForumPost(req.params.id, parseInt(req.params.amount));
-        res.status(200).json({ message: 'Forum post liked successfully' });
+        const liked = await likeForumPost(req.params.id, userId);
+        res.status(200).json({ message: 'Like updated', liked });
     } catch (error) {
-        console.error('Error tracking upvote like:', error);
-        res.status(500).json({ message: 'Error tracking upvote like' });
+        console.error('Error tracking like:', error);
+        res.status(500).json({ message: 'Error tracking like' });
     }
 });
 
@@ -109,10 +111,12 @@ router.post('/:id/comments', async (req, res) => {
 });
 
 // like or unlike a comment
-router.patch('/:id/comments/:commentId/like/:amount', async (req, res) => {
+router.patch('/:id/comments/:commentId/like', async (req, res) => {
+    const { userId } = req.body;
+    if (!userId) return res.status(400).json({ message: 'userId required' });
     try {
-        await likeForumComment(req.params.id, req.params.commentId, parseInt(req.params.amount));
-        res.status(200).json({ message: 'Comment liked successfully' });
+        const liked = await likeForumComment(req.params.id, req.params.commentId, userId);
+        res.status(200).json({ message: 'Comment like updated', liked });
     } catch (error) {
         console.error('Error liking comment:', error);
         res.status(500).json({ message: 'Error liking comment' });
