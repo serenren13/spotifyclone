@@ -8,6 +8,8 @@ const {
     fetchForumComments,
     likeForumComment,
 } = require('../db/ForumsService.js');
+const { deleteDoc, doc } = require('firebase/firestore');
+const { db } = require('../firebase.js');
 
 const router = express.Router();
 
@@ -59,8 +61,6 @@ router.post('/', async (req, res) => {
 // delete a forum post
 router.delete('/:id', async (req, res) => {
     try {
-        const { deleteDoc, doc } = require('firebase/firestore');
-        const db = require('../firebase');
         await deleteDoc(doc(db, 'forums', req.params.id));
         res.status(200).json({ message: 'Forum deleted successfully' });
     } catch (error) {
@@ -120,8 +120,6 @@ router.patch('/:id/comments/:commentId/like/:amount', async (req, res) => {
 // delete a comment
 router.delete('/:id/comments/:commentId', async (req, res) => {
     try {
-        const { deleteDoc, doc } = require('firebase/firestore');
-        const db = require('../firebase');
         await deleteDoc(doc(db, 'forums', req.params.id, 'comments', req.params.commentId));
         res.status(200).json({ message: 'Comment deleted successfully' });
     } catch (error) {
