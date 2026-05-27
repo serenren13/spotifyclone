@@ -11,7 +11,7 @@ const spotifyApi = new SpotifyWebApi({
 
 // redirect to login /api/spotify/auth/login
 router.get("/auth/login", (req, res) => {
-  const scopes = ["user-read-private", "user-read-email", "user-top-read"];
+  const scopes = ["user-read-private", "user-read-email", "user-top-read", "user-library-read"];
   const authorizeURL = spotifyApi.createAuthorizeURL(scopes);
   res.redirect(authorizeURL);
 });
@@ -88,3 +88,20 @@ router.get("/top-tracks", async (req, res) => {
 });
 
 module.exports = router;
+router.get("/user/liked-songs", async (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.status(401).json({ error: "No token provided "});
+  
+  try {
+    const userSpecificApi = new SpotifyWebApi({ clientId: process.env.SPOTIFY_CLIENT_ID });
+    userSpecificApi.setAccessToken(token);
+    
+    const data = await userSpecificApi.getMySavedTracks({ limit: 50 });
+    res.json(data.body);
+    } catch (err) {
+     res.status(401).json({ error: "Failed to fetch liked songs" });
+     }
+  });
+
+module.exports = router;
+

@@ -1,28 +1,39 @@
-/* src/index.css */
+@import "tailwindcss";
 
 :root {
-  /* Core Palette Colors */
-  --color-almond-silk: #ebd4cb;
-  --color-rosy-taupe: #da9f93;
-  --color-berry-crush: #b6465f;
-  --color-burgundy: #890620;
-  --color-rich-mahogany: #2c0703;
+  --color-sky-blue: #e0f2fe;
+  --color-lavender: #c084fc;
+  --color-mint-teal: #2dd4bf;
+  --color-coral-rose: #f43f5e;
+  --color-space-black: #030712;
 
-  /* Semantic UI Mapping (Makes changing themes easier later) */
-  --bg-primary: var(--color-almond-silk);
-  --bg-dark: var(--color-rich-mahogany);
-  --text-primary: var(--color-rich-mahogany);
-  --text-light: var(--color-almond-silk);
-  --accent-primary: var(--color-berry-crush);
-  --accent-secondary: var(--color-rosy-taupe);
-  --brand-color: var(--color-burgundy);
+  /* Semantic Light Mode Settings */
+  --bg-primary: #f0fdf4;
+  --text-primary: #0f172a;
+  --text-on-brand: #ffffff;
+  --brand-color: #0d9488;
+  --accent-primary: #14b8a6;
+  --accent-secondary: var(--color-lavender);
 
-  /* Gradients */
-  --gradient-linear-top: linear-gradient(0deg, var(--color-almond-silk), var(--color-rosy-taupe), var(--color-berry-crush), var(--color-burgundy), var(--color-rich-mahogany));
-  --gradient-linear-right: linear-gradient(90deg, var(--color-almond-silk), var(--color-rosy-taupe), var(--color-berry-crush), var(--color-burgundy), var(--color-rich-mahogany));
-  --gradient-linear-bottom: linear-gradient(180deg, var(--color-almond-silk), var(--color-rosy-taupe), var(--color-berry-crush), var(--color-burgundy), var(--color-rich-mahogany));
-  --gradient-linear-left: linear-gradient(270deg, var(--color-almond-silk), var(--color-rosy-taupe), var(--color-berry-crush), var(--color-burgundy), var(--color-rich-mahogany));
-  --gradient-radial: radial-gradient(var(--color-almond-silk), var(--color-rosy-taupe), var(--color-berry-crush), var(--color-burgundy), var(--color-rich-mahogany));
+  --gradient-linear-right: linear-gradient(to right, var(--brand-color), var(--color-mint-teal), var(--color-sky-blue));
+  --gradient-linear-bottom: linear-gradient(to bottom, var(--brand-color), var(--color-mint-teal));
+  --gradient-radial: radial-gradient(circle, var(--color-sky-blue), var(--bg-primary));
+}
+
+body.dark {
+  --bg-primary: var(--color-space-black);
+  --bg-surface: var(--color-slate-800);
+  --text-primary: #f8fafc;
+  --text-muted: #cbd5e1;
+  --text-on-brand: var(--color-space-black);
+
+  --brand-color: var(--color-mint-teal);
+  --accent-primary: var(--color-sky-blue);
+  --accent-secondary: var(--color-lavender);
+
+  --gradient-linear-right: linear-gradient(to right, var(--color-space-black), var(--color-slate-800));
+  --gradient-linear-bottom: linear-gradient(to bottom, var(--color-slate-800), var(--color-space-black));
+  --gradient-radial: radial-gradient(circle, var(--color-slate-700), var(--color-space-black));
 }
 
 body {
@@ -31,9 +42,9 @@ body {
   font-family: system-ui, -apple-system, sans-serif;
   margin: 0;
   padding: 0;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Quick Utility Classes for Gradients */
 .bg-gradient-right {
   background: var(--gradient-linear-right);
 }
@@ -46,18 +57,49 @@ body {
   background: var(--gradient-radial);
 }
 
-
 .btn-primary {
   background-color: var(--brand-color);
-  color: var(--text-light);
+  color: var(--text-on-brand);
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 6px;
+  font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .btn-primary:hover {
   background-color: var(--accent-primary);
 }
 
+.ToggleRoot {
+  background-color: var(--brand-color);
+  color: var(--text-on-brand);
+  border: none;
+  padding: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.ToggleRoot:hover {
+  background-color: var(--accent-primary);
+}
+
+.ToggleRoot:active {
+  transform: scale(0.95);
+}
+
+.ToggleRoot:focus-visible {
+  outline: 2px solid var(--accent-secondary);
+  outline-offset: 2px;
+}
+
+.nav-bar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10vh;
+}
