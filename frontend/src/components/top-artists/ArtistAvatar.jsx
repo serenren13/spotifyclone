@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "../../styling/TopArtists.css"; 
 
 export default function ArtistAvatar({ artist, size, style = {} }) {
   const [imgError, setImgError] = useState(false);
@@ -13,19 +14,11 @@ export default function ArtistAvatar({ artist, size, style = {} }) {
 
   return (
     <div
+      className="artist-avatar-container"
       style={{
         width: size,
         height: size,
-        borderRadius: "50%",
-        overflow: "hidden",
-        flexShrink: 0,
-        background: "var(--brand-color)", 
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
         fontSize: size * 0.35,
-        fontWeight: 600,
-        color: "var(--text-on-brand)",
         ...style,
       }}
     >
@@ -36,7 +29,7 @@ export default function ArtistAvatar({ artist, size, style = {} }) {
           src={artist.images[0].url}
           alt={artist.name}
           onError={() => setImgError(true)}
-          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+          className="artist-avatar-img"
         />
       )}
     </div>
