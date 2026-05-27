@@ -59,6 +59,17 @@ export default function LikedSongs() {
                             <p className="text-sm text-[var(--accent-secondary)] hidden md:block truncate max-w-[200px]">
                                 {item.track.album.name}
                             </p>
+                            {item.track.preview_url && (
+                              <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    new Audio(item.track.preview_url).play();
+                                  }}
+                                  className="text-[var(--accent-primary)] hover:opacity-80 text-lg"
+                              >
+                                  ▶
+                              </button>
+                            )}
                             <p className="text-sm text-[var(--accent-secondary)] w-12 text-right">
                                 {Math.floor(item.track.duration_ms / 60000)}:{String(Math.floor((item.track.duration_ms % 60000) / 1000)).padStart(2, "0")}
                             </p>
