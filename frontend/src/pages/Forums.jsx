@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSpotify } from '../context/SpotifyContext';
 import axios from 'axios';
+import ForumCard from '../components/forums/ForumCard';
+import CommentCard from '../components/forums/CommentCard';
 
 const api = axios.create({ baseURL: 'http://127.0.0.1:5001/api' });
 
@@ -80,10 +82,50 @@ export default function Forums() {
         }
     };
 
-    const handleLike = async (forumId) => {
+    const handleCommentLike = async (e, commentId) => {
+        e.stopPropagation();
         try {
-            await api.patch(`/forums/${forumId}/like/1`);
-            fetchForums();
+            const res = await api.patch(
+                `/forums/${selectedForum.id}/comments/${commentId}/like`,
+                { userId: userProfile?.id }
+            );
+            setComments(prev => prev.map(c =>
+                c.id === commentId
+                    ? { ...c,
+                        likes: res.data.liked ? c.likes + 1 : c.likes - 1,
+                        likedBy: res.data.liked
+                            ? [...(c.likedBy || []), userProfile?.id]
+                            : (c.likedBy || []).filter(id => id !== userProfile?.id) }
+                    : c
+            ));
+        } catch (err) {
+            console.error('Error liking comment:', err);
+        }
+    };
+
+    const handleLike = async (e, forumId) => {
+        e.stopPropagation();
+        try {
+            const res = await api.patch(`/forums/${forumId}/like`, {
+                userId: userProfile?.id,
+            });
+            setForums(prev => prev.map(f =>
+                f.id === forumId
+                    ? { ...f, likes: res.data.liked ? f.likes + 1 : f.likes - 1,
+                        likedBy: res.data.liked
+                            ? [...(f.likedBy || []), userProfile?.id]
+                            : (f.likedBy || []).filter(id => id !== userProfile?.id) }
+                    : f
+            ));
+            if (selectedForum?.id === forumId) {
+                setSelectedForum(prev => ({
+                    ...prev,
+                    likes: res.data.liked ? prev.likes + 1 : prev.likes - 1,
+                    likedBy: res.data.liked
+                        ? [...(prev.likedBy || []), userProfile?.id]
+                        : (prev.likedBy || []).filter(id => id !== userProfile?.id)
+                }));
+            }
         } catch (err) {
             console.error('Error liking forum:', err);
         }
@@ -107,10 +149,13 @@ export default function Forums() {
                         <div className="flex items-center justify-between">
                             <span className="text-sm text-[var(--accent-secondary)]">by {selectedForum.createdBy}</span>
                             <button
-                                onClick={() => handleLike(selectedForum.id)}
-                                className="flex items-center gap-1 text-[var(--accent-primary)] hover:opacity-80"
+                                onClick={(e) => handleLike(e, selectedForum.id)}
+                                className="flex items-center gap-1 hover:opacity-80"
+                                style={{ color: selectedForum.likedBy?.includes(userProfile?.id)
+                                    ? 'var(--accent-primary)'
+                                    : 'var(--accent-secondary)' }}
                             >
-                                ❤️ {selectedForum.likes}
+                                {selectedForum.likedBy?.includes(userProfile?.id) ? '❤️' : '🤍'} {selectedForum.likes}
                             </button>
                         </div>
                     </div>
@@ -122,10 +167,12 @@ export default function Forums() {
                     )}
 
                     {comments.map(c => (
-                        <div key={c.id} className="bg-[var(--bg-dark)] rounded-xl p-4 mb-3 border border-[var(--accent-secondary)]/20">
-                            <p className="text-sm font-semibold text-[var(--accent-primary)] mb-1">{c.authorId}</p>
-                            <p className="text-[var(--text-light)]">{c.comment}</p>
-                        </div>
+                        <CommentCard
+                            key={c.id}
+                            comment={c}
+                            userId={userProfile?.id}
+                            onLike={(e, commentId) => handleCommentLike(e, commentId)}
+                        />
                     ))}
 
                     <div className="mt-6 flex gap-3">
@@ -198,20 +245,14 @@ export default function Forums() {
                 {forums.length === 0 && (
                     <p className="text-center text-[var(--accent-secondary)] mt-12">No forums yet. Be the first to post!</p>
                 )}
-
                 {forums.map(forum => (
-                    <div
+                    <ForumCard
                         key={forum.id}
-                        onClick={() => handleSelectForum(forum)}
-                        className="bg-[var(--bg-dark)] rounded-2xl p-6 mb-4 border border-[var(--accent-secondary)]/20 cursor-pointer hover:border-[var(--accent-primary)]/50 transition-all"
-                    >
-                        <h2 className="text-xl font-semibold mb-2">{forum.title}</h2>
-                        <p className="text-[var(--text-light)] text-sm mb-4 line-clamp-2">{forum.content}</p>
-                        <div className="flex items-center justify-between text-sm text-[var(--accent-secondary)]">
-                            <span>by {forum.createdBy}</span>
-                            <span>❤️ {forum.likes}</span>
-                        </div>
-                    </div>
+                        forum={forum}
+                        userId={userProfile?.id}
+                        onSelect={handleSelectForum}
+                        onLike={handleLike}
+                    />
                 ))}
             </div>
         </div>
