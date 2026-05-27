@@ -6,7 +6,7 @@ export default function LandingPage() {
     const { isAuthenticated } = useSpotify();
 
     const handleLogin = () => {
-        window.location.href = 'http://localhost:5001/api/spotify/auth/login';
+        window.location.href = 'http://127.0.0.1:5001/api/spotify/auth/login';
     };
 
     if (isAuthenticated) {

@@ -1,4 +1,5 @@
 import LikeButton from './LikeButton';
+import { Link } from 'react-router-dom';
 
 export default function ForumCard({ forum, userId, onSelect, onLike }) {
     return (
@@ -8,8 +9,20 @@ export default function ForumCard({ forum, userId, onSelect, onLike }) {
         >
             <h2 className="text-xl font-semibold mb-2">{forum.title}</h2>
             <p className="text-[var(--text-light)] text-sm mb-4 line-clamp-2">{forum.content}</p>
+            
             <div className="flex items-center justify-between text-sm text-[var(--accent-secondary)]">
-                <span>by {forum.createdBy}</span>
+                
+                <span>
+                    by{" "}
+                    <Link 
+                        to={`/user/${forum.creatorId}`} 
+                        onClick={(e) => e.stopPropagation()} 
+                        className="text-[var(--accent-primary)] hover:underline"
+                    >
+                        {forum.createdBy}
+                    </Link>
+                </span>
+
                 <LikeButton
                     likes={forum.likes}
                     likedBy={forum.likedBy}
