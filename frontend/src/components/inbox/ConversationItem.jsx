@@ -1,47 +1,41 @@
 import * as Avatar from "@radix-ui/react-avatar";
 
-function formatTime(timestamp) {
-    if (!timestamp) return "";
-    const date = timestamp._seconds ? new Date(timestamp._seconds * 1000) : new Date(timestamp);
-    const diffMins = Math.floor((Date.now() - date) / 60000);
-    if (diffMins < 1) return "now";
-    if (diffMins < 60) return `${diffMins}m`;
-    if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h`;
-    return `${Math.floor(diffMins / 1440)}d`;
-}
+function ConversationItem({ user, conversation, currentUser, isSelected, onSelect }) {
+    const initials = (user.displayName || "?").slice(0, 2).toUpperCase();
+    const unreadCount = conversation?.unreadCounts?.[currentUser.id] ?? 0;
+    const hasUnread = unreadCount > 0;
 
-function ConversationItem({ conversation, currentUser, userMap, isSelected, onSelect }) {
-    const otherId = conversation.participants?.find((p) => p !== currentUser.id);
-    const otherUser = userMap[otherId] || { displayName: otherId || "Unknown" };
-    const initials = (otherUser.displayName || "?").slice(0, 2).toUpperCase();
-
-    const handleSelect = () => onSelect(conversation.id, otherId);
+    const handleSelect = () => onSelect(user);
 
     return (
         <button
             onClick={handleSelect}
-            className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-[var(--bg-dark)] transition-colors text-left border-b border-[var(--accent-secondary)]/20 ${
-                isSelected ? "bg-[var(--bg-dark)]" : ""
+            className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-[var(--brand-color)]/15 transition-colors text-left border-b border-[var(--accent-secondary)]/20 ${
+                isSelected ? "bg-[var(--brand-color)]/15" : ""
             }`}
         >
-            <Avatar.Root className="shrink-0 w-12 h-12 rounded-full overflow-hidden bg-[var(--brand-color)] flex items-center justify-center">
-                <Avatar.Fallback className="text-sm font-semibold text-[var(--text-light)]">
+            <Avatar.Root className="shrink-0 w-9 h-9 rounded-full overflow-hidden bg-[var(--brand-color)] flex items-center justify-center">
+                <Avatar.Fallback className="text-xs font-semibold text-[var(--text-on-brand)]">
                     {initials}
                 </Avatar.Fallback>
             </Avatar.Root>
 
             <div className="flex-1 min-w-0">
-                <div className="flex justify-between items-baseline">
-                    <span className="font-semibold text-sm text-[var(--text-primary)] truncate">
-                        {otherUser.displayName}
+                <div className="flex items-center justify-between gap-2">
+                    <span className={`text-sm truncate ${hasUnread ? "font-bold" : "font-semibold"} text-[var(--text-primary)]`}>
+                        {user.displayName}
                     </span>
-                    <span className="text-xs text-[var(--accent-secondary)] shrink-0 ml-2">
-                        {formatTime(conversation.timestampOfLastMessage)}
-                    </span>
+                    {hasUnread && (
+                        <span className="shrink-0 w-5 h-5 rounded-full bg-[var(--brand-color)] flex items-center justify-center text-[10px] font-bold text-[var(--text-on-brand)]">
+                            {unreadCount > 9 ? "9+" : unreadCount}
+                        </span>
+                    )}
                 </div>
-                <p className="text-xs text-[var(--accent-secondary)] truncate mt-0.5">
-                    {conversation.lastMessage || "Start a conversation"}
-                </p>
+                {conversation?.lastMessage ? (
+                    <p className={`text-xs truncate mt-0.5 ${hasUnread ? "font-semibold text-[var(--text-primary)]" : "text-[var(--accent-secondary)]"}`}>
+                        {conversation.lastSenderId === currentUser.id ? `You: ${conversation.lastMessage}` : conversation.lastMessage}
+                    </p>
+                ) : null}
             </div>
         </button>
     );

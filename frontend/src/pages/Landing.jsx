@@ -3,7 +3,7 @@ import { useSpotify } from '../context/SpotifyContext'
 import { Navigate } from "react-router-dom";
 
 export default function LandingPage() {
-    const { isAuthenticated, userProfile } = useSpotify();
+    const { isAuthenticated } = useSpotify();
 
     const handleLogin = () => {
         window.location.href = 'http://127.0.0.1:5001/api/spotify/auth/login';
