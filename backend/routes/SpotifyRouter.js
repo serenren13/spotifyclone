@@ -103,5 +103,17 @@ router.get("/user/liked-songs", async (req, res) => {
      }
   });
 
+router.get("/user/top-artists", async (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  try {
+    const userSpecificApi = new SpotifyWebApi({ clientId: process.env.SPOTIFY_CLIENT_ID });
+    userSpecificApi.setAccessToken(token);
+    const data = await userSpecificApi.getMyTopArtists({ limit: 4 });
+    res.json(data.body);
+  } catch (err) {
+    res.status(401).json({ error: "Failed to fetch artists" });
+  }
+});
+
 module.exports = router;
 

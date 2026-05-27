@@ -173,15 +173,26 @@ export default function Profile() {
                             <button className="text-sm text-[var(--accent-secondary)] hover:text-[#1DB954] transition-colors">Edit Selection</button>
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                            {topArtists.map(artist => (
-                                <div key={artist.id} className="flex flex-col items-center text-center group cursor-pointer">
-                                    <div className="w-24 h-24 rounded-full bg-[var(--bg-dark)] mb-3 overflow-hidden border-2 border-transparent group-hover:border-[#1DB954] transition-all">
-                                        <img src={artist.images?.[1]?.url || artist.images?.[0]?.url} alt={artist.name} className="w-full h-full object-cover" />
-                                    </div>
-                                    <p className="font-medium text-sm group-hover:text-[#1DB954] transition-colors">{artist.name}</p>
-                                </div>
-                            ))}
-                        </div>
+                              {topArtists.map(artist => (
+                                  <div key={artist.id} className="flex flex-col items-center text-center group cursor-pointer min-w-0">
+                                      <div className="w-24 h-24 rounded-full bg-[var(--bg-dark)] mb-3 overflow-hidden border-2 border-transparent group-hover:border-[#1DB954] transition-all flex-shrink-0">
+                                          <img 
+                                              /* Bulletproof fallback chain for missing Spotify images */
+                                              src={artist.images?.[1]?.url || artist.images?.[0]?.url || artist.images?.[2]?.url || "https://i.scdn.co/image/ab6761610000e5eb55d39ab9c21d506aa52f7021"} 
+                                              alt={artist.name} 
+                                              className="w-full h-full object-cover" 
+                                          />
+                                      </div>
+                                      {/* Truncate ensures long band names don't stretch the grid */}
+                                      <p className="font-medium text-sm group-hover:text-[#1DB954] transition-colors truncate w-full px-2">
+                                          {artist.name}
+                                      </p>
+                                  </div>
+                              ))}
+                              {topArtists.length === 0 && (
+                                  <p className="col-span-4 text-center text-sm text-[var(--accent-secondary)]">No top artists found.</p>
+                              )}
+                          </div>
                     </div>
 
                     <div className="flex flex-col md:flex-row gap-8">
