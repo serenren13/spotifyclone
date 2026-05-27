@@ -7,10 +7,10 @@ jest.mock('../db/ForumsService.js', () => ({
     ]),
     searchForumsByName: jest.fn().mockResolvedValue([]),
     createForum: jest.fn().mockResolvedValue('forum1'),
-    likeForumPost: jest.fn().mockResolvedValue(),
+    likeForumPost: jest.fn().mockResolvedValue(true),
     fetchForumComments: jest.fn().mockResolvedValue([]),
     addCommentToForum: jest.fn().mockResolvedValue('comment1'),
-    likeForumComment: jest.fn().mockResolvedValue(),
+    likeForumComment: jest.fn().mockResolvedValue(true),
 }));
 
 jest.mock('firebase/firestore', () => ({
@@ -86,9 +86,11 @@ describe("Forum Routes", () => {
     // PATCH /:id/like/:amount
     describe("PATCH /api/forums/:id/like/:amount", () => {
         test("returns 200 and likes a forum post", async () => {
-            const res = await request(app).patch("/api/forums/forum1/like/1");
+            const res = await request(app)
+                .patch("/api/forums/forum1/like")
+                .send({ userId: "testuser" });
             expect(res.status).toBe(200);
-            expect(res.body).toHaveProperty("message", "Forum post liked successfully");
+            expect(res.body).toHaveProperty("message", "Like updated");
         });
     });
 
@@ -120,13 +122,13 @@ describe("Forum Routes", () => {
     });
 
     // PATCH /:id/comments/:commentId/like/:amount
-    describe("PATCH /api/forums/:id/comments/:commentId/like/:amount", () => {
+    describe("PATCH /api/forums/:id/comments/:commentId/like", () => {
         test("returns 200 and likes a comment", async () => {
             const res = await request(app).patch(
-                "/api/forums/forum1/comments/comment1/like/1"
-            );
+                "/api/forums/forum1/comments/comment1/like"
+            ).send({ userId: "testuser" });
             expect(res.status).toBe(200);
-            expect(res.body).toHaveProperty("message", "Comment liked successfully");
+            expect(res.body).toHaveProperty("message", "Comment like updated");
         });
     });
 

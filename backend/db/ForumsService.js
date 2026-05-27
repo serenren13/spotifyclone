@@ -10,6 +10,8 @@ const {
     orderBy,
     increment,
     serverTimestamp,
+    arrayUnion,
+    arrayRemove
 } = require("firebase/firestore");
 const { db } = require("../firebase.js");
 
@@ -21,6 +23,7 @@ const createForum = async (title, content, createdBy) => {
         createdBy,
         createdAt: serverTimestamp(),
         likes: 0,
+        likedBy: [],
     });
     return docRef.id;
 };
@@ -43,11 +46,18 @@ const searchForumsByName = async (searchQuery) => {
 };
 
 // 1 for like -1 for removing a like
-const likeForumPost = async (forumId, amount) => {
+const likeForumPost = async (forumId, userId) => {
     const forumRef = doc(db, "forums", forumId);
+    const forumSnap = await getDoc(forumRef);
+    const likedBy = forumSnap.data().likedBy || [];
+    const alreadyLiked = likedBy.includes(userId);
+
     await updateDoc(forumRef, {
-        likes: increment(amount),
+        likedBy: alreadyLiked ? arrayRemove(userId) : arrayUnion(userId),
+        likes: increment(alreadyLiked ? -1 : 1),
     });
+
+    return !alreadyLiked; // returns new liked state
 };
 
 
@@ -58,6 +68,7 @@ const addCommentToForum = async (forumId, authorId, comment) => {
         comment,
         createdAt: serverTimestamp(),
         likes: 0,
+        likedBy: [],
     });
     return docRef.id;
 };
@@ -70,12 +81,19 @@ const fetchForumComments = async (forumId) => {
     return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
 };
 
-const likeForumComment = async (forumId, commentId, amount) => {
+const likeForumComment = async (forumId, commentId, userId) => {
     const commentRef = doc(db, "forums", forumId, "comments", commentId);
+    const commentSnap = await getDoc(commentRef);
+    const likedBy = commentSnap.data().likedBy || [];
+    const alreadyLiked = likedBy.includes(userId);
+
     await updateDoc(commentRef, {
-        likes: increment(amount),
+        likedBy: alreadyLiked ? arrayRemove(userId) : arrayUnion(userId),
+        likes: increment(alreadyLiked ? -1 : 1),
     });
-}
+
+    return !alreadyLiked;
+};
 
 module.exports = {
     createForum,
