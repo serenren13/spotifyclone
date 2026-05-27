@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSpotify } from '../context/SpotifyContext';
 import axios from 'axios';
 
@@ -15,18 +15,18 @@ export default function Forums() {
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
 
-    useEffect(() => {
-        fetchForums();
-    }, []);
-
-    const fetchForums = async () => {
+    const fetchForums = useCallback (async () => {
         try {
             const res = await api.get('/forums');
             setForums(res.data);
         } catch (err) {
             console.error('Error fetching forums:', err);
         }
-    };
+    }, []);
+    
+    useEffect(() => {
+        fetchForums();
+    }, [fetchForums]);
 
     const handleSearch = async (e) => {
         const query = e.target.value;
