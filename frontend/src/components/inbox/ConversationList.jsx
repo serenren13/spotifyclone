@@ -6,30 +6,33 @@ import NewConversationModal from "./NewConversationModal";
 
 const api = axios.create({ baseURL: "http://127.0.0.1:5001/api" });
 
-function ConversationList({ currentUser, conversationId, userMap, allUsers, onSelectConversation, onConversationsLoaded }) {
+function ConversationList({ currentUser, conversationId, userMap, onSelectConversation }) {
     const [conversations, setConversations] = useState([]);
     const [modalOpen, setModalOpen] = useState(false);
+    const [allUsers, setAllUsers] = useState([]);
 
     useEffect(() => {
         if (!currentUser?.id) return;
         api.get(`/conversations/inbox/${currentUser.id}`)
-            .then((res) => {
-                setConversations(res.data);
-                onConversationsLoaded?.(res.data);
-            })
+            .then((res) => setConversations(res.data))
             .catch((err) => console.error("Error fetching inbox:", err));
     }, [currentUser?.id]);
 
-    const openModal = () => setModalOpen(true);
+    const handleUsersLoaded = (res) => setAllUsers(res.data);
+    const handleUsersError = (err) => console.error("Error loading users:", err);
+
+    const openModal = () => {
+        api.get("/users/discover")
+            .then(handleUsersLoaded)
+            .catch(handleUsersError);
+        setModalOpen(true);
+    };
     const closeModal = () => setModalOpen(false);
 
     const handleNewConversation = (newConversationId, otherUserId) => {
         closeModal();
         api.get(`/conversations/inbox/${currentUser.id}`)
-            .then((res) => {
-                setConversations(res.data);
-                onConversationsLoaded?.(res.data);
-            })
+            .then((res) => setConversations(res.data))
             .catch((err) => console.error("Error refreshing inbox:", err));
         onSelectConversation(newConversationId, otherUserId);
     };
