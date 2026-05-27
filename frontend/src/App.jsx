@@ -6,8 +6,8 @@ export default function App() {
   const isLandingPage = location.pathname === "/";
 
   return (
-    <>
-      <nav>
+    <div className="flex flex-col h-screen">
+      <nav className="shrink-0 sticky top-0 z-10 bg-[var(--bg-primary)] border-b border-[var(--accent-secondary)]/30 px-4 py-2 flex items-center gap-2 text-sm">
         <Link to="/">Home</Link>{" | "}
         <Link to="/liked-songs">Liked Songs</Link>{" | "}
         <Link to="/top-artists">Top Artists</Link>{" | "}
@@ -30,7 +30,9 @@ export default function App() {
         </div>
       )}
 
-      <Outlet />
-    </>
+      <div className="flex-1 min-h-0 overflow-hidden">
+        <Outlet />
+      </div>
+    </div>
   );
 }

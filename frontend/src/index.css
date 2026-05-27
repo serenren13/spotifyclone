@@ -13,7 +13,7 @@
   --text-on-brand: #ffffff;
   --brand-color: #0d9488;
   --accent-primary: #14b8a6;
-  --accent-secondary: var(--color-lavender);
+  --accent-secondary: var(--color-mint-teal);
 
   --gradient-linear-right: linear-gradient(to right, var(--brand-color), var(--color-mint-teal), var(--color-sky-blue));
   --gradient-linear-bottom: linear-gradient(to bottom, var(--brand-color), var(--color-mint-teal));
@@ -29,7 +29,7 @@ body.dark {
 
   --brand-color: var(--color-mint-teal);
   --accent-primary: var(--color-sky-blue);
-  --accent-secondary: var(--color-lavender);
+  --accent-secondary: var(--color-mint-teal);
 
   --gradient-linear-right: linear-gradient(to right, var(--color-space-black), var(--color-slate-800));
   --gradient-linear-bottom: linear-gradient(to bottom, var(--color-slate-800), var(--color-space-black));
