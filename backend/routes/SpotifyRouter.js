@@ -87,7 +87,6 @@ router.get("/top-tracks", async (req, res) => {
   }
 });
 
-module.exports = router;
 router.get("/user/liked-songs", async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) return res.status(401).json({ error: "No token provided " });
@@ -103,41 +102,26 @@ router.get("/user/liked-songs", async (req, res) => {
   }
 });
 
+// get user top artists /api/spotify/user/top-artists
 router.get("/user/top-artists", async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
-  if (!token) return res.status(401).json({ error: "No token provided " });
+  if (!token) return res.status(401).json({ error: "No token provided" });
 
   try {
     const userSpecificApi = new SpotifyWebApi({ clientId: process.env.SPOTIFY_CLIENT_ID });
     userSpecificApi.setAccessToken(token);
 
-    const [shortTermRes, mediumTermRes, longTermRes] = await Promise.all([
-      userSpecificApi.getMyTopArtists({ time_range: 'short_term', limit: 21 }),
-      userSpecificApi.getMyTopArtists({ time_range: 'medium_term', limit: 21 }),
-      userSpecificApi.getMyTopArtists({ time_range: 'long_term', limit: 21 })
-    ]);
-
-    res.json({
-      short_term: shortTermRes.body.items,
-      medium_term: mediumTermRes.body.items,
-      long_term: longTermRes.body.items
+    // THE FIX: Explicitly ask Spotify for "All Time" data so it doesn't return empty!
+    const data = await userSpecificApi.getMyTopArtists({ 
+        time_range: 'long_term', 
+        limit: 4 
     });
-  } catch (err) {
-    res.status(401).json({ error: "Failed to fetch liked songs" });
-  }
-});
-
-router.get("/user/top-artists", async (req, res) => {
-  const token = req.headers.authorization?.split(" ")[1];
-  try {
-    const userSpecificApi = new SpotifyWebApi({ clientId: process.env.SPOTIFY_CLIENT_ID });
-    userSpecificApi.setAccessToken(token);
-    const data = await userSpecificApi.getMyTopArtists({ limit: 4 });
+    
     res.json(data.body);
   } catch (err) {
-    res.status(401).json({ error: "Failed to fetch artists" });
+    console.error("Spotify API Error:", err);
+    res.status(400).json({ error: "Failed to fetch top artists" });
   }
 });
 
 module.exports = router;
-

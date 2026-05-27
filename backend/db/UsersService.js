@@ -13,20 +13,24 @@ const { db } = require("../firebase.js");
 
 const saveUser = async (userId, userData) => {
     const userRef = doc(db, "users", userId);
-    await setDoc(
-        userRef,
-        {
+    
+    const userDoc = await getDoc(userRef);
+    
+    if (!userDoc.exists()) {
+        await setDoc(userRef, {
             displayName: userData.displayName || "Anonymous",
             bio: userData.bio || "",
             isPrivate: userData.isPrivate ?? true,
             email: userData.email,
             profileImage: userData.profileImage || null,
-        },
-        { merge: true } // this make it so this function works for create or update
-    );
+            spotifyId: userData.spotifyId || userId
+        });
+    } else {
+        await setDoc(userRef, userData, { merge: true });
+    }
+
     return { id: userId, ...userData };
 };
-
 const userFromId = async (id) => {
     const userDoc = await getDoc(doc(db, "users", id));
     return userDoc.exists() ? { id: userDoc.id, ...userDoc.data() } : null;
