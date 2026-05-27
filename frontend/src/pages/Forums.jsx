@@ -93,13 +93,6 @@ export default function Forums() {
     if (selectedForum) {
         return (
             <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] p-8">
-                <button
-                    onClick={() => setSelectedForum(null)}
-                    className="mb-6 text-[var(--accent-primary)] hover:opacity-80 flex items-center gap-2"
-                >
-                    ← Back to Forums
-                </button>
-
                 <div className="max-w-3xl mx-auto">
                     <div className="bg-[var(--bg-dark)] rounded-2xl p-6 mb-6 border border-[var(--accent-secondary)]/20">
                         <h1 className="text-2xl font-bold mb-2">{selectedForum.title}</h1>
