@@ -25,19 +25,16 @@ export default function PublicProfile() {
     useEffect(() => {
         if (!accessToken) return;
 
-        // 1. Fetch the user's data from Firebase
         api.get(`/users/${id}`)
             .then(res => {
                 const userData = res.data;
                 setPublicUser(userData);
 
-                // 2. If private, stop loading and show the lock screen
                 if (userData.isPrivate) {
                     setLoading(false);
                     return;
                 }
 
-                // 3. If public and they have favorite songs, fetch the track details from Spotify
                 if (userData.favoriteSongs && userData.favoriteSongs.length > 0) {
                     const idsString = userData.favoriteSongs.join(",");
                     api.get(`/spotify/tracks?ids=${idsString}`, {
@@ -72,7 +69,6 @@ export default function PublicProfile() {
         </div>
     );
 
-    // --- THE PRIVACY LOCK SCREEN ---
     if (publicUser?.isPrivate) {
         return (
             <div className="min-h-screen bg-[var(--bg-primary)] p-8 flex flex-col items-center justify-center text-[var(--text-primary)]">
@@ -84,7 +80,7 @@ export default function PublicProfile() {
         );
     }
 
-    // --- THE PUBLIC PROFILE UI ---
+    //THE PUBLIC PROFILE UI
     const displayImage = publicUser?.profileImage || "https://i.scdn.co/image/ab6761610000e5eb55d39ab9c21d506aa52f7021";
 
     return (

@@ -7,20 +7,17 @@ const api = axios.create({ baseURL: "http://127.0.0.1:5001/api" });
 export default function Profile() {
     const { accessToken } = useSpotify();
     
-    // Core Data States
     const [profile, setProfile] = useState(null);
     const [topArtists, setTopArtists] = useState([]);
     const [topSongs, setTopSongs] = useState([]);
     const [allLikedSongs, setAllLikedSongs] = useState([]);
     const [loading, setLoading] = useState(true);
     
-    // Interactive Profile States
     const [isPrivate, setIsPrivate] = useState(false);
     const [bioText, setBioText] = useState("");
     const [savingBio, setSavingBio] = useState(false);
     const [customImageUrl, setCustomImageUrl] = useState("");
 
-    // Custom "Favorite Songs" States
     const [favoriteSongIds, setFavoriteSongIds] = useState([]);
     const [isEditingFavorites, setIsEditingFavorites] = useState(false);
     const [tempSelectedFavorites, setTempSelectedFavorites] = useState([]);
@@ -67,7 +64,7 @@ export default function Profile() {
         });
     }, [accessToken]);
 
-    // --- FIREBASE UPDATES ---
+    //FIREBASE UPDATES
     const handleTogglePrivacy = async () => {
         if (!profile?.id) return;
         const newPrivacyStatus = !isPrivate;
@@ -105,7 +102,7 @@ export default function Profile() {
         }
     };
 
-    // --- FAVORITE SONGS LOGIC ---
+    //FAVORITE SONGS LOGIC
     const handleOpenFavoritesModal = () => {
         setTempSelectedFavorites([...favoriteSongIds]);
         setIsEditingFavorites(true);
@@ -270,7 +267,6 @@ export default function Profile() {
                                     </div>
                                 ))}
                             </div>
-                            {/* Edit Selection button removed from here */}
                         </div>
 
                         <div className="flex-1">
