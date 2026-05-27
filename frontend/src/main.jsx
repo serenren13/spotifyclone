@@ -5,6 +5,7 @@ import "./index.css";
 
 import App from "./App.jsx";
 import { SpotifyProvider } from "./context/SpotifyContext";
+import { ThemeProvider } from './context/ThemeContext.jsx'
 
 import Landing from "./pages/Landing.jsx";
 import Discover from "./pages/Discover.jsx";
@@ -19,21 +20,23 @@ import TopSongs from "./pages/TopSongs.jsx";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <SpotifyProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<App />}>
-            <Route index element={<Landing />} />
-            <Route path="spotify-test" element={<SpotifyTest />} />
-            <Route path="liked-songs" element={<LikedSongs />} />
-            <Route path="top-artists" element={<TopArtists />} />
-            <Route path="top-songs" element={<TopSongs />} />
-            <Route path="profile" element={<Profile />} />
-            <Route path="discover" element={<Discover />} />
-            <Route path="inbox" element={<Inbox />} />
-            <Route path="forums" element={<Forums />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+      <ThemeProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<App />}>
+              <Route index element={<Landing />} />
+              <Route path="spotify-test" element={<SpotifyTest />} />
+              <Route path="liked-songs" element={<LikedSongs />} />
+              <Route path="top-artists" element={<TopArtists />} />
+              <Route path="top-songs" element={<TopSongs />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="discover" element={<Discover />} />
+              <Route path="inbox" element={<Inbox />} />
+              <Route path="forums" element={<Forums />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </ThemeProvider>
     </SpotifyProvider>
   </StrictMode>
 );
