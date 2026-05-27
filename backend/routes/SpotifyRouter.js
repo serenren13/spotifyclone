@@ -124,4 +124,25 @@ router.get("/user/top-artists", async (req, res) => {
   }
 });
 
+// get specific tracks by ID /api/spotify/tracks?ids=123,456
+router.get("/tracks", async (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.status(401).json({ error: "No token provided" });
+
+  const trackIds = req.query.ids;
+  if (!trackIds) return res.status(400).json({ error: "No track IDs provided" });
+
+  try {
+    const userSpecificApi = new SpotifyWebApi({ clientId: process.env.SPOTIFY_CLIENT_ID });
+    userSpecificApi.setAccessToken(token);
+
+    // Spotify's getTracks takes an array of IDs
+    const data = await userSpecificApi.getTracks(trackIds.split(","));
+    res.json(data.body.tracks);
+  } catch (err) {
+    console.error("Spotify API Error fetching tracks:", err);
+    res.status(400).json({ error: "Failed to fetch tracks" });
+  }
+});
+
 module.exports = router;

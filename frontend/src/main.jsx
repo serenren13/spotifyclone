@@ -16,6 +16,7 @@ import Profile from "./pages/Profile.jsx";
 import SpotifyTest from "./pages/SpotifyTest.jsx";
 import TopArtists from "./pages/TopArtists.jsx";
 import TopSongs from "./pages/TopSongs.jsx";
+import PublicProfile from './pages/PublicProfile';
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -33,6 +34,7 @@ createRoot(document.getElementById("root")).render(
               <Route path="discover" element={<Discover />} />
               <Route path="inbox" element={<Inbox />} />
               <Route path="forums" element={<Forums />} />
+              <Route path="/user/:id" element={<PublicProfile />} />
             </Route>
           </Routes>
         </BrowserRouter>

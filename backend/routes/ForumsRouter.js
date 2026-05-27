@@ -45,12 +45,14 @@ router.get('/:id', async (req, res) => {
 
 // publish a new forum
 router.post('/', async (req, res) => {
-    const { title, content, createdBy } = req.body;
-    if (!title?.trim() || !content?.trim() || !createdBy?.trim()) {
-        return res.status(400).json({ message: 'Title, content, and author signature are required.' });
+    const { title, content, createdBy, creatorId } = req.body; 
+    
+    if (!title?.trim() || !content?.trim() || !createdBy?.trim() || !creatorId?.trim()) {
+        return res.status(400).json({ message: 'Title, content, author, and creatorId are required.' });
     }
+    
     try {
-        const forumId = await createForum(title, content, createdBy);
+        const forumId = await createForum(title, content, createdBy, creatorId);
         res.status(201).json({ message: 'Forum created successfully', id: forumId });
     } catch (error) {
         console.error('Error processing new forum creation:', error);

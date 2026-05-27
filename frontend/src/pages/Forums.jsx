@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSpotify } from '../context/SpotifyContext';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 
 const api = axios.create({ baseURL: 'http://127.0.0.1:5001/api' });
@@ -15,7 +16,7 @@ export default function Forums() {
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
 
-    const fetchForums = useCallback (async () => {
+    const fetchForums = useCallback(async () => {
         try {
             const res = await api.get('/forums');
             setForums(res.data);
@@ -39,22 +40,23 @@ export default function Forums() {
         }
     };
 
-    const handleCreateForum = async () => {
-        if (!newTitle.trim() || !newContent.trim()) return;
-        try {
-            await api.post('/forums', {
-                title: newTitle,
-                content: newContent,
-                createdBy: userProfile?.display_name || 'Anonymous',
-            });
-            setNewTitle('');
-            setNewContent('');
-            setShowForm(false);
-            fetchForums();
-        } catch (err) {
-            console.error('Error creating forum:', err);
-        }
-    };
+        const handleCreateForum = async () => {
+            if (!newTitle.trim() || !newContent.trim()) return;
+            try {
+                await api.post('/forums', {
+                    title: newTitle,
+                    content: newContent,
+                    createdBy: userProfile?.display_name || 'Anonymous',
+                    creatorId: userProfile?.id 
+                });
+                setNewTitle('');
+                setNewContent('');
+                setShowForm(false);
+                fetchForums();
+            } catch (err) {
+                console.error('Error creating forum:', err);
+            }
+        };
 
     const handleSelectForum = async (forum) => {
         setSelectedForum(forum);
@@ -70,7 +72,8 @@ export default function Forums() {
         if (!newComment.trim()) return;
         try {
             await api.post(`/forums/${selectedForum.id}/comments`, {
-                authorId: userProfile?.display_name || 'Anonymous',
+                authorName: userProfile?.display_name || 'Anonymous',
+                authorId: userProfile?.id, // Explicitly save the Firebase Document ID
                 comment: newComment,
             });
             setNewComment('');
@@ -89,7 +92,7 @@ export default function Forums() {
         }
     };
 
-    // forum detail view
+    // --- FORUM DETAIL VIEW ---
     if (selectedForum) {
         return (
             <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] p-8">
@@ -105,7 +108,15 @@ export default function Forums() {
                         <h1 className="text-2xl font-bold mb-2">{selectedForum.title}</h1>
                         <p className="text-[var(--text-light)] mb-4">{selectedForum.content}</p>
                         <div className="flex items-center justify-between">
-                            <span className="text-sm text-[var(--accent-secondary)]">by {selectedForum.createdBy}</span>
+                            <span className="text-sm text-[var(--accent-secondary)]">
+                                by{" "}
+                                <Link 
+                                    to={`/user/${selectedForum.creatorId}`} 
+                                    className="text-[var(--accent-primary)] hover:underline"
+                                >
+                                    {selectedForum.createdBy}
+                                </Link>
+                            </span>
                             <button
                                 onClick={() => handleLike(selectedForum.id)}
                                 className="flex items-center gap-1 text-[var(--accent-primary)] hover:opacity-80"
@@ -123,7 +134,11 @@ export default function Forums() {
 
                     {comments.map(c => (
                         <div key={c.id} className="bg-[var(--bg-dark)] rounded-xl p-4 mb-3 border border-[var(--accent-secondary)]/20">
-                            <p className="text-sm font-semibold text-[var(--accent-primary)] mb-1">{c.authorId}</p>
+                            <p className="text-sm font-semibold text-[var(--accent-primary)] mb-1">
+                                <Link to={`/user/${c.authorId}`} className="hover:underline">
+                                    {c.authorName || c.authorId}
+                                </Link>
+                            </p>
                             <p className="text-[var(--text-light)]">{c.comment}</p>
                         </div>
                     ))}
@@ -148,7 +163,7 @@ export default function Forums() {
         );
     }
 
-    // forum list view
+    // --- FORUM LIST VIEW ---
     return (
         <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] p-8">
             <div className="max-w-3xl mx-auto">
@@ -208,7 +223,16 @@ export default function Forums() {
                         <h2 className="text-xl font-semibold mb-2">{forum.title}</h2>
                         <p className="text-[var(--text-light)] text-sm mb-4 line-clamp-2">{forum.content}</p>
                         <div className="flex items-center justify-between text-sm text-[var(--accent-secondary)]">
-                            <span>by {forum.createdBy}</span>
+                            <span>
+                                by{" "}
+                                <Link 
+                                    to={`/user/${forum.creatorId}`} 
+                                    onClick={(e) => e.stopPropagation()} 
+                                    className="text-[var(--accent-primary)] hover:underline"
+                                >
+                                    {forum.createdBy}
+                                </Link>
+                            </span>
                             <span>❤️ {forum.likes}</span>
                         </div>
                     </div>
