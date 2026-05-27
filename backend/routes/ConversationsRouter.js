@@ -1,9 +1,10 @@
 const express = require('express');
-const { 
-    getOrCreateConversation, 
-    sendMessage, 
-    fetchMessagesForConversation, 
-    fetchUserInbox 
+const {
+    getOrCreateConversation,
+    sendMessage,
+    fetchMessagesForConversation,
+    fetchUserInbox,
+    markConversationRead,
 } = require('../db/ConversationsService.js');
 
 const router = express.Router();
@@ -47,6 +48,17 @@ router.post('/:conversationId/messages', async (req, res) => {
 
     try {
         const message = await sendMessage(conversationId, senderId, text);
+        const io = req.app.get('io');
+        io.to(conversationId).emit('new-message', { ...message, conversationId });
+        message.participants.forEach((participantId) => {
+            if (participantId !== senderId) {
+                io.to(`user:${participantId}`).emit('unread-update', {
+                    conversationId,
+                    lastMessage: text,
+                    lastSenderId: senderId,
+                });
+            }
+        });
         res.status(201).json(message);
     } catch (error) {
         console.error('Error transmitting message:', error);
@@ -54,10 +66,26 @@ router.post('/:conversationId/messages', async (req, res) => {
     }
 });
 
+// mark a conversation as read for a user
+router.post('/:conversationId/read', async (req, res) => {
+    const { userId } = req.body;
+    if (!userId?.trim()) {
+        return res.status(400).json({ message: 'userId is required.' });
+    }
+    try {
+        await markConversationRead(req.params.conversationId, userId);
+        res.status(200).json({ success: true });
+    } catch (error) {
+        console.error('Error marking conversation read:', error);
+        res.status(500).json({ message: 'Error marking conversation read', error: error.message });
+    }
+});
+
 // get history of messages for a room
 router.get('/:conversationId/messages', async (req, res) => {
     try {
-        const messages = await fetchMessagesForConversation(req.params.conversationId);
+        const since = req.query.since ? new Date(req.query.since) : null;
+        const messages = await fetchMessagesForConversation(req.params.conversationId, since);
         res.status(200).json(messages);
     } catch (error) {
         console.error('Error retrieving conversation history:', error);

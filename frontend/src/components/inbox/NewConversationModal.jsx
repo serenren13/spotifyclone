@@ -1,6 +1,7 @@
 import { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as Avatar from "@radix-ui/react-avatar";
+import { Cross2Icon } from "@radix-ui/react-icons";
 import axios from "axios";
 
 const api = axios.create({ baseURL: "http://127.0.0.1:5001/api" });
@@ -15,7 +16,7 @@ function UserRow({ user, onSelect }) {
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-[var(--accent-secondary)]/20 transition-colors text-left"
         >
             <Avatar.Root className="w-10 h-10 rounded-full bg-[var(--brand-color)] flex items-center justify-center shrink-0">
-                <Avatar.Fallback className="text-sm font-semibold text-[var(--text-light)]">
+                <Avatar.Fallback className="text-sm font-semibold text-[var(--text-on-brand)]">
                     {initials}
                 </Avatar.Fallback>
             </Avatar.Root>
@@ -49,7 +50,7 @@ function NewConversationModal({ open, onClose, currentUser, allUsers, onConversa
                 user2: otherUser.id,
             });
             setSearchQuery("");
-            onConversationStarted(res.data.id, otherUser.id);
+            onConversationStarted(res.data, otherUser.id, otherUser.displayName);
         } catch (err) {
             console.error("Error starting conversation:", err);
         }
@@ -66,9 +67,7 @@ function NewConversationModal({ open, onClose, currentUser, allUsers, onConversa
                         </Dialog.Title>
                         <Dialog.Close asChild>
                             <button className="text-[var(--accent-secondary)] hover:text-[var(--text-primary)] transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
+                                <Cross2Icon className="w-5 h-5" />
                             </button>
                         </Dialog.Close>
                     </div>

@@ -39,9 +39,14 @@ const fetchPublicUsers = async () => {
     return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
 };
 
+const fetchAllUsers = async () => {
+    const snapshot = await getDocs(collection(db, "users"));
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+};
+
 const updateUserProfile = async (userId, updates) => {
     const userRef = doc(db, "users", userId);
     await updateDoc(userRef, updates);
 };
- 
-module.exports = { saveUser, userFromId, fetchPublicUsers, updateUserProfile };
+
+module.exports = { saveUser, userFromId, fetchPublicUsers, fetchAllUsers, updateUserProfile };
