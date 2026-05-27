@@ -60,7 +60,8 @@ describe("Forum Routes", () => {
             const res = await request(app).post("/api/forums").send({
                 title: "Test Forum",
                 content: "This is a test forum post",
-                createdBy: "testuser"
+                createdBy: "testuser",
+                creatorId: "testuser123" // <-- You just need to add this missing line!
             });
             expect(res.status).toBe(201);
             expect(res.body).toHaveProperty("id");
