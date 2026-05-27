@@ -1,18 +1,7 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { useSpotify } from "../context/SpotifyContext";
 import ConversationList from "../components/inbox/ConversationList";
 import ChatPanel from "../components/inbox/ChatPanel";
-
-const api = axios.create({ baseURL: "http://127.0.0.1:5001/api" });
-
-const TEST_USERS = [
-    { id: "user-alice", displayName: "Alice Monroe", email: "alice@test.com" },
-    { id: "user-bob", displayName: "Bob Chen", email: "bob@test.com" },
-    { id: "user-carol", displayName: "Carol Davis", email: "carol@test.com" },
-    { id: "user-dave", displayName: "Dave Kim", email: "dave@test.com" },
-    { id: "user-eve", displayName: "Eve Santos", email: "eve@test.com" },
-];
 
 function Inbox() {
     const { userProfile } = useSpotify();
@@ -20,33 +9,14 @@ function Inbox() {
     const [currentUser, setCurrentUser] = useState(null);
     const [conversationId, setConversationId] = useState(null);
     const [messages, setMessages] = useState([]);
-    const [allUsers, setAllUsers] = useState(TEST_USERS);
     const [otherUserId, setOtherUserId] = useState(null);
-
-    const toUserEntry = (user) => [user.id, user];
-    const userMap = Object.fromEntries(allUsers.map(toUserEntry));
-
-    const handleUsersLoaded = (res) => setAllUsers(res.data);
-    const handleUsersError = (err) => console.error("Error loading users:", err);
-    const handleSaveUserError = (err) => console.error("Error saving user:", err);
+    const [userMap, setUserMap] = useState({});
 
     useEffect(() => {
         const user = userProfile
             ? { id: userProfile.id, displayName: userProfile.display_name, email: userProfile.email }
-            : TEST_USERS[0];
+            : null;
         setCurrentUser(user);
-
-        api.post("/users/", {
-            userId: user.id,
-            displayName: user.displayName,
-            email: user.email,
-            spotifyId: user.id,
-            isPrivate: false,
-        }).catch(handleSaveUserError);
-
-        api.get("/users/discover")
-            .then(handleUsersLoaded)
-            .catch(handleUsersError);
     }, [userProfile]);
 
     const handleSelectConversation = (id, otherId) => {
@@ -64,7 +34,6 @@ function Inbox() {
                     currentUser={currentUser}
                     conversationId={conversationId}
                     userMap={userMap}
-                    allUsers={allUsers}
                     onSelectConversation={handleSelectConversation}
                 />
 
