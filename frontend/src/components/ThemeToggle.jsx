@@ -1,5 +1,4 @@
 // ThemeToggle.js
-import React from 'react';
 import { useTheme } from '../context/ThemeContext';
 import * as Toggle from '@radix-ui/react-toggle';
 import { SunIcon, MoonIcon } from 'lucide-react';

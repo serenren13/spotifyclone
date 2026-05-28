@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Heart, TrendingUp, Music, Compass, Inbox, MessageSquare } from 'lucide-react';
 import { useSpotify } from '../context/SpotifyContext';

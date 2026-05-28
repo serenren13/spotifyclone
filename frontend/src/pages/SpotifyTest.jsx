@@ -6,13 +6,11 @@ const backendAPI = axios.create({
 });
 
 function SpotifyTest() {
-    const [token, setToken] = useState(null);
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
 
     const handleLogout = () => {
         localStorage.removeItem("spotify_access_token");
-        setToken(null);
         setProfile(null);
     };
 
@@ -48,7 +46,6 @@ function SpotifyTest() {
             }
 
             if (activeToken) {
-                setToken(activeToken);
                 await fetchProfile(activeToken);
             } else {
                 setLoading(false);
