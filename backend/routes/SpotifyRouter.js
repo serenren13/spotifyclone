@@ -105,22 +105,41 @@ router.get("/user/liked-songs", async (req, res) => {
 // get user top artists /api/spotify/user/top-artists
 router.get("/user/top-artists", async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
-  if (!token) return res.status(401).json({ error: "No token provided" });
+  if (!token) return res.status(401).json({ error: "No token provided " });
 
   try {
     const userSpecificApi = new SpotifyWebApi({ clientId: process.env.SPOTIFY_CLIENT_ID });
     userSpecificApi.setAccessToken(token);
 
-    // THE FIX: Explicitly ask Spotify for "All Time" data so it doesn't return empty!
-    const data = await userSpecificApi.getMyTopArtists({ 
-        time_range: 'long_term', 
-        limit: 4 
+    const [shortTermRes, mediumTermRes, longTermRes] = await Promise.all([
+      userSpecificApi.getMyTopArtists({ time_range: 'short_term', limit: 21 }),
+      userSpecificApi.getMyTopArtists({ time_range: 'medium_term', limit: 21 }),
+      userSpecificApi.getMyTopArtists({ time_range: 'long_term', limit: 21 })
+    ]);
+
+    res.json({
+      short_term: shortTermRes.body.items,
+      medium_term: mediumTermRes.body.items,
+      long_term: longTermRes.body.items
     });
+  } catch (err) {
+    res.status(401).json({ error: "Failed to fetch liked songs" });
+  }
+});
+
+router.get("/user/four-top-artists", async (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.status(401).json({ error: "No token provided " });
+
+  try {
+    const userSpecificApi = new SpotifyWebApi({ clientId: process.env.SPOTIFY_CLIENT_ID });
+    userSpecificApi.setAccessToken(token);
+
+    const data = await userSpecificApi.getMyTopArtists({ time_range: 'long_term', limit: 4 });
     
     res.json(data.body);
   } catch (err) {
-    console.error("Spotify API Error:", err);
-    res.status(400).json({ error: "Failed to fetch top artists" });
+    res.status(401).json({ error: "Failed to fetch liked songs" });
   }
 });
 
