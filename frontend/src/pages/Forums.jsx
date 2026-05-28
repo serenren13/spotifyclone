@@ -70,6 +70,15 @@ export default function Forums() {
         }
     };
 
+    const handleDeleteForum = async (forumId) => {
+        try {
+            await api.delete(`/forums/${forumId}`);
+            setForums(prev => prev.filter(f => f.id !== forumId));
+        } catch (err) {
+            console.error('Error deleting forum:', err);
+        }
+    };
+
     const handleAddComment = async () => {
         if (!newComment.trim()) return;
         try {
@@ -82,6 +91,15 @@ export default function Forums() {
             handleSelectForum(selectedForum);
         } catch (err) {
             console.error('Error adding comment:', err);
+        }
+    };
+
+    const handleDeleteComment = async (commentId) => {
+        try {
+            await api.delete(`/forums/${selectedForum.id}/comments/${commentId}`);
+            setComments(prev => prev.filter(c => c.id !== commentId));
+        } catch (err) {
+            console.error('Error deleting comment:', err);
         }
     };
 
@@ -113,6 +131,11 @@ export default function Forums() {
                 <div className="max-w-3xl mx-auto">
                     <div className="bg-[var(--bg-dark)] rounded-2xl p-6 mb-6 border border-[var(--accent-secondary)]/20">
                         <h1 className="text-2xl font-bold mb-2">{selectedForum.title}</h1>
+                        <p className="text-xs text-[var(--accent-secondary)] mb-2">
+                            {selectedForum.createdAt?.toDate?.()?.toLocaleDateString('en-US', {
+                                year: 'numeric', month: 'short', day: 'numeric'
+                            })}
+                        </p>
                         <p className="text-[var(--text-light)] mb-4">{selectedForum.content}</p>
                         <div className="flex items-center justify-between">
                             <span className="text-sm text-[var(--accent-secondary)]">
@@ -123,6 +146,17 @@ export default function Forums() {
                                 >
                                     {selectedForum.createdBy}
                                 </Link>
+                                {userProfile?.id === selectedForum.creatorId && (
+                                    <button
+                                        onClick={() => {
+                                            handleDeleteForum(selectedForum.id);
+                                            setSelectedForum(null);
+                                        }}
+                                        className="text-red-400 hover:text-red-500 text-xs"
+                                    >
+                                        delete
+                                    </button>
+                                )}
                             </span>
                             <LikeButton
                                 likes={selectedForum.likes}
@@ -144,10 +178,25 @@ export default function Forums() {
 
                     {comments.map(c => (
                         <div key={c.id} className="bg-[var(--bg-dark)] rounded-xl p-4 mb-3 border border-[var(--accent-secondary)]/20">
-                            <p className="text-sm font-semibold text-[var(--accent-primary)] mb-1">
-                                <Link to={`/user/${c.authorId}`} className="hover:underline">
-                                    {c.authorName || c.authorId}
-                                </Link>
+                            <div className="flex items-center justify-between mb-1">
+                                <p className="text-sm font-semibold text-[var(--accent-primary)]">
+                                    <Link to={`/user/${c.authorId}`} className="hover:underline">
+                                        {c.authorName || c.authorId}
+                                    </Link>
+                                </p>
+                                {userProfile?.id === c.authorId && (
+                                    <button
+                                        onClick={() => handleDeleteComment(c.id)}
+                                        className="text-red-400 hover:text-red-500 text-xs"
+                                    >
+                                        delete
+                                    </button>
+                                )}
+                            </div>
+                            <p className="text-xs text-[var(--accent-secondary)] mb-1">
+                                {c.createdAt?.toDate?.()?.toLocaleDateString('en-US', {
+                                    year: 'numeric', month: 'short', day: 'numeric'
+                                })}
                             </p>
                             <p className="text-[var(--text-light)]">{c.comment}</p>
                         </div>
@@ -230,7 +279,8 @@ export default function Forums() {
                         forum={forum}
                         userId={userProfile?.id}
                         onSelect={handleSelectForum}
-                        onLike={(e, id) => handleLike(id)} 
+                        onLike={(e, id) => handleLike(id)}
+                        onDelete={handleDeleteForum} 
                     />
                 ))}
             </div>

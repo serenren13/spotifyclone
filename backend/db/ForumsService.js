@@ -23,7 +23,7 @@ const createForum = async (title, content, createdBy, creatorId) => {
         createdBy,
         creatorId,
         likes: 0,
-        createdAt: new Date(),
+        createdAt: serverTimestamp(),
         likedBy: []
     });
     return docRef.id;
