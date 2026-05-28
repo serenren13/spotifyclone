@@ -180,6 +180,7 @@ router.get("/tracks", async (req, res) => {
   if (!token) return res.status(401).json({ error: "No token provided" });
 
   const trackIds = req.query.ids;
+  console.log("Track IDs received:", trackIds); // 👈 add this
   if (!trackIds) return res.status(400).json({ error: "No track IDs provided" });
 
   try {

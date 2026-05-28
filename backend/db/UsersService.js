@@ -15,16 +15,15 @@ const saveUser = async (userId, userData) => {
     const userRef = doc(db, "users", userId);
     const userDoc = await getDoc(userRef);
 
-    const { topArtists, topTracks, likedSongs, ...profileData } = userData;
+    const { topArtists, topTracks, likedTracks, ...profileData } = userData; // fix: likedTracks
 
     const musicData = {
         topArtists: topArtists || [],
         topTracks: topTracks || [],
-        likedSongs: likedSongs || [],
+        likedTracks: likedTracks || [],                                       // fix: likedTracks
     };
 
     if (!userDoc.exists()) {
-        // First-time: write full profile + music data
         await setDoc(userRef, {
             displayName: profileData.displayName || "Anonymous",
             bio: "",
@@ -36,7 +35,6 @@ const saveUser = async (userId, userData) => {
             ...musicData,
         });
     } else {
-        // Returning user: always refresh music, merge any profile changes
         await setDoc(userRef, { ...profileData, ...musicData }, { merge: true });
     }
 
