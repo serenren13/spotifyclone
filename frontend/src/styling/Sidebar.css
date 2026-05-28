@@ -3,7 +3,7 @@
   top: 0;
   left: 0;
   height: 100vh;
-  background-color: var(--bg-primary);
+  background-color: var(--bg-surface);          
   color: var(--text-primary);
   box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
   transition: width 0.3s ease-in-out;
@@ -11,19 +11,15 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-body:not(.dark) .sidebar {
-  border-right: 1px solid rgba(0, 0, 0, 0.1);
+  border-right: 1px solid var(--border-subtle); 
 }
 
 .sidebar.closed {
-  width: 4rem; 
+  width: 4rem;
 }
 
 .sidebar.open {
-  width: 16rem; 
+  width: 16rem;
 }
 
 .sidebar-header {
@@ -32,12 +28,8 @@ body:not(.dark) .sidebar {
   align-items: center;
   padding-left: 1rem;
   padding-right: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--border-subtle);
   overflow: hidden;
-}
-
-body:not(.dark) .sidebar-header {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .profile-link {
@@ -58,13 +50,14 @@ body:not(.dark) .sidebar-header {
   width: 2rem;
   height: 2rem;
   border-radius: 9999px;
-  background-color: rgba(128, 128, 128, 0.2);
+  background-color: var(--bg-elevated);          
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
   font-size: 0.875rem;
+  color: var(--text-primary);                    
   overflow: hidden;
   transition: all 0.2s;
 }
@@ -99,7 +92,7 @@ body:not(.dark) .sidebar-header {
 
 .profile-subtext {
   font-size: 0.75rem;
-  color: var(--accent-secondary);
+  color: var(--text-muted);                      
   margin-top: 0.25rem;
 }
 
@@ -128,7 +121,7 @@ body:not(.dark) .sidebar-header {
 }
 
 .nav-link.inactive:hover {
-  background-color: rgba(128, 128, 128, 0.15);
+  background-color: var(--bg-elevated);         
   opacity: 1;
 }
 
@@ -167,7 +160,7 @@ body:not(.dark) .sidebar-header {
   position: absolute;
   left: 5rem;
   background-color: var(--text-primary);
-  color: var(--bg-primary);
+  color: var(--bg-surface);                    
   font-size: 0.75rem;
   border-radius: 0.25rem;
   padding: 0.375rem 0.5rem;
@@ -186,12 +179,8 @@ body:not(.dark) .sidebar-header {
 
 .sidebar-footer {
   padding: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--border-subtle);
   overflow: hidden;
-}
-
-body:not(.dark) .sidebar-footer {
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .footer-content {
