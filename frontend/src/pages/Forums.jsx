@@ -138,6 +138,27 @@ export default function Forums() {
         }
     };
 
+    const handleCommentLike = async (e, commentId) => {
+        e.stopPropagation();
+        try {
+            const res = await api.patch(
+                `/forums/${selectedForum.id}/comments/${commentId}/like`,
+                { userId: userProfile?.id }
+            );
+            setComments(prev => prev.map(c =>
+                c.id === commentId
+                    ? { ...c,
+                        likes: res.data.liked ? c.likes + 1 : c.likes - 1,
+                        likedBy: res.data.liked
+                            ? [...(c.likedBy || []), userProfile?.id]
+                            : (c.likedBy || []).filter(id => id !== userProfile?.id) }
+                    : c
+            ));
+        } catch (err) {
+            console.error('Error liking comment:', err);
+        }
+    };
+
     // --- FORUM DETAIL VIEW ---
     if (selectedForum) {
         return (
@@ -232,6 +253,14 @@ export default function Forums() {
                                 })}
                             </p>
                             <p className="text-[var(--text-light)]">{c.comment}</p>
+                            <div className="flex justify-end mt-2">
+                                <LikeButton
+                                    likes={c.likes || 0}
+                                    likedBy={c.likedBy || []}
+                                    userId={userProfile?.id}
+                                    onLike={(e) => handleCommentLike(e, c.id)}
+                                />
+                            </div>
                         </div>
                     ))}
 
