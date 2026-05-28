@@ -160,6 +160,14 @@ export default function Profile() {
     return (
         <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] p-8 flex justify-center relative">
 
+            {/* TOP RIGHT THEMED LOGOUT BUTTON */}
+            <button 
+                onClick={handleLogout}
+                className="absolute top-8 right-8 border border-[var(--text-primary)]/30 text-[var(--text-primary)] py-2 px-5 rounded-full font-medium hover:border-[#1DB954] hover:text-[#1DB954] transition-all text-sm tracking-wide bg-[var(--bg-dark)]/40 shadow-sm backdrop-blur-sm z-10"
+            >
+                Logout
+            </button>
+
             {isEditingFavorites && (
                 <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
                     <div className="bg-[var(--bg-primary)] p-6 rounded-xl max-w-2xl w-full max-h-[80vh] flex flex-col border border-[var(--text-primary)]/20 shadow-2xl">
@@ -210,13 +218,7 @@ export default function Profile() {
                         </button>
                     </div>
                     
-                    <button 
-                        onClick={handleLogout}
-                        className="w-full bg-red-600 text-white py-2 px-4 rounded font-medium hover:bg-red-700 transition-colors text-sm mt-4"
-                    >
-                        Logout
-                    </button>
-                    <p className="text-center text-sm font-semibold">Current Status: {isPrivate ? "Private" : "Public"}</p>
+                    <p className="text-center text-sm font-semibold mt-2">Current Status: {isPrivate ? "Private" : "Public"}</p>
 
                     <div className="flex flex-col items-center mt-4">
                         <img src={displayImage} alt="Profile" className="w-48 h-48 rounded-full object-cover bg-[var(--bg-dark)] mb-4 border-4 border-[var(--text-primary)]/10" />
