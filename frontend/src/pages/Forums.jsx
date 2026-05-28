@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSpotify } from '../context/SpotifyContext';
 import LikeButton from '../components/forums/LikeButton';
 import { Link } from 'react-router-dom';
 import ForumCard from '../components/forums/ForumCard';
 import axios from 'axios';
-import RichTextEditor from '../components/forums/RichTextEditor';
+import { API_URL } from '../lib/config';
 
-const api = axios.create({ baseURL: 'http://127.0.0.1:5001/api' });
+const api = axios.create({ baseURL: API_URL });
 
 export default function Forums() {
     const { userProfile, accessToken } = useSpotify();
@@ -21,16 +21,26 @@ export default function Forums() {
     const [trackSearch, setTrackSearch] = useState('');
     const [trackResults, setTrackResults] = useState([]);
     const [attachedTrack, setAttachedTrack] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [sortOrder, setSortOrder] = useState('newest');
 
     const sortedForums = sortOrder === 'liked'
         ? [...forums].sort((a,b) => (b.likes || 0) - (a.likes || 0))
         : forums;
 
+    const fetchForums = useCallback(async () => {
+        try {
+            const res = await api.get('/forums');
+            setForums(res.data);
+        } catch (err) {
+            console.error('Error fetching forums:', err);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
     useEffect(() => {
         let cancelled = false;
-        setLoading(true);
         api.get('/forums')
             .then((res) => { if (!cancelled) setForums(res.data); })
             .catch((err) => { console.error('Error fetching forums:', err); })
@@ -62,7 +72,7 @@ export default function Forums() {
             setNewTitle('');
             setNewContent('');
             setShowForm(false);
-            api.get('/forums').then(res => setForums(res.data));
+            fetchForums();
             setAttachedTrack(null);
             setTrackSearch('');
             setTrackResults([]);
@@ -107,7 +117,7 @@ export default function Forums() {
     };
 
     const handleDeleteComment = async (commentId) => {
-        if (!window.confirm('Are you sure you want to delete this comment?')) return;
+        if (!window.confirm('Are you sure you want to dlete this comment?')) return;
         try {
             await api.delete(`/forums/${selectedForum.id}/comments/${commentId}`);
             setComments(prev => prev.filter(c => c.id !== commentId));
@@ -119,7 +129,7 @@ export default function Forums() {
     const handleLike = async (forumId) => {
         try {
             await api.patch(`/forums/${forumId}/like`, { userId: userProfile?.id });
-            api.get('/forums').then(res => setForums(res.data));
+            fetchForums();
             
             if (selectedForum && selectedForum.id === forumId) {
                 const res = await api.get(`/forums/${forumId}`);
@@ -354,9 +364,12 @@ export default function Forums() {
                             onChange={e => setNewTitle(e.target.value)}
                             className="w-full bg-[var(--bg-primary)] border border-[var(--accent-secondary)]/30 rounded-xl px-4 py-2 mb-3 text-[var(--text-primary)] placeholder-[var(--accent-secondary)] focus:outline-none"
                         />
-                        <RichTextEditor
-                            content={newContent}
-                            onChange={setNewContent}
+                        <textarea
+                            placeholder="What's on your mind?"
+                            value={newContent}
+                            onChange={e => setNewContent(e.target.value)}
+                            rows={4}
+                            className="w-full bg-[var(--bg-primary)] border border-[var(--accent-secondary)]/30 rounded-xl px-4 py-2 mb-3 text-[var(--text-primary)] placeholder-[var(--accent-secondary)] focus:outline-none resize-none"
                         />
                         {/* Song search */}
                         <div className="mb-3">

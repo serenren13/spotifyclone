@@ -1,10 +1,11 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import axios from 'axios';
+import { SPOTIFY_API_URL } from '../lib/config';
 
 const SpotifyContext = createContext();
 
 const backendAPI = axios.create({
-  baseURL: "http://127.0.0.1:5001/api/spotify",
+  baseURL: SPOTIFY_API_URL,
 });
 
 const STORAGE_KEY = "spotify_access_token";

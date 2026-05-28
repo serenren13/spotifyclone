@@ -5,8 +5,9 @@ import { Pencil2Icon } from "@radix-ui/react-icons";
 import axios from "axios";
 import ConversationItem from "./ConversationItem";
 import NewConversationModal from "./NewConversationModal";
+import { API_URL } from "../../lib/config";
 
-const api = axios.create({ baseURL: "http://127.0.0.1:5001/api" });
+const api = axios.create({ baseURL: API_URL });
 
 function ConversationList({ currentUser, conversationId, onSelectConversation, updatePreviewRef, unreadUpdateRef }) {
     const [conversations, setConversations] = useState([]);

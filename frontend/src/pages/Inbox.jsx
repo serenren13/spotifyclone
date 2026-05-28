@@ -4,9 +4,9 @@ import axios from "axios";
 import { useSpotify } from "../context/SpotifyContext";
 import ConversationList from "../components/inbox/ConversationList";
 import ChatPanel from "../components/inbox/ChatPanel";
+import { BACKEND_URL, API_URL } from "../lib/config";
 
-const BACKEND_URL = "http://127.0.0.1:5001";
-const api = axios.create({ baseURL: "http://127.0.0.1:5001/api" });
+const api = axios.create({ baseURL: API_URL });
 
 function Inbox() {
     const { userProfile } = useSpotify();

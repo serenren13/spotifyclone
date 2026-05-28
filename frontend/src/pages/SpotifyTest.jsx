@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { SPOTIFY_API_URL, SPOTIFY_LOGIN_URL } from "../lib/config";
 
 const backendAPI = axios.create({
-    baseURL: "http://127.0.0.1:5001/api/spotify",
+    baseURL: SPOTIFY_API_URL,
 });
 
 function SpotifyTest() {
@@ -56,7 +57,7 @@ function SpotifyTest() {
     }, []);
 
     const handleLogin = () => {
-        window.location.href = "http://127.0.0.1:5001/api/spotify/auth/login";
+        window.location.href = SPOTIFY_LOGIN_URL;
     };
 
     if (loading) return <div style={{ padding: "2rem" }}>Loading App...</div>;
