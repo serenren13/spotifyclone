@@ -91,7 +91,8 @@ router.get("/user/profile", async (req, res) => {
     const data = await userSpecificApi.getMe();
     res.json(data.body);
   } catch (err) {
-    res.status(401).json({ error: "Failed to fetch profile" });
+    console.error("Profile Fetch Error:", err.message);
+    res.status(err.statusCode || 400).json({ error: "Failed to fetch profile" });
   }
 });
 
@@ -111,32 +112,35 @@ router.get("/top-tracks", async (req, res) => {
       limit: 10
     });
     res.json(data.body.items);
-
   } catch (err) {
-    console.error("Spotify API Error:", err);
-    res.status(400).json({ error: "Failed to fetch top tracks" });
+    console.error("Spotify API Error fetching top tracks:", err.message);
+    res.status(err.statusCode || 400).json({ error: "Failed to fetch top tracks" });
   }
 });
 
+// get user liked songs /api/spotify/user/liked-songs
 router.get("/user/liked-songs", async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
-  if (!token) return res.status(401).json({ error: "No token provided " });
+  if (!token) return res.status(401).json({ error: "No token provided" });
 
   try {
     const userSpecificApi = new SpotifyWebApi({ clientId: process.env.SPOTIFY_CLIENT_ID });
     userSpecificApi.setAccessToken(token);
 
     const data = await userSpecificApi.getMySavedTracks({ limit: 50 });
-    res.json({ items: allTracks });
+    
+    // FIXED: Extracted data from body.items instead of relying on undefined allTracks variable
+    res.json({ items: data.body.items });
   } catch (err) {
-    res.status(401).json({ error: "Failed to fetch liked songs" });
+    console.error("Spotify API Error fetching liked songs:", err.message);
+    res.status(err.statusCode || 400).json({ error: "Failed to fetch liked songs" });
   }
 });
 
 // get user top artists /api/spotify/user/top-artists
 router.get("/user/top-artists", async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
-  if (!token) return res.status(401).json({ error: "No token provided " });
+  if (!token) return res.status(401).json({ error: "No token provided" });
 
   try {
     const userSpecificApi = new SpotifyWebApi({ clientId: process.env.SPOTIFY_CLIENT_ID });
@@ -154,23 +158,25 @@ router.get("/user/top-artists", async (req, res) => {
       long_term: longTermRes.body.items
     });
   } catch (err) {
-    res.status(401).json({ error: "Failed to fetch liked songs" });
+    console.error("Spotify API Error fetching top artists:", err.message);
+    res.status(err.statusCode || 400).json({ error: "Failed to fetch top artists" });
   }
 });
 
+// get four top artists /api/spotify/user/four-top-artists
 router.get("/user/four-top-artists", async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
-  if (!token) return res.status(401).json({ error: "No token provided " });
+  if (!token) return res.status(401).json({ error: "No token provided" });
 
   try {
     const userSpecificApi = new SpotifyWebApi({ clientId: process.env.SPOTIFY_CLIENT_ID });
     userSpecificApi.setAccessToken(token);
 
     const data = await userSpecificApi.getMyTopArtists({ time_range: 'long_term', limit: 4 });
-
     res.json(data.body);
   } catch (err) {
-    res.status(401).json({ error: "Failed to fetch liked songs" });
+    console.error("Spotify API Error fetching 4 top artists:", err.message);
+    res.status(err.statusCode || 400).json({ error: "Failed to fetch four top artists" });
   }
 });
 
@@ -180,19 +186,17 @@ router.get("/tracks", async (req, res) => {
   if (!token) return res.status(401).json({ error: "No token provided" });
 
   const trackIds = req.query.ids;
-  console.log("Track IDs received:", trackIds); // 👈 add this
   if (!trackIds) return res.status(400).json({ error: "No track IDs provided" });
 
   try {
     const userSpecificApi = new SpotifyWebApi({ clientId: process.env.SPOTIFY_CLIENT_ID });
     userSpecificApi.setAccessToken(token);
 
-    // Spotify's getTracks takes an array of IDs
     const data = await userSpecificApi.getTracks(trackIds.split(","));
     res.json(data.body.tracks);
   } catch (err) {
-    console.error("Spotify API Error fetching tracks:", err);
-    res.status(400).json({ error: "Failed to fetch tracks" });
+    console.error("Spotify API Error fetching tracks by ID:", err.message);
+    res.status(err.statusCode || 400).json({ error: "Failed to fetch tracks" });
   }
 });
 
@@ -219,8 +223,8 @@ router.get("/search", async (req, res) => {
     }));
     res.json(tracks);
   } catch (err) {
-    console.error("Spotify search error:", err);
-    res.status(400).json({ error: "Failed to search tracks" });
+    console.error("Spotify search error:", err.message);
+    res.status(err.statusCode || 400).json({ error: "Failed to search tracks" });
   }
 });
 

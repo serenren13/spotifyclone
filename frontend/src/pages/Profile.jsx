@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { useSpotify } from "../context/SpotifyContext";
 
 const api = axios.create({ baseURL: "http://127.0.0.1:5001/api" });
 
 export default function Profile() {
-    const { accessToken } = useSpotify();
-
+    const navigate = useNavigate();
+    const { accessToken, logout } = useSpotify();
+    
     const [profile, setProfile] = useState(null);
     const [topArtists, setTopArtists] = useState([]);
     const [topSongs, setTopSongs] = useState([]);
@@ -19,6 +21,7 @@ export default function Profile() {
     const [customImageUrl, setCustomImageUrl] = useState("");
 
     const [favoriteSongIds, setFavoriteSongIds] = useState([]);
+    const [favoriteTracksData, setFavoriteTracksData] = useState([]); 
     const [isEditingFavorites, setIsEditingFavorites] = useState(false);
     const [tempSelectedFavorites, setTempSelectedFavorites] = useState([]);
 
@@ -45,6 +48,7 @@ export default function Profile() {
                             setBioText(fb.bio || "");
                             if (fb.profileImage) setCustomImageUrl(fb.profileImage);
                             if (fb.favoriteSongs) setFavoriteSongIds(fb.favoriteSongs);
+                            if (fb.favoriteTracksData) setFavoriteTracksData(fb.favoriteTracksData);
 
                             // topArtists and topTracks now come from DB
                             setTopArtists(fb.topArtists || []);
@@ -83,6 +87,11 @@ export default function Profile() {
         }
     };
 
+    const handleLogout = () => {
+        logout();
+        navigate("/");
+    };
+
     const handleEditProfileImage = async () => {
         if (!profile?.id) return;
         const newUrl = window.prompt("Paste a new image URL:", customImageUrl);
@@ -115,35 +124,43 @@ export default function Profile() {
 
     const handleSaveFavorites = async () => {
         if (!profile?.id) return;
-        setFavoriteSongIds(tempSelectedFavorites);
-        setIsEditingFavorites(false);
-
+        
         // Build slim track objects from the already-loaded allLikedSongs
-        const favoriteTracksData = allLikedSongs
-            .filter(item => tempSelectedFavorites.includes(item.track.id))
+        const updatedTracksData = allLikedSongs
+            .filter(item => tempSelectedFavorites.includes(item.track?.id))
             .map(item => ({
-                id: item.track.id,
-                name: item.track.name,
-                artist: item.track.artists?.[0]?.name || null,
-                albumArt: item.track.album?.images?.[1]?.url || item.track.album?.images?.[0]?.url || null,
+                id: item.track?.id,
+                name: item.track?.name,
+                artist: item.track?.artists?.[0]?.name || null,
+                albumArt: item.track?.album?.images?.[1]?.url || item.track?.album?.images?.[0]?.url || null,
             }));
+
+        // Optimize UI state transitions immediately before network request resolves
+        setFavoriteSongIds(tempSelectedFavorites);
+        setFavoriteTracksData(updatedTracksData);
+        setIsEditingFavorites(false);
 
         try {
             await api.patch(`/users/${profile.id}`, {
                 favoriteSongs: tempSelectedFavorites,   // keep IDs for the toggle logic
-                favoriteTracksData,                      // add full data for display
+                favoriteTracksData: updatedTracksData,  // add full data for display
             });
         } catch {
             alert("Database error: Could not save favorite songs.");
         }
     };
 
-    // Favorites display: user-selected IDs filtered from liked songs, or first 4 liked songs
+    // Normalize favorites display structure (array of flat objects)
     let displayFavorites = [];
-    if (favoriteSongIds.length > 0) {
-        displayFavorites = allLikedSongs.filter(item => favoriteSongIds.includes(item.track.id)).slice(0, 4);
+    if (favoriteTracksData.length > 0) {
+        displayFavorites = favoriteTracksData.slice(0, 4);
     } else {
-        displayFavorites = allLikedSongs.slice(0, 4);
+        displayFavorites = allLikedSongs.slice(0, 4).map(item => ({
+            id: item.track?.id,
+            name: item.track?.name,
+            artist: item.track?.artists?.map(a => a.name).join(", ") || "Unknown Artist",
+            albumArt: item.track?.album?.images?.[2]?.url || item.track?.album?.images?.[0]?.url || null
+        }));
     }
 
     const displayImage = customImageUrl || profile?.images?.[1]?.url || profile?.images?.[0]?.url || "https://i.scdn.co/image/ab6761610000e5eb55d39ab9c21d506aa52f7021";
@@ -152,6 +169,14 @@ export default function Profile() {
 
     return (
         <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] p-8 flex justify-center relative">
+
+            {/* TOP RIGHT THEMED LOGOUT BUTTON */}
+            <button 
+                onClick={handleLogout}
+                className="absolute top-8 right-8 border border-[var(--text-primary)]/30 text-[var(--text-primary)] py-2 px-5 rounded-full font-medium hover:border-[#1DB954] hover:text-[#1DB954] transition-all text-sm tracking-wide bg-[var(--bg-dark)]/40 shadow-sm backdrop-blur-sm z-10"
+            >
+                Logout
+            </button>
 
             {isEditingFavorites && (
                 <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
@@ -162,6 +187,7 @@ export default function Profile() {
                         </div>
                         <div className="flex-1 overflow-y-auto flex flex-col gap-2 pr-2">
                             {allLikedSongs.map(item => {
+                                if (!item.track) return null;
                                 const isSelected = tempSelectedFavorites.includes(item.track.id);
                                 return (
                                     <div
@@ -169,7 +195,7 @@ export default function Profile() {
                                         onClick={() => handleToggleFavoriteSelection(item.track.id)}
                                         className={`flex items-center gap-4 p-2 rounded cursor-pointer border-2 transition-colors ${isSelected ? 'border-[#1DB954] bg-[#1DB954]/10' : 'border-transparent hover:bg-[var(--bg-dark)]'}`}
                                     >
-                                        <img src={item.track.album?.images?.[2]?.url} alt="Cover" className="w-10 h-10 rounded" />
+                                        <img src={item.track.album?.images?.[2]?.url || item.track.album?.images?.[0]?.url} alt="Cover" className="w-10 h-10 rounded object-cover" />
                                         <div className="flex-1 min-w-0">
                                             <p className="text-sm font-medium truncate">{item.track.name}</p>
                                             <p className="text-xs text-[var(--accent-secondary)] truncate">{item.track.artists?.map(a => a.name).join(", ")}</p>
@@ -202,10 +228,16 @@ export default function Profile() {
                             <span className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${isPrivate ? 'translate-x-6' : ''}`}></span>
                         </button>
                     </div>
-                    <p className="text-center text-sm font-semibold">Current Status: {isPrivate ? "Private" : "Public"}</p>
+                    
+                    <p className="text-center text-sm font-semibold mt-2">Current Status: {isPrivate ? "Private" : "Public"}</p>
 
                     <div className="flex flex-col items-center mt-4">
-                        <img src={displayImage} alt="Profile" className="w-48 h-48 rounded-full object-cover bg-[var(--bg-dark)] mb-4 border-4 border-[var(--text-primary)]/10" />
+                        <div className="relative group cursor-pointer" onClick={handleEditProfileImage}>
+                            <img src={displayImage} alt="Profile" className="w-48 h-48 rounded-full object-cover bg-[var(--bg-dark)] mb-4 border-4 border-[var(--text-primary)]/10 group-hover:opacity-80 transition-opacity" />
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity mb-4">
+                                <span className="text-xs text-white font-medium">Change Photo</span>
+                            </div>
+                        </div>
                         <h2 className="text-3xl font-medium mb-6">{profile?.display_name || "Username"}</h2>
                     </div>
 
@@ -228,7 +260,7 @@ export default function Profile() {
                 {/* RIGHT CONTENT */}
                 <div className="w-full md:w-2/3 flex flex-col">
 
-                    {/* TOP ARTISTS — now from DB: stored as { id, name, image } */}
+                    {/* TOP ARTISTS */}
                     <div className="mb-12 border-b border-[var(--text-primary)]/20 pb-8">
                         <h3 className="text-2xl font-medium mb-6">Top Artists</h3>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -246,7 +278,7 @@ export default function Profile() {
 
                     <div className="flex flex-col md:flex-row gap-8">
 
-                        {/* TOP SONGS — now from DB: stored as { id, name, artist, albumArt } */}
+                        {/* TOP SONGS */}
                         <div className="flex-1">
                             <div className="text-center mb-4">
                                 <h3 className="text-xl font-medium">Top Songs</h3>
@@ -267,26 +299,27 @@ export default function Profile() {
                             </div>
                         </div>
 
-                        {/* FAVORITE SONGS — user-selected from liked songs (Spotify format) */}
+                        {/* FAVORITE SONGS */}
                         <div className="flex-1">
                             <div className="text-center mb-4">
                                 <h3 className="text-xl font-medium">Current Favorites</h3>
                             </div>
                             <div className="border border-[var(--text-primary)]/30 flex flex-col bg-[var(--bg-dark)]">
-                                {displayFavorites.map(item => {
-                                    const song = item.track;
-                                    return (
-                                        <div key={song?.id} className="flex border-b border-[var(--text-primary)]/30 last:border-0 h-16 hover:bg-[var(--text-primary)]/5 transition-colors">
-                                            <div className="w-16 h-full border-r border-[var(--text-primary)]/30 flex-shrink-0">
-                                                <img src={song?.album?.images?.[2]?.url || song?.album?.images?.[0]?.url} alt="Cover" className="w-full h-full object-cover" />
-                                            </div>
-                                            <div className="flex-1 flex flex-col justify-center px-3 min-w-0 overflow-hidden">
-                                                <p className="text-sm truncate font-medium">{song?.name}</p>
-                                                <p className="text-xs text-[var(--accent-secondary)] truncate">{song?.artists?.map(a => a.name).join(", ")}</p>
-                                            </div>
+                                {displayFavorites.map(song => (
+                                    <div key={song?.id} className="flex border-b border-[var(--text-primary)]/30 last:border-0 h-16 hover:bg-[var(--text-primary)]/5 transition-colors">
+                                        <div className="w-16 h-full border-r border-[var(--text-primary)]/30 flex-shrink-0">
+                                            {song?.albumArt ? (
+                                                <img src={song.albumArt} alt="Cover" className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="w-full h-full bg-neutral-800 flex items-center justify-center text-xs">🎵</div>
+                                            )}
                                         </div>
-                                    );
-                                })}
+                                        <div className="flex-1 flex flex-col justify-center px-3 min-w-0 overflow-hidden">
+                                            <p className="text-sm truncate font-medium">{song?.name || "Unknown Track"}</p>
+                                            <p className="text-xs text-[var(--accent-secondary)] truncate">{song?.artist}</p>
+                                        </div>
+                                    </div>
+                                ))}
                                 {displayFavorites.length === 0 && <p className="p-4 text-center text-sm text-[var(--accent-secondary)]">No favorites selected.</p>}
                             </div>
                             <div className="text-center mt-4">
