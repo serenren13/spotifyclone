@@ -1,0 +1,282 @@
+.discover-page {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  padding: 2.5rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.discover-container {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.discover-header {
+  margin-bottom: 1.5rem;
+}
+
+.discover-title {
+  font-size: 2.75rem;
+  margin: 0;
+}
+
+.discover-subtitle {
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+}
+
+.discover-layout {
+  background: var(--bg-surface);
+  border: 1px solid var(--bg-elevated);
+  border-radius: 30px;
+  padding: 2rem;
+  display: grid;
+  grid-template-columns: 185px 1fr 275px;
+  gap: 2rem;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.1);
+}
+
+.discover-side-panel {
+  background: var(--bg-elevated);
+  border-radius: 24px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.discover-panel-title-sm {
+  font-size: 1.05rem;
+  margin: 0 0 0.5rem;
+}
+
+.discover-panel-title-lg {
+  font-size: 1.75rem;
+  margin: 0;
+}
+
+.discover-panel-title-md {
+  font-size: 1.35rem;
+  margin: 0 0 1.25rem;
+}
+
+.discover-main-panel {
+  background: var(--bg-primary);
+  border-radius: 24px;
+  padding: 1.75rem;
+}
+
+.discover-forum-panel {
+  background: var(--bg-primary);
+  border-radius: 24px;
+  padding: 1.5rem;
+}
+
+.discover-user-count {
+  color: var(--text-muted);
+  margin: 0.35rem 0 1.25rem;
+}
+
+.discover-input {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 16px;
+  border: 1px solid var(--bg-elevated);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  margin-bottom: 1.25rem;
+  outline: none;
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
+}
+
+.discover-input:focus {
+  border-color: var(--brand-color);
+}
+
+.discover-status-text {
+  color: var(--text-muted);
+}
+
+.discover-flex-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.discover-user-row {
+  display: grid;
+  grid-template-columns: 54px 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  background: var(--bg-surface);
+  border-radius: 18px;
+  padding: 1rem;
+  border: 1px solid var(--bg-elevated);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.discover-user-row:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.discover-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.discover-empty-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
+.discover-name-button {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}
+
+.discover-name-button:hover {
+  text-decoration: underline;
+}
+
+.discover-user-bio {
+  color: var(--text-muted);
+  margin: 0.3rem 0 0;
+}
+
+.discover-nav-card {
+  color: var(--text-primary);
+  text-decoration: none;
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  background: var(--bg-surface);
+  font-weight: 700;
+  border: 1px solid var(--bg-elevated);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.discover-nav-card:hover {
+  background: var(--bg-elevated);
+  transform: translateX(2px);
+}
+
+.discover-icon {
+  font-size: 1.1rem;
+}
+
+.discover-forum-card {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  padding: 1rem;
+  border-radius: 16px;
+  text-decoration: none;
+  font-weight: 700;
+  border: 1px solid var(--bg-elevated);
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.discover-forum-card:hover {
+  background: var(--bg-elevated);
+  transform: translateX(2px);
+}
+
+.discover-small-button {
+  padding: 0.7rem 1rem;
+  border-radius: 12px;
+  border: none;
+  background: var(--brand-color);
+  color: var(--text-on-brand);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease, transform 0.1s ease;
+}
+
+.discover-small-button:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+.discover-small-button:active {
+  transform: scale(0.98);
+}
+
+.discover-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(4px);
+}
+
+.discover-modal {
+  width: 460px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.discover-modal-title {
+  margin-top: 0;
+}
+
+.discover-modal-section {
+  margin-top: 1rem;
+}
+
+.discover-modal-label {
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.discover-modal-bio {
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.discover-modal-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.discover-modal-button {
+  flex: 1;
+  text-align: center;
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  border: none;
+  background: var(--brand-color);
+  color: var(--text-on-brand);
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.discover-modal-button:hover {
+  opacity: 0.9;
+}
