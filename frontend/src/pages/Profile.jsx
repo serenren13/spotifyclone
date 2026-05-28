@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { useSpotify } from "../context/SpotifyContext";
 
 const api = axios.create({ baseURL: "http://127.0.0.1:5001/api" });
 
 export default function Profile() {
-    const { accessToken } = useSpotify();
-
+    const navigate = useNavigate();
+    const { accessToken, logout } = useSpotify();
+    
     const [profile, setProfile] = useState(null);
     const [topArtists, setTopArtists] = useState([]);
     const [topSongs, setTopSongs] = useState([]);
@@ -81,6 +83,11 @@ export default function Profile() {
             setSavingBio(false);
             alert("Database error: Check backend terminal.");
         }
+    };
+
+    const handleLogout = () => {
+        logout();
+        navigate("/");
     };
 
     const handleEditProfileImage = async () => {
@@ -202,6 +209,13 @@ export default function Profile() {
                             <span className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${isPrivate ? 'translate-x-6' : ''}`}></span>
                         </button>
                     </div>
+                    
+                    <button 
+                        onClick={handleLogout}
+                        className="w-full bg-red-600 text-white py-2 px-4 rounded font-medium hover:bg-red-700 transition-colors text-sm mt-4"
+                    >
+                        Logout
+                    </button>
                     <p className="text-center text-sm font-semibold">Current Status: {isPrivate ? "Private" : "Public"}</p>
 
                     <div className="flex flex-col items-center mt-4">
