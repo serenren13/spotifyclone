@@ -127,7 +127,7 @@ router.get("/user/liked-songs", async (req, res) => {
     userSpecificApi.setAccessToken(token);
 
     const data = await userSpecificApi.getMySavedTracks({ limit: 50 });
-    res.json(data.body);
+    res.json({ items: allTracks });
   } catch (err) {
     res.status(401).json({ error: "Failed to fetch liked songs" });
   }

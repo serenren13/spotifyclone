@@ -97,12 +97,12 @@ router.get('/:id/comments', async (req, res) => {
 
 // add comment
 router.post('/:id/comments', async (req, res) => {
-    const { authorId, comment } = req.body;
+    const { authorId, authorName, comment } = req.body;
     if (!authorId?.trim() || !comment?.trim()) {
         return res.status(400).json({ message: 'Comment text and author credentials are required.' });
     }
     try {
-        const commentId = await addCommentToForum(req.params.id, authorId, comment);
+        const commentId = await addCommentToForum(req.params.id, authorId, authorName, comment);
         res.status(201).json({ message: 'Comment logged successfully', id: commentId });
     } catch (error) {
         console.error('Error appending comment:', error);

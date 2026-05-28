@@ -49,8 +49,10 @@ router.post('/:conversationId/messages', async (req, res) => {
     try {
         const message = await sendMessage(conversationId, senderId, text);
         const io = req.app.get('io');
-        io.to(conversationId).emit('new-message', { ...message, conversationId });
+        const payload = { ...message, conversationId };
+        io.to(conversationId).emit('new-message', payload);
         message.participants.forEach((participantId) => {
+            io.to(`user:${participantId}`).emit('new-message', payload);
             if (participantId !== senderId) {
                 io.to(`user:${participantId}`).emit('unread-update', {
                     conversationId,
