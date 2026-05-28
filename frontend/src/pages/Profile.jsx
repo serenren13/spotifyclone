@@ -27,7 +27,7 @@ export default function Profile() {
 
         Promise.all([
             api.get("/spotify/user/profile", { headers: { Authorization: `Bearer ${accessToken}` } }).catch(() => ({ data: null })),
-            api.get("/spotify/user/top-artists", { headers: { Authorization: `Bearer ${accessToken}` } }).catch(() => ({ data: { items: [] } })),
+            api.get("/spotify/user/four-top-artists", { headers: { Authorization: `Bearer ${accessToken}` } }).catch(() => ({ data: { items: [] } })),
             api.get("/spotify/top-tracks", { headers: { Authorization: `Bearer ${accessToken}` } }).catch(() => ({ data: { items: [] } })),
             api.get("/spotify/user/liked-songs", { headers: { Authorization: `Bearer ${accessToken}` } }).catch(() => ({ data: { items: [] } }))
         ]).then(([profileRes, artistsRes, songsRes, likedRes]) => {
