@@ -4,8 +4,9 @@ import * as Avatar from "@radix-ui/react-avatar";
 import axios from "axios";
 import MessageBubble from "./MessageBubble";
 import MessageInput from "./MessageInput";
+import { API_URL } from "../../lib/config";
 
-const api = axios.create({ baseURL: "http://127.0.0.1:5001/api" });
+const api = axios.create({ baseURL: API_URL });
 
 function ChatPanel({ currentUser, conversationId, otherUser, messages, setMessages, onMessageSent }) {
     const bottomRef = useRef(null);

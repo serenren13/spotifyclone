@@ -3,8 +3,9 @@ import * as Dialog from "@radix-ui/react-dialog";
 import * as Avatar from "@radix-ui/react-avatar";
 import { Cross2Icon } from "@radix-ui/react-icons";
 import axios from "axios";
+import { API_URL } from "../../lib/config";
 
-const api = axios.create({ baseURL: "http://127.0.0.1:5001/api" });
+const api = axios.create({ baseURL: API_URL });
 
 function UserRow({ user, onSelect }) {
     const handleClick = () => onSelect(user);

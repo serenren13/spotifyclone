@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useSpotify } from "../context/SpotifyContext";
 import { Link } from "react-router-dom";
+import { API_URL } from "../lib/config";
 
-const api = axios.create({ baseURL: "http://127.0.0.1:5001/api" });
+const api = axios.create({ baseURL: API_URL });
 
 export default function LikedSongs() {
     const { accessToken } = useSpotify();
