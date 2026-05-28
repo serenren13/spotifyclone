@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useSpotify } from "../context/SpotifyContext";
 
 export default function Discover() {
+  const { userProfile } = useSpotify();
   const [users, setUsers] = useState([]);
   const [forums, setForums] = useState([]);
   const [searchText, setSearchText] = useState("");
@@ -30,6 +32,10 @@ export default function Discover() {
   }, []);
 
   const filteredUsers = users.filter((user) => {
+    if (user.id === userProfile.id) {
+      return false;
+    }
+
     const name = user.displayName || user.name || user.username || "";
     const bio = user.bio || "";
 
@@ -160,12 +166,12 @@ export default function Discover() {
                       </p>
                     </div>
 
-                    <button
-                      onClick={() => setSelectedUser(user)}
-                      style={smallButtonStyle}
+                    <Link
+                      to={`/user/${user.id}`}
+                      style={{ ...smallButtonStyle, textDecoration: "none", textAlign: "center" }}
                     >
                       View
-                    </button>
+                    </Link>
                   </div>
                 );
               })}
