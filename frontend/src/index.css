@@ -109,3 +109,11 @@ body {
   outline: 2px solid var(--accent-secondary);
   outline-offset: 2px;
 }
+
+.tiptap p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    color: var(--accent-secondary);
+    pointer-events: none;
+    height: 0;
+}
