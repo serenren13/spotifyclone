@@ -6,28 +6,32 @@ import { useSpotify } from "../context/SpotifyContext";
 const api = axios.create({ baseURL: "http://127.0.0.1:5001/api" });
 
 export default function PublicProfile() {
-    const { id } = useParams(); // Grabs the Firebase ID from the URL
+    const { id } = useParams(); 
     const navigate = useNavigate();
     const { accessToken } = useSpotify();
     const { userProfile } = useSpotify();
-
-    useEffect(() => {
-        if (userProfile && id === userProfile.id) {
-            navigate('/profile'); 
-        }
-    }, [userProfile, id, navigate]);
-    
     const [publicUser, setPublicUser] = useState(null);
     const [favoriteTracks, setFavoriteTracks] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        if (!accessToken) return;
+        if (!accessToken) {
+            setError("Session expired. Please return home and log in again.");
+            setLoading(false);
+            return;
+        }
 
         api.get(`/users/${id}`)
             .then(res => {
                 const userData = res.data;
+                
+                if (!userData) {
+                    setError("User not found in the database.");
+                    setLoading(false);
+                    return;
+                }
+
                 setPublicUser(userData);
 
                 if (userData.isPrivate) {
@@ -42,14 +46,15 @@ export default function PublicProfile() {
                     })
                     .then(trackRes => {
                         setFavoriteTracks(trackRes.data || []);
-                        setLoading(false);
                     })
                     .catch(err => {
                         console.error("Failed to load tracks", err);
+                    })
+                    .finally(() => {
                         setLoading(false);
                     });
                 } else {
-                    setLoading(false); // No favorite songs saved
+                    setLoading(false); 
                 }
             })
             .catch(err => {

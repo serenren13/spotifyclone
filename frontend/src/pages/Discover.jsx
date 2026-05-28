@@ -5,7 +5,6 @@ export default function Discover() {
   const [users, setUsers] = useState([]);
   const [forums, setForums] = useState([]);
   const [searchText, setSearchText] = useState("");
-  const [selectedUser, setSelectedUser] = useState(null);
   const [status, setStatus] = useState("Loading discover page...");
 
   useEffect(() => {
@@ -143,29 +142,29 @@ export default function Discover() {
                     )}
 
                     <div>
-                      <button
-                        onClick={() => setSelectedUser(user)}
-                        style={nameButtonStyle}
-                      >
-                        {name}
-                      </button>
+                      <Link
+                        to={`/user/${user.id}`}
+                        style={{ ...nameButtonStyle, textDecoration: "none", display: "inline-block" }}
+                      >
+                        {name}
+                      </Link>
 
-                      <p
-                        style={{
-                          color: "var(--text-muted, #667085)",
-                          margin: "0.3rem 0 0",
-                        }}
-                      >
-                        {bio}
-                      </p>
-                    </div>
+                      <p
+                        style={{
+                          color: "var(--text-muted, #667085)",
+                          margin: "0.3rem 0 0",
+                        }}
+                      >
+                        {bio}
+                      </p>
+                    </div>
 
-                    <button
-                      onClick={() => setSelectedUser(user)}
-                      style={smallButtonStyle}
-                    >
-                      View
-                    </button>
+                    <Link
+                      to={`/user/${user.id}`}
+                      style={{ ...smallButtonStyle, textDecoration: "none", textAlign: "center", display: "inline-block" }}
+                    >
+                      View
+                    </Link>
                   </div>
                 );
               })}
@@ -199,53 +198,6 @@ export default function Discover() {
           </aside>
         </div>
       </div>
-
-      {selectedUser && (
-        <div style={modalOverlayStyle}>
-          <div style={modalStyle}>
-            <h2 style={{ marginTop: 0 }}>
-              {selectedUser.displayName ||
-                selectedUser.name ||
-                "Spotify User"}
-            </h2>
-
-            <div style={{ marginTop: "1rem" }}>
-              <p style={{ fontWeight: "700", marginBottom: "0.25rem" }}>
-                Bio
-              </p>
-
-              <p
-                style={{
-                  color: "var(--text-muted, #667085)",
-                  margin: 0,
-                }}
-              >
-                {selectedUser.bio ||
-                  "This user has not added a bio yet."}
-              </p>
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                gap: "1rem",
-                marginTop: "1.5rem",
-              }}
-            >
-              <Link to="/inbox" style={modalButtonStyle}>
-                Message
-              </Link>
-
-              <button
-                onClick={() => setSelectedUser(null)}
-                style={modalButtonStyle}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -374,37 +326,5 @@ const smallButtonStyle = {
   background: "var(--primary, #1db954)",
   color: "var(--text-dark, #101828)",
   fontWeight: "700",
-  cursor: "pointer",
-};
-
-const modalOverlayStyle = {
-  position: "fixed",
-  inset: 0,
-  background: "rgba(0, 0, 0, 0.55)",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  zIndex: 2000,
-};
-
-const modalStyle = {
-  width: "460px",
-  background: "var(--card-bg, #ffffff)",
-  color: "var(--text-light, #101828)",
-  borderRadius: "24px",
-  padding: "2rem",
-  boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
-};
-
-const modalButtonStyle = {
-  flex: 1,
-  textAlign: "center",
-  padding: "0.8rem 1rem",
-  borderRadius: "12px",
-  border: "none",
-  background: "var(--primary, #1db954)",
-  color: "var(--text-dark, #101828)",
-  fontWeight: "700",
-  textDecoration: "none",
   cursor: "pointer",
 };

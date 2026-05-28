@@ -8,12 +8,13 @@ const backendAPI = axios.create({
 });
 
 export function SpotifyProvider({ children }) {
-  const [accessToken, setAccessToken] = useState(null);
+  const [accessToken, setAccessToken] = useState(() => localStorage.getItem("spotify_access_token") || null);
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const logout = () => {
+    localStorage.removeItem("spotify_access_token");
     setAccessToken(null);
     setUserProfile(null);
     setIsAuthenticated(false);
@@ -38,8 +39,14 @@ export function SpotifyProvider({ children }) {
       const urlToken = params.get('access_token');
 
       if (urlToken) {
+        localStorage.setItem("spotify_access_token", urlToken);
         setAccessToken(urlToken);
+        
+        window.history.pushState({}, null, "/");
+        
         await fetchProfile(urlToken);
+      } else if (accessToken) {
+        await fetchProfile(accessToken);
       } else {
         setLoading(false);
       }
