@@ -1,18 +1,22 @@
 import LikeButton from './LikeButton';
 import { Link } from 'react-router-dom';
 
-export default function ForumCard({ forum, userId, onSelect, onLike }) {
+export default function ForumCard({ forum, userId, onSelect, onLike, onDelete }) {
     return (
         <div
             onClick={() => onSelect(forum)}
             className="bg-[var(--bg-dark)] rounded-2xl p-6 mb-4 border border-[var(--accent-secondary)]/20 cursor-pointer hover:border-[var(--accent-primary)]/50 transition-all"
         >
             <h2 className="text-xl font-semibold mb-2">{forum.title}</h2>
+            <p className="text-xs text-[var(--accent-secondary)] mb-2">
+                {forum.createdAt?.toDate?.()?.toLocaleDateString('en-US', {
+                    year: 'numeric', month: 'short', day: 'numeric'
+                })}
+            </p>
             <p className="text-[var(--text-light)] text-sm mb-4 line-clamp-2">{forum.content}</p>
             
-            <div className="flex items-center justify-between text-sm text-[var(--accent-secondary)]">
-                
-                <span>
+            <div className="flex items-center justify-between text-sm text-[var(--accent-secondary)]"> 
+                <span className="flex items-center gap-3">
                     by{" "}
                     <Link 
                         to={`/user/${forum.creatorId}`} 
@@ -21,6 +25,17 @@ export default function ForumCard({ forum, userId, onSelect, onLike }) {
                     >
                         {forum.createdBy}
                     </Link>
+                    {userId === forum.creatorId && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onDelete(forum.id);
+                            }}
+                            className="text-red-400 hover:text-red-500 text-xs"
+                        >
+                            delete
+                        </button>
+                    )}
                 </span>
 
                 <LikeButton
