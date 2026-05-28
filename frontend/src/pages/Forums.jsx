@@ -4,8 +4,9 @@ import LikeButton from '../components/forums/LikeButton';
 import { Link } from 'react-router-dom';
 import ForumCard from '../components/forums/ForumCard';
 import axios from 'axios';
+import { API_URL } from '../lib/config';
 
-const api = axios.create({ baseURL: 'http://127.0.0.1:5001/api' });
+const api = axios.create({ baseURL: API_URL });
 
 export default function Forums() {
     const { userProfile, accessToken } = useSpotify();

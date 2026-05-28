@@ -9,6 +9,11 @@ const spotifyApi = new SpotifyWebApi({
   redirectUri: process.env.SPOTIFY_REDIRECT_URI,
 });
 
+// Where to send the user back to after Spotify auth. Defaults to local dev;
+// override via the FRONTEND_URL env var when the frontend lives elsewhere
+// (deployed, tunnel, etc.).
+const FRONTEND_URL = process.env.FRONTEND_URL ?? "http://127.0.0.1:5173";
+
 // redirect to login /api/spotify/auth/login
 router.get("/auth/login", (req, res) => {
   const scopes = ["user-read-private", "user-read-email", "user-top-read", "user-library-read"];
@@ -40,8 +45,7 @@ router.get("/auth/callback", async (req, res) => {
       profileImage,
     });
 
-    const frontendUrl = `http://127.0.0.1:5173/?access_token=${access_token}`;
-    res.redirect(frontendUrl);
+    res.redirect(`${FRONTEND_URL}/?access_token=${access_token}`);
   } catch (err) {
     console.error("Auth callback error:", err);
     res.status(400).json({ error: "Authentication and profile sync failed" });

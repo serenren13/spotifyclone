@@ -1,12 +1,13 @@
 import '../styling/Landing.css'
 import { useSpotify } from '../context/SpotifyContext'
 import { Navigate } from "react-router-dom";
+import { SPOTIFY_LOGIN_URL } from '../lib/config';
 
 export default function LandingPage() {
     const { isAuthenticated } = useSpotify();
 
     const handleLogin = () => {
-        window.location.href = 'http://127.0.0.1:5001/api/spotify/auth/login';
+        window.location.href = SPOTIFY_LOGIN_URL;
     };
 
     if (isAuthenticated) {

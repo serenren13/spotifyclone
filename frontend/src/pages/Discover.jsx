@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { API_URL } from "../lib/config";
 
 export default function Discover() {
   const [users, setUsers] = useState([]);
@@ -11,10 +12,10 @@ export default function Discover() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const usersResponse = await fetch("http://localhost:5001/api/users/discover");
+        const usersResponse = await fetch(`${API_URL}/users/discover`);
         const usersData = await usersResponse.json();
 
-        const forumsResponse = await fetch("http://localhost:5001/api/forums");
+        const forumsResponse = await fetch(`${API_URL}/forums`);
         const forumsData = await forumsResponse.json();
 
         setUsers(usersData);
