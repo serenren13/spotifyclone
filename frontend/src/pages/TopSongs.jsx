@@ -13,8 +13,7 @@ export default function TopSongs() {
 
     useEffect(() => {
         if (!accessToken) return;
-        setLoading(true);
-        
+
         api.get(`/spotify/top-tracks?time_range=${timeRange}`, {
             headers: { Authorization: `Bearer ${accessToken}` }
         })
@@ -29,6 +28,12 @@ export default function TopSongs() {
         });
     }, [accessToken, timeRange]);
 
+    const selectTimeRange = (next) => {
+        if (next === timeRange) return;
+        setLoading(true);
+        setTimeRange(next);
+    };
+
     return (
         <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] p-8">
             <div className="max-w-6xl mx-auto">
@@ -36,20 +41,20 @@ export default function TopSongs() {
                 
                 <div className="flex justify-center mb-10">
                     <div className="flex border border-[var(--text-primary)]/30 rounded overflow-hidden">
-                        <button 
-                            onClick={() => setTimeRange("long_term")}
+                        <button
+                            onClick={() => selectTimeRange("long_term")}
                             className={`px-6 py-2 transition-colors ${timeRange === "long_term" ? "bg-[#1DB954] text-white" : "bg-[var(--bg-dark)] hover:bg-[var(--text-primary)]/10"}`}
                         >
                             All Time
                         </button>
-                        <button 
-                            onClick={() => setTimeRange("medium_term")}
+                        <button
+                            onClick={() => selectTimeRange("medium_term")}
                             className={`px-6 py-2 border-l border-r border-[var(--text-primary)]/30 transition-colors ${timeRange === "medium_term" ? "bg-[#1DB954] text-white" : "bg-[var(--bg-dark)] hover:bg-[var(--text-primary)]/10"}`}
                         >
                             Last Year
                         </button>
-                        <button 
-                            onClick={() => setTimeRange("short_term")}
+                        <button
+                            onClick={() => selectTimeRange("short_term")}
                             className={`px-6 py-2 transition-colors ${timeRange === "short_term" ? "bg-[#1DB954] text-white" : "bg-[var(--bg-dark)] hover:bg-[var(--text-primary)]/10"}`}
                         >
                             Last Month

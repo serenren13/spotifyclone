@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
+import * as Avatar from "@radix-ui/react-avatar";
 import axios from "axios";
 import MessageBubble from "./MessageBubble";
 import MessageInput from "./MessageInput";
@@ -8,13 +9,6 @@ const api = axios.create({ baseURL: "http://127.0.0.1:5001/api" });
 
 function ChatPanel({ currentUser, conversationId, otherUser, messages, setMessages, onMessageSent }) {
     const bottomRef = useRef(null);
-
-    useEffect(() => {
-        if (!conversationId) return;
-        api.get(`/conversations/${conversationId}/messages`)
-            .then((res) => setMessages(res.data))
-            .catch((err) => console.error("Error loading messages:", err));
-    }, [conversationId]);
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -46,13 +40,26 @@ function ChatPanel({ currentUser, conversationId, otherUser, messages, setMessag
         return { ...msg, isLastInGroup };
     });
 
+    const displayName = otherUser?.displayName || "Unknown user";
+    const initials = displayName.slice(0, 2).toUpperCase();
+
     return (
         <div className="flex flex-col h-full">
             <div className="flex items-center gap-2 px-4 py-4 border-b border-[var(--accent-secondary)]/30 shrink-0">
-                <div className="w-9 h-9 rounded-full bg-[var(--brand-color)] flex items-center justify-center text-xs font-bold text-[var(--text-on-brand)] shrink-0">
-                    {otherUser?.displayName?.slice(0, 2).toUpperCase()}
-                </div>
-                <span className="font-bold text-[var(--text-primary)] truncate">{otherUser?.displayName}</span>
+                <Avatar.Root className="shrink-0 w-9 h-9 rounded-full overflow-hidden bg-[var(--brand-color)] flex items-center justify-center">
+                    {otherUser?.profileImage && (
+                        <Avatar.Image
+                            src={otherUser.profileImage}
+                            alt={displayName}
+                            referrerPolicy="no-referrer"
+                            className="w-full h-full object-cover"
+                        />
+                    )}
+                    <Avatar.Fallback className="text-xs font-bold text-[var(--text-on-brand)]">
+                        {initials}
+                    </Avatar.Fallback>
+                </Avatar.Root>
+                <span className="font-bold text-[var(--text-primary)] truncate">{displayName}</span>
             </div>
             <ScrollArea.Root className="flex-1 overflow-hidden">
                 <ScrollArea.Viewport className="h-full w-full px-4 py-4">

@@ -28,7 +28,6 @@ export default function Forums() {
         : forums;
 
     const fetchForums = useCallback(async () => {
-        setLoading(true);
         try {
             const res = await api.get('/forums');
             setForums(res.data);
@@ -38,10 +37,15 @@ export default function Forums() {
             setLoading(false);
         }
     }, []);
-    
+
     useEffect(() => {
-        fetchForums();
-    }, [fetchForums]);
+        let cancelled = false;
+        api.get('/forums')
+            .then((res) => { if (!cancelled) setForums(res.data); })
+            .catch((err) => { console.error('Error fetching forums:', err); })
+            .finally(() => { if (!cancelled) setLoading(false); });
+        return () => { cancelled = true; };
+    }, []);
 
     const handleSearch = async (e) => {
         const query = e.target.value;

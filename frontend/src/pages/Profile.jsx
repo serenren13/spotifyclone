@@ -72,8 +72,8 @@ export default function Profile() {
         setIsPrivate(newPrivacyStatus);
         try {
             await api.patch(`/users/${profile.id}`, { isPrivate: newPrivacyStatus });
-        } catch (error) {
-            setIsPrivate(!newPrivacyStatus); 
+        } catch {
+            setIsPrivate(!newPrivacyStatus);
             alert("Could not update privacy status.");
         }
     };
@@ -83,8 +83,8 @@ export default function Profile() {
         setSavingBio(true);
         try {
             await api.patch(`/users/${profile.id}`, { bio: bioText });
-            setTimeout(() => setSavingBio(false), 1500); 
-        } catch (error) {
+            setTimeout(() => setSavingBio(false), 1500);
+        } catch {
             setSavingBio(false);
             alert("Database error: Check backend terminal.");
         }
@@ -94,10 +94,10 @@ export default function Profile() {
         if (!profile?.id) return;
         const newUrl = window.prompt("Paste a new image URL to update your profile picture:", customImageUrl);
         if (newUrl !== null && newUrl.trim() !== "") {
-            setCustomImageUrl(newUrl); 
+            setCustomImageUrl(newUrl);
             try {
                 await api.patch(`/users/${profile.id}`, { profileImage: newUrl });
-            } catch (error) {
+            } catch {
                 alert("Database error: Could not save the new profile picture.");
             }
         }
@@ -127,17 +127,14 @@ export default function Profile() {
         setIsEditingFavorites(false);
         try {
             await api.patch(`/users/${profile.id}`, { favoriteSongs: tempSelectedFavorites });
-        } catch (error) {
+        } catch {
             alert("Database error: Could not save favorite songs.");
         }
     };
 
-    let displayFavorites = [];
-    if (favoriteSongIds.length > 0) {
-        displayFavorites = allLikedSongs.filter(item => favoriteSongIds.includes(item.track.id)).slice(0, 4);
-    } else {
-        displayFavorites = allLikedSongs.slice(0, 4); 
-    }
+    const displayFavorites = favoriteSongIds.length > 0
+        ? allLikedSongs.filter(item => favoriteSongIds.includes(item.track.id)).slice(0, 4)
+        : allLikedSongs.slice(0, 4);
 
     const displayImage = customImageUrl || profile?.images?.[1]?.url || profile?.images?.[0]?.url || "https://i.scdn.co/image/ab6761610000e5eb55d39ab9c21d506aa52f7021";
 
@@ -202,10 +199,12 @@ export default function Profile() {
                     <p className="text-center text-sm font-semibold">Current Status: {isPrivate ? "Private" : "Public"}</p>
 
                     <div className="flex flex-col items-center mt-4">
-                        <img 
-                            src={displayImage} 
-                            alt="Profile" 
-                            className="w-48 h-48 rounded-full object-cover bg-[var(--bg-dark)] mb-4 border-4 border-[var(--text-primary)]/10"
+                        <img
+                            src={displayImage}
+                            alt="Profile"
+                            onClick={handleEditProfileImage}
+                            className="w-48 h-48 rounded-full object-cover bg-[var(--bg-dark)] mb-4 border-4 border-[var(--text-primary)]/10 cursor-pointer hover:border-[#1DB954]/40 transition-colors"
+                            title="Click to change profile picture"
                         />
                         <h2 className="text-3xl font-medium mb-6">{profile?.display_name || "Username"}</h2>
                     </div>

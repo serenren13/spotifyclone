@@ -1,12 +1,9 @@
-import { useState } from "react";
-import { Outlet, Link, useLocation } from "react-router-dom";
-import ThemeToggle from "./components/ThemeToggle";
+import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 
 export default function App() {
   const location = useLocation();
   const isLandingPage = location.pathname === "/";
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <>
