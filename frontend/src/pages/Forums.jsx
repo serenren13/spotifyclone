@@ -1,12 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSpotify } from '../context/SpotifyContext';
 import LikeButton from '../components/forums/LikeButton';
 import { Link } from 'react-router-dom';
 import ForumCard from '../components/forums/ForumCard';
 import axios from 'axios';
 import RichTextEditor from '../components/forums/RichTextEditor';
+import Comment from '../components/forums/Comment';
 
 const api = axios.create({ baseURL: 'http://127.0.0.1:5001/api' });
+
+const buildTree = (comments) => {
+        const map = {};
+        const roots = [];
+        comments.forEach(c => map[c.id] = { ...c, replies: [] });
+        comments.forEach(c => {
+            if (c.parentId) map[c.parentId]?.replies.push(map[c.id]);
+            else roots.push(map[c.id]);
+        });
+        return roots;
+    };
 
 export default function Forums() {
     const { userProfile, accessToken } = useSpotify();
@@ -23,6 +35,9 @@ export default function Forums() {
     const [attachedTrack, setAttachedTrack] = useState(null);
     const [loading, setLoading] = useState(true);
     const [sortOrder, setSortOrder] = useState('newest');
+    const [replyingTo, setReplyingTo] = useState(null);
+    
+    const commentTree = useMemo(() => buildTree(comments), [comments]);
 
     const sortedForums = sortOrder === 'liked'
         ? [...forums].sort((a,b) => (b.likes || 0) - (a.likes || 0))
@@ -51,23 +66,42 @@ export default function Forums() {
 
     const handleCreateForum = async () => {
         if (!newTitle.trim() || !newContent.trim()) return;
+        
+        const optimisticForum = {
+            id: `temp-${Date.now()}`,
+            title: newTitle,
+            content: newContent,
+            createdBy: userProfile?.display_name || 'Anonymous',
+            creatorId: userProfile?.id,
+            attachedTrack: attachedTrack || null,
+            likes: 0,
+            likedBy: [],
+            createdAt: null,
+        };
+
+        setForums(prev => [optimisticForum, ...prev]);
+        setNewTitle('');
+        setNewContent('');
+        setShowForm(false);
+        setAttachedTrack(null);
+        setTrackSearch('');
+        setTrackResults([]);
+
+
         try {
             await api.post('/forums', {
-                title: newTitle,
-                content: newContent,
-                createdBy: userProfile?.display_name || 'Anonymous',
-                creatorId: userProfile?.id, // Ensure this matches the ID of the document in 'users'
-                attachedTrack: attachedTrack || null
+                title: optimisticForum.title,
+                content: optimisticForum.content,
+                createdBy: optimisticForum.createdBy,
+                creatorId: optimisticForum.creatorId, 
+                attachedTrack: optimisticForum.attachedTrack,
             });
-            setNewTitle('');
-            setNewContent('');
-            setShowForm(false);
+            // replace optimistic with real data
             api.get('/forums').then(res => setForums(res.data));
-            setAttachedTrack(null);
-            setTrackSearch('');
-            setTrackResults([]);
         } catch (err) {
             console.error('Error creating forum:', err);
+            // revert on failure
+            setForums(prev => prev.filter(f => f.id !== optimisticForum.id));
         }
     };
 
@@ -93,16 +127,39 @@ export default function Forums() {
 
     const handleAddComment = async () => {
         if (!newComment.trim()) return;
+        
+        // optimistic update
+        const optimisticComment = {
+            id: `temp-${Date.now()}`,
+            authorName: userProfile?.display_name || 'Anonymous',
+            authorId: userProfile?.id,
+            comment: newComment,
+            parentId: replyingTo?.id || null,
+            depth: replyingTo ? (replyingTo.depth || 0) + 1 : 0,
+            likes: 0,
+            likedBy: [],
+            createdAt: null, // no timestamp yet
+            replies: [],
+        };
+
+        setComments(prev => [...prev, optimisticComment]);
+        setNewComment('');
+        setReplyingTo(null);
+
         try {
             await api.post(`/forums/${selectedForum.id}/comments`, {
                 authorName: userProfile?.display_name || 'Anonymous',
                 authorId: userProfile?.id, // Explicitly save the Firebase Document ID
-                comment: newComment,
+                comment: optimisticComment.comment,
+                parentId: replyingTo?.id || null,
+                depth: optimisticComment.depth,
             });
-            setNewComment('');
+            // replace optimistic with real data
             handleSelectForum(selectedForum);
         } catch (err) {
             console.error('Error adding comment:', err);
+            // revert on failure
+            setComments(prev => prev.filter(c => c.id !== optimisticComment.id));
         }
     };
 
@@ -183,7 +240,7 @@ export default function Forums() {
                                 year: 'numeric', month: 'short', day: 'numeric'
                             })}
                         </p>
-                        <p className="text-[var(--text-light)] mb-4">{selectedForum.content}</p>
+                        <div className="text-[var(--text-light)] mb-4" dangerouslySetInnerHTML={{ __html: selectedForum.content }} />
                         {selectedForum.attachedTrack && (
                             <a
                                 href={selectedForum.attachedTrack.spotifyUrl}
@@ -242,55 +299,40 @@ export default function Forums() {
                         <p className="text-[var(--accent-secondary)] text-sm mb-4">No comments yet. Be the first!</p>
                     )}
 
-                    {comments.map(c => (
-                        <div key={c.id} className="bg-[var(--bg-dark)] rounded-xl p-4 mb-3 border border-[var(--accent-secondary)]/20">
-                            <div className="flex items-center justify-between mb-1">
-                                <p className="text-sm font-semibold text-[var(--accent-primary)]">
-                                    <Link to={`/user/${c.authorId}`} className="hover:underline">
-                                        {c.authorName || c.authorId}
-                                    </Link>
-                                </p>
-                                {userProfile?.id === c.authorId && (
-                                    <button
-                                        onClick={() => handleDeleteComment(c.id)}
-                                        className="text-red-400 hover:text-red-500 text-xs"
-                                    >
-                                        delete
-                                    </button>
-                                )}
-                            </div>
-                            <p className="text-xs text-[var(--accent-secondary)] mb-1">
-                                {c.createdAt?.toDate?.()?.toLocaleDateString('en-US', {
-                                    year: 'numeric', month: 'short', day: 'numeric'
-                                })}
-                            </p>
-                            <p className="text-[var(--text-light)]">{c.comment}</p>
-                            <div className="flex justify-end mt-2">
-                                <LikeButton
-                                    likes={c.likes || 0}
-                                    likedBy={c.likedBy || []}
-                                    userId={userProfile?.id}
-                                    onLike={(e) => handleCommentLike(e, c.id)}
-                                />
-                            </div>
-                        </div>
-                    ))}
-
-                    <div className="mt-6 flex gap-3">
-                        <input
-                            type="text"
-                            placeholder="Add a comment..."
-                            value={newComment}
-                            onChange={e => setNewComment(e.target.value)}
-                            onKeyDown={e => { if (e.key === 'Enter') handleAddComment(); }}
-                            className="flex-1 bg-[var(--bg-dark)] border border-[var(--accent-secondary)]/30 rounded-xl px-4 py-2 text-[var(--text-primary)] placeholder-[var(--accent-secondary)] focus:outline-none"
+                    {commentTree.map(comment => (
+                        <Comment
+                            key={comment.id}
+                            comment={comment}
+                            userId={userProfile?.id}
+                            onLike={handleCommentLike}
+                            onReply={setReplyingTo}
+                            onDelete={handleDeleteComment}
+                            maxDepth={3}
                         />
-                        <button
-                            onClick={handleAddComment}
-                            className="bg-[var(--accent-primary)] text-white px-4 py-2 rounded-xl hover:opacity-90"
-                        >
-                            Post
-                        </button>
+                    ))}
+                    <div className="mt-6 flex flex-col gap-3">
+                        {replyingTo && (
+                            <div className="flex items-center gap-2 text-xs text-[var(--accent-secondary)] bg-[var(--bg-dark)] px-3 py-2 rounded-xl">
+                                <span>Replying to <span className="text-[var(--accent-primary)]">{replyingTo.authorName || replyingTo.authorId}</span></span>
+                                <button onClick={() => setReplyingTo(null)} className="ml-auto hover:text-red-400">x</button>
+                            </div>
+                        )}
+                        <div className="flex gap-3">
+                            <input
+                                type="text"
+                                placeholder={replyingTo ? `Reply to ${replyingTo.authorName || replyingTo.authorId}...` : "Add a comment..."}
+                                value={newComment}
+                                onChange={e => setNewComment(e.target.value)}
+                                onKeyDown={e => { if (e.key === 'Enter') handleAddComment(); }}
+                                className="flex-1 bg-[var(--bg-dark)] border border-[var(--accent-secondary)]/30 rounded-xl px-4 py-2 text-[var(--text-primary)] placeholder-[var(--accent-secondary)] focus:outline-none"
+                            />
+                            <button
+                                onClick={handleAddComment}
+                                className="bg-[var(--accent-primary)] text-white px-4 py-2 rounded-xl hover:opacity-90"
+                            >
+                                Post
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
