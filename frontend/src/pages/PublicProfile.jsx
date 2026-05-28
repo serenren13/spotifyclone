@@ -16,6 +16,12 @@ export default function PublicProfile() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        if (userProfile && id === userProfile.id) {
+            navigate('/profile'); 
+        }
+    }, [userProfile, id, navigate]);
+
+    useEffect(() => {
         if (!accessToken) {
             setError("Session expired. Please return home and log in again.");
             setLoading(false);
