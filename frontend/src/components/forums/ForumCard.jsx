@@ -14,7 +14,22 @@ export default function ForumCard({ forum, userId, onSelect, onLike, onDelete })
                 })}
             </p>
             <p className="text-[var(--text-light)] text-sm mb-4 line-clamp-2">{forum.content}</p>
-            
+                {forum.attachedTrack && (
+                    <div
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(forum.attachedTrack.spotifyUrl, '_blank');
+                        }}
+                        className="flex items-center gap-2 p-2 bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 rounded-lg mb-3 hover:opacity-80 cursor-pointer"
+                    >
+                        <img src={forum.attachedTrack.albumArt} alt={forum.attachedTrack.name} className="w-8 h-8 rounded" />
+                        <div>
+                            <p className="text-xs font-medium">{forum.attachedTrack.name}</p>
+                            <p className="text-xs text-[var(--accent-secondary)]">{forum.attachedTrack.artist}</p>
+                        </div>
+                        <span className="ml-auto text-xs text-[var(--accent-primary)]">🎵</span>
+                    </div>
+                )}
             <div className="flex items-center justify-between text-sm text-[var(--accent-secondary)]"> 
                 <span className="flex items-center gap-3">
                     by{" "}

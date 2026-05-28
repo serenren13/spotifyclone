@@ -8,7 +8,7 @@ import axios from 'axios';
 const api = axios.create({ baseURL: 'http://127.0.0.1:5001/api' });
 
 export default function Forums() {
-    const { userProfile } = useSpotify();
+    const { userProfile, accessToken } = useSpotify();
     const [forums, setForums] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [newTitle, setNewTitle] = useState('');
@@ -17,6 +17,9 @@ export default function Forums() {
     const [selectedForum, setSelectedForum] = useState(null);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
+    const [trackSearch, setTrackSearch] = useState('');
+    const [trackResults, setTrackResults] = useState([]);
+    const [attachedTrack, setAttachedTrack] = useState(null);
 
     const fetchForums = useCallback(async () => {
         try {
@@ -42,23 +45,27 @@ export default function Forums() {
         }
     };
 
-        const handleCreateForum = async () => {
-            if (!newTitle.trim() || !newContent.trim()) return;
-            try {
-                await api.post('/forums', {
-                    title: newTitle,
-                    content: newContent,
-                    createdBy: userProfile?.display_name || 'Anonymous',
-                    creatorId: userProfile?.id // Ensure this matches the ID of the document in 'users'
-                });
-                setNewTitle('');
-                setNewContent('');
-                setShowForm(false);
-                fetchForums();
-            } catch (err) {
-                console.error('Error creating forum:', err);
-            }
-        };
+    const handleCreateForum = async () => {
+        if (!newTitle.trim() || !newContent.trim()) return;
+        try {
+            await api.post('/forums', {
+                title: newTitle,
+                content: newContent,
+                createdBy: userProfile?.display_name || 'Anonymous',
+                creatorId: userProfile?.id, // Ensure this matches the ID of the document in 'users'
+                attachedTrack: attachedTrack || null
+            });
+            setNewTitle('');
+            setNewContent('');
+            setShowForm(false);
+            fetchForums();
+            setAttachedTrack(null);
+            setTrackSearch('');
+            setTrackResults([]);
+        } catch (err) {
+            console.error('Error creating forum:', err);
+        }
+    };
 
     const handleSelectForum = async (forum) => {
         setSelectedForum(forum);
@@ -117,6 +124,20 @@ export default function Forums() {
         }
     };
 
+    const handleTrackSearch = async (e) => {
+        const q = e.target.value;
+        setTrackSearch(q);
+        if (!q.trim()) { setTrackResults([]); return; }
+        try {
+            const res = await api.get(`/spotify/search?q=${q}`, {
+                headers: { Authorization: `Bearer ${accessToken}` }
+            });
+            setTrackResults(res.data);
+        } catch (err) {
+            console.error('Error searching tracks:', err)
+        }
+    };
+
     // --- FORUM DETAIL VIEW ---
     if (selectedForum) {
         return (
@@ -137,6 +158,25 @@ export default function Forums() {
                             })}
                         </p>
                         <p className="text-[var(--text-light)] mb-4">{selectedForum.content}</p>
+                        {selectedForum.attachedTrack && (
+                            <a
+                                href={selectedForum.attachedTrack.spotifyUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="flex items-center gap-3 p-3 bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 rounded-xl mb-4 hover:opacity-80 transition-all"
+                            >
+                                <img
+                                    src={selectedForum.attachedTrack.albumArt}
+                                    alt={selectedForum.attachedTrack.name}
+                                    className="w-12 h-12 rounded"
+                                />
+                                <div>
+                                    <p className="text-xs text-[var(--accent-primary)] mb-0.5">🎵 Attached Track</p>
+                                    <p className="text-sm font-medium">{selectedForum.attachedTrack.name}</p>
+                                    <p className="text-xs text-[var(--accent-secondary)]">{selectedForum.attachedTrack.artist}</p>
+                                </div>
+                            </a>
+                        )}
                         <div className="flex items-center justify-between">
                             <span className="text-sm text-[var(--accent-secondary)]">
                                 by{" "}
@@ -260,6 +300,52 @@ export default function Forums() {
                             rows={4}
                             className="w-full bg-[var(--bg-primary)] border border-[var(--accent-secondary)]/30 rounded-xl px-4 py-2 mb-3 text-[var(--text-primary)] placeholder-[var(--accent-secondary)] focus:outline-none resize-none"
                         />
+                        {/* Song search */}
+                        <div className="mb-3">
+                            <input
+                                type="text"
+                                placeholder="🎵 Attach a song..."
+                                value={trackSearch}
+                                onChange={handleTrackSearch}
+                                className="w-full bg-[var(--bg-primary)] border border-[var(--accent-secondary)]/30 rounded-xl px-4 py-2 text-[var(--text-primary)] placeholder-[var(--accent-secondary)] focus:outline-none"
+                            />
+                            {trackResults.length > 0 && !attachedTrack && (
+                                <div className="mt-2 bg-[var(--bg-primary)] border border-[var(--accent-secondary)]/20 rounded-xl overflow-hidden">
+                                    {trackResults.map(track => (
+                                        <div
+                                            key={track.id}
+                                            onClick={() => {
+                                                setAttachedTrack(track);
+                                                setTrackResults([]);
+                                                setTrackSearch(track.name);
+                                            }}
+                                            className="flex items-center gap-3 p-3 hover:bg-[var(--bg-dark)] cursor-pointer"
+                                            >
+                                                <img src={track.albumArt} alt={track.name} className="w-10 h-10 rounded" />
+                                                <div>
+                                                    <p className="text-sm font-medium">{track.name}</p>
+                                                    <p className="text-xs text-[var(--accent-secondary)]">{track.artist}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                                {attachedTrack && (
+                                    <div className="mt-2 flex items-center gap-3 p-3 bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 rounded-xl">
+                                        <img src={attachedTrack.albumArt} alt={attachedTrack.name} className="w-10 h-10 rounded" />
+                                        <div className="flex-1">
+                                            <p className="text-sm font-medium">{attachedTrack.name}</p>
+                                            <p className="text-xs text-[var(--accent-secondary)]">{attachedTrack.artist}</p>
+                                        </div>
+                                        <button
+                                            onClick={() => { setAttachedTrack(null); setTrackSearch(''); }}
+                                            className="text-[var(--accent-secondary)] hover:text-red-400 text-xs"
+                                        >
+                                            remove
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                         <button
                             onClick={handleCreateForum}
                             className="bg-[var(--accent-primary)] text-white px-6 py-2 rounded-xl hover:opacity-90"

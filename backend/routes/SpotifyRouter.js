@@ -164,4 +164,32 @@ router.get("/tracks", async (req, res) => {
   }
 });
 
+// search spotify tracks /api/spotify/search?q=query
+router.get("/search", async (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.status(401).json({ error: "No token provided" });
+
+  const { q } = req.query;
+  if (!q) return res.status(400).json({ error: "Search query required" });
+
+  try {
+    const userSpecificApi = new SpotifyWebApi({ clientId: process.env.SPOTIFY_CLIENT_ID });
+    userSpecificApi.setAccessToken(token);
+
+    const data = await userSpecificApi.searchTracks(q, { limit: 8 });
+    const tracks = data.body.tracks.items.map(track => ({
+      id: track.id,
+      name: track.name,
+      artist: track.artists.map(a => a.name).join(", "),
+      albumArt: track.album.images[2]?.url || track.album.images[0]?.url,
+      previewUrl: track.preview_url,
+      spotifyUrl: track.external_urls.spotify,
+    }));
+    res.json(tracks);
+  } catch (err) {
+    console.error("Spotify search error:", err);
+    res.status(400).json({ error: "Failed to search tracks" });
+  }
+});
+
 module.exports = router;
