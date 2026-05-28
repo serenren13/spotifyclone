@@ -99,17 +99,7 @@ router.get("/user/liked-songs", async (req, res) => {
     const userSpecificApi = new SpotifyWebApi({ clientId: process.env.SPOTIFY_CLIENT_ID });
     userSpecificApi.setAccessToken(token);
 
-    let allTracks =[];
-    let offset = 0;
-    const limit = 50;
-
-    while (true) {
-      const data = await userSpecificApi.getMySavedTracks({ limit, offset });
-      allTracks = [...allTracks, ...data.body.items];
-      if (data.body.next === null) break;
-      offset += limit;
-    }
-
+    const data = await userSpecificApi.getMySavedTracks({ limit: 50 });
     res.json({ items: allTracks });
   } catch (err) {
     res.status(401).json({ error: "Failed to fetch liked songs" });
