@@ -13,24 +13,34 @@ const { db } = require("../firebase.js");
 
 const saveUser = async (userId, userData) => {
     const userRef = doc(db, "users", userId);
-    
     const userDoc = await getDoc(userRef);
-    
+
+    const { topArtists, topTracks, likedTracks, ...profileData } = userData; // fix: likedTracks
+
+    const musicData = {
+        topArtists: topArtists || [],
+        topTracks: topTracks || [],
+        likedTracks: likedTracks || [],                                       // fix: likedTracks
+    };
+
     if (!userDoc.exists()) {
         await setDoc(userRef, {
-            displayName: userData.displayName || "Anonymous",
-            bio: userData.bio || "",
-            isPrivate: userData.isPrivate ?? true,
-            email: userData.email,
-            profileImage: userData.profileImage || null,
-            spotifyId: userData.spotifyId || userId
+            displayName: profileData.displayName || "Anonymous",
+            bio: "",
+            isPrivate: true,
+            email: profileData.email,
+            profileImage: profileData.profileImage || null,
+            favoriteSongs: [],
+            spotifyId: profileData.spotifyId || userId,
+            ...musicData,
         });
     } else {
-        await setDoc(userRef, userData, { merge: true });
+        await setDoc(userRef, { ...profileData, ...musicData }, { merge: true });
     }
 
     return { id: userId, ...userData };
 };
+
 const userFromId = async (id) => {
     const userDoc = await getDoc(doc(db, "users", id));
     return userDoc.exists() ? { id: userDoc.id, ...userDoc.data() } : null;
