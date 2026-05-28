@@ -20,7 +20,12 @@ export default function Forums() {
     const [trackSearch, setTrackSearch] = useState('');
     const [trackResults, setTrackResults] = useState([]);
     const [attachedTrack, setAttachedTrack] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
+    const [sortOrder, setSortOrder] = useState('newest');
+
+    const sortedForums = sortOrder === 'liked'
+        ? [...forums].sort((a,b) => (b.likes || 0) - (a.likes || 0))
+        : forums;
 
     const fetchForums = useCallback(async () => {
         try {
@@ -315,6 +320,32 @@ export default function Forums() {
                     </button>
                 </div>
 
+                <div className="flex items-center gap-3 mb-4">
+                    <span className="text-sm text-[var(--accent-secondary)]">
+                        Sort by:
+                    </span>
+                    <button 
+                        onClick={() => setSortOrder('newest')}
+                        className={`px-3 py-1 rounded-full text-sm transition-all ${
+                            sortOrder === 'newest'
+                                ? 'bg-[var(--accent-primary)] text-white'
+                                : 'bg-[var(--bg-dark)] text-[var(--accent-secondary)] hover:opacity-80'
+                        }`}
+                    >
+                        Newest
+                    </button>
+                    <button 
+                        onClick={() => setSortOrder('liked')}
+                        className={`px-3 py-1 rounded-full text-sm transition-all ${
+                            sortOrder === 'liked'
+                                ? 'bg-[var(--accent-primary)] text-white'
+                                : 'bg-[var(--bg-dark)] text-[var(--accent-secondary)] hover:opacity-80'
+                        }`}
+                    >
+                        Most Liked
+                    </button>
+                </div>
+
                 <input
                     type="text"
                     placeholder="Search forums..."
@@ -412,7 +443,7 @@ export default function Forums() {
                     </p>
                 )}
 
-                {forums.map(forum => (
+                {sortedForums.map(forum => (
                     <ForumCard
                         key={forum.id}
                         forum={forum}
