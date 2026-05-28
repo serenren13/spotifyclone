@@ -16,14 +16,15 @@ const {
 const { db } = require("../firebase.js");
 
 
-const createForum = async (title, content, createdBy, creatorId) => {
+const createForum = async (title, content, createdBy, creatorId, attachedTrack = null) => {
     const docRef = await addDoc(collection(db, "forums"), {
         title,
         content,
         createdBy,
         creatorId,
+        attachedTrack,
         likes: 0,
-        createdAt: new Date(),
+        createdAt: serverTimestamp(),
         likedBy: []
     });
     return docRef.id;
