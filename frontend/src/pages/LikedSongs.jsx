@@ -8,7 +8,8 @@ export default function LikedSongs() {
     const { accessToken } = useSpotify();
     const [songs, setSongs] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [ selectedArtist, setSelectedArtist] = useState(null);
+    const [selectedArtist, setSelectedArtist] = useState(null);
+    const [sortOrder, setSortOrder] = useState('newest');
 
     // get unique artists from songs
     const artists = [...new Set(songs.map(item => item.track.artists[0].name))];
@@ -17,6 +18,10 @@ export default function LikedSongs() {
     const filteredSongs = selectedArtist
         ? songs.filter(item => item.track.artists[0].name === selectedArtist)
         : songs;
+
+    const sortedSongs = sortOrder === 'oldest'
+        ? [...filteredSongs].reverse()
+        : filteredSongs;
 
     useEffect(() => {
         if (!accessToken) return;
@@ -44,8 +49,31 @@ export default function LikedSongs() {
             <div className="max-w-4xl mx-auto">
                 <h1 className="text-3xl font-bold mb-2">Liked Songs</h1>
                 <p className="text-[var(--accent-secondary)] mb-8">
-                    {filteredSongs.length} {selectedArtist ? `songs by ${selectedArtist}` : 'songs'}
+                    {sortedSongs.length} {selectedArtist ? `songs by ${selectedArtist}` : 'songs'}
                 </p>
+                <div className="flex items-center gap-3 mb-4">
+                    <span className="text-sm text-[var(--accent-secondary)]">Sort by:</span>
+                    <button
+                        onClick={() => setSortOrder('newest')}
+                        className={`px-3 py-1 rounded-full text-sm transition-all ${
+                            sortOrder === 'newest'
+                                ? 'bg-[var(--accent-primary)] text-white'
+                                : 'bg-[var(--bg-dark)] text-[var(--accent-secondary)] hover:opacity-80'
+                        }`}
+                    >
+                        Recently Added
+                    </button>
+                    <button
+                        onClick={() => setSortOrder('oldest')}
+                        className={`px-3 py-1 rounded-full text-sm transition-all ${
+                            sortOrder === 'oldest'
+                                ? 'bg-[var(--accent-primary)] text-white'
+                                : 'bg-[var(--bg-dark)] text-[var(--accent-secondary)] hover:opacity-80'
+                        }`}
+                    >
+                        Oldest First
+                    </button>
+                </div>
                 <div className="flex flex-wrap gap-2 mb-6">
                     <button
                         onClick={() => setSelectedArtist(null)}
@@ -73,7 +101,7 @@ export default function LikedSongs() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                    {filteredSongs.map((item, index) => (
+                    {sortedSongs.map((item, index) => (
                         <div
                             key={item.track.id}
                             className="flex items-center gap-4 p-3 rounded-xl hover:bg-[var(--bg-dark)] transition-all cursor-pointer group border-b border-[var(--accent-secondary)]/10"
