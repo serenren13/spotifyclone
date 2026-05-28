@@ -41,6 +41,8 @@ const sendMessage = async (conversationId, senderId, text) => {
     const conversationSnap = await getDoc(conversationRef);
     const { participants } = conversationSnap.data();
 
+    const createdAtIso = new Date().toISOString();
+
     const messagesSubcollectionRef = collection(conversationRef, "messages");
     const newMessageRef = await addDoc(messagesSubcollectionRef, {
         senderId,
@@ -62,7 +64,7 @@ const sendMessage = async (conversationId, senderId, text) => {
         ...unreadUpdates,
     });
 
-    return { id: newMessageRef.id, senderId, text, participants };
+    return { id: newMessageRef.id, senderId, text, participants, createdAt: createdAtIso };
 };
 
 const markConversationRead = async (conversationId, userId) => {
