@@ -11,7 +11,12 @@ const spotifyApi = new SpotifyWebApi({
 
 // redirect to login /api/spotify/auth/login
 router.get("/auth/login", (req, res) => {
-  const scopes = ["user-read-private", "user-read-email", "user-top-read", "user-library-read"];
+  const scopes = [
+    'user-read-email',
+    'user-read-private',
+    'user-top-read',
+    'user-library-read',
+  ];
   const authorizeURL = spotifyApi.createAuthorizeURL(scopes);
   res.redirect(authorizeURL);
 });
@@ -26,22 +31,48 @@ router.get("/auth/callback", async (req, res) => {
     const userSpecificApi = new SpotifyWebApi({ clientId: process.env.SPOTIFY_CLIENT_ID });
     userSpecificApi.setAccessToken(access_token);
 
-    const spotifyUser = await userSpecificApi.getMe();
+    // Fetch everything in parallel
+    const [spotifyUser, topArtistsRes, topTracksRes, likedRes] = await Promise.all([
+      userSpecificApi.getMe(),
+      userSpecificApi.getMyTopArtists({ limit: 4, time_range: 'long_term' }),
+      userSpecificApi.getMyTopTracks({ limit: 4, time_range: 'long_term' }),
+      userSpecificApi.getMySavedTracks({ limit: 4 }),
+    ]);
 
     const userId = spotifyUser.body.id;
-    const email = spotifyUser.body.email;
-    const displayName = spotifyUser.body.display_name;
-    const profileImage = spotifyUser.body.images?.[0]?.url || null;
+
+    // Slim down to only what you need stored
+    const topArtists = topArtistsRes.body.items.map(a => ({
+      id: a.id,
+      name: a.name,
+      image: a.images?.[0]?.url || null,
+    }));
+
+    const topTracks = topTracksRes.body.items.map(t => ({
+      id: t.id,
+      name: t.name,
+      artist: t.artists[0]?.name || null,
+      albumArt: t.album.images?.[0]?.url || null,
+    }));
+
+    const likedTracks = likedRes.body.items.map(({ track }) => ({
+      id: track.id,
+      name: track.name,
+      artist: track.artists[0]?.name || null,
+      albumArt: track.album.images?.[0]?.url || null,
+    }));
 
     await saveUser(userId, {
-      displayName,
-      email,
+      displayName: spotifyUser.body.display_name,
+      email: spotifyUser.body.email,
       spotifyId: userId,
-      profileImage,
+      profileImage: spotifyUser.body.images?.[0]?.url || null,
+      topArtists,
+      topTracks,
+      likedTracks,
     });
 
-    const frontendUrl = `http://127.0.0.1:5173/?access_token=${access_token}`;
-    res.redirect(frontendUrl);
+    res.redirect(`http://127.0.0.1:5173/?access_token=${access_token}`);
   } catch (err) {
     console.error("Auth callback error:", err);
     res.status(400).json({ error: "Authentication and profile sync failed" });
@@ -75,12 +106,12 @@ router.get("/top-tracks", async (req, res) => {
 
     const timeRange = req.query.time_range || 'long_term';
 
-    const data = await userSpecificApi.getMyTopTracks({ 
-        time_range: timeRange, 
-        limit: 10 
+    const data = await userSpecificApi.getMyTopTracks({
+      time_range: timeRange,
+      limit: 10
     });
     res.json(data.body.items);
-    
+
   } catch (err) {
     console.error("Spotify API Error:", err);
     res.status(400).json({ error: "Failed to fetch top tracks" });
@@ -136,7 +167,7 @@ router.get("/user/four-top-artists", async (req, res) => {
     userSpecificApi.setAccessToken(token);
 
     const data = await userSpecificApi.getMyTopArtists({ time_range: 'long_term', limit: 4 });
-    
+
     res.json(data.body);
   } catch (err) {
     res.status(401).json({ error: "Failed to fetch liked songs" });
@@ -149,6 +180,7 @@ router.get("/tracks", async (req, res) => {
   if (!token) return res.status(401).json({ error: "No token provided" });
 
   const trackIds = req.query.ids;
+  console.log("Track IDs received:", trackIds); // 👈 add this
   if (!trackIds) return res.status(400).json({ error: "No track IDs provided" });
 
   try {
