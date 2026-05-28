@@ -20,13 +20,17 @@ export default function Forums() {
     const [trackSearch, setTrackSearch] = useState('');
     const [trackResults, setTrackResults] = useState([]);
     const [attachedTrack, setAttachedTrack] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     const fetchForums = useCallback(async () => {
+        setLoading(true);
         try {
             const res = await api.get('/forums');
             setForums(res.data);
         } catch (err) {
             console.error('Error fetching forums:', err);
+        } finally {
+            setLoading(false);
         }
     }, []);
     
@@ -386,8 +390,22 @@ export default function Forums() {
                     </div>
                 )}
 
-                {forums.length === 0 && (
-                    <p className="text-center text-[var(--accent-secondary)] mt-12">No forums yet. Be the first to post!</p>
+                {loading && (
+                    <p className= "text-center text-[var(--accent-secondary)] mt-12">
+                        Loading forums...
+                    </p>
+                )}
+
+                {!loading && forums.length === 0 && searchQuery && (
+                    <p className="text-center text-[var(--accent-secondary)] mt-12">
+                        No forums found for "{searchQuery}"
+                    </p>
+                )}
+
+                {!loading && forums.length === 0 && !searchQuery && (
+                    <p className="text-center text-[var(--accent-secondary)] mt-12">
+                        No forums yet. Be the first to post!
+                    </p>
                 )}
 
                 {forums.map(forum => (
