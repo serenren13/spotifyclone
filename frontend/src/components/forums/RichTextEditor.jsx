@@ -1,13 +1,11 @@
 import { useEditor, EditorContent, useEditorState } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import Underline from '@tiptap/extension-underline';
 import Placeholder from '@tiptap/extension-placeholder';
 
 export default function RichTextEditor({ content, onChange }) {
     const editor = useEditor({
         extensions: [
             StarterKit,
-            Underline,
             Placeholder.configure({
                 placeholder: "What's on your mind?",
             }),
@@ -43,37 +41,37 @@ export default function RichTextEditor({ content, onChange }) {
             <div className="flex gap-1 p-2 border-b border-[var(--accent-secondary)]/20">
                 <button
                     onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleBold().run(); }}
-                    className={`px-2 py-1 rounded text-sm font-bold ${editor.isActive('bold') ? 'bg-[var(--accent-primary)] text-white' : 'text-[var(--text-primary)] hover:bg-[var(--bg-dark)]'}`}
+                    className={`px-2 py-1 rounded text-sm font-bold ${editorState?.isBold ? 'bg-[var(--accent-primary)] text-white' : 'text-[var(--text-primary)] hover:bg-[var(--bg-dark)]'}`}
                 >
                     B
                 </button>
                 <button
                     onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleItalic().run(); }}
-                    className={`px-2 py-1 rounded text-sm italic ${editor.isActive('italic') ? 'bg-[var(--accent-primary)] text-white' : 'text-[var(--text-primary)] hover:bg-[var(--bg-dark)]'}`}
+                    className={`px-2 py-1 rounded text-sm italic ${editorState?.isItalic ? 'bg-[var(--accent-primary)] text-white' : 'text-[var(--text-primary)] hover:bg-[var(--bg-dark)]'}`}
                 >
                     I
                 </button>
                 <button
                     onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleUnderline().run(); }}
-                    className={`px-2 py-1 rounded text-sm underline ${editor.isActive('underline') ? 'bg-[var(--accent-primary)] text-white' : 'text-[var(--text-primary)] hover:bg-[var(--bg-dark)]'}`}
+                    className={`px-2 py-1 rounded text-sm underline ${editorState?.isUnderline ? 'bg-[var(--accent-primary)] text-white' : 'text-[var(--text-primary)] hover:bg-[var(--bg-dark)]'}`}
                 >
                     U
                 </button>
                 <button
                     onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleStrike().run(); }}
-                    className={`px-2 py-1 rounded text-sm line-through ${editor.isActive('strike') ? 'bg-[var(--accent-primary)] text-white' : 'text-[var(--text-primary)] hover:bg-[var(--bg-dark)]'}`}
+                    className={`px-2 py-1 rounded text-sm line-through ${editorState?.isStrike ? 'bg-[var(--accent-primary)] text-white' : 'text-[var(--text-primary)] hover:bg-[var(--bg-dark)]'}`}
                 >
                     S
                 </button>
                 <button
                     onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleBulletList().run(); }}
-                    className={`px-2 py-1 rounded text-sm ${editor.isActive('bulletList') ? 'bg-[var(--accent-primary)] text-white' : 'text-[var(--text-primary)] hover:bg-[var(--bg-dark)]'}`}
+                    className={`px-2 py-1 rounded text-sm ${editorState?.isBulletList ? 'bg-[var(--accent-primary)] text-white' : 'text-[var(--text-primary)] hover:bg-[var(--bg-dark)]'}`}
                 >
                     • List
                 </button>
                 <button
                     onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleHeading({ level: 2 }).run(); }}
-                    className={`px-2 py-1 rounded text-sm ${editor.isActive('heading') ? 'bg-[var(--accent-primary)] text-white' : 'text-[var(--text-primary)] hover:bg-[var(--bg-dark)]'}`}
+                    className={`px-2 py-1 rounded text-sm ${editorState?.isHeading ? 'bg-[var(--accent-primary)] text-white' : 'text-[var(--text-primary)] hover:bg-[var(--bg-dark)]'}`}
                 >
                     H2
                 </button>
