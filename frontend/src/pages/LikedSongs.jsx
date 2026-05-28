@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useSpotify } from "../context/SpotifyContext";
+import { Link } from "react-router-dom";
 
 const api = axios.create({ baseURL: "http://127.0.0.1:5001/api" });
 
@@ -117,7 +118,17 @@ export default function LikedSongs() {
                             <div className="flex-1 min-w-0">
                                 <p className="font-medium truncate">{item.track.name}</p>
                                 <p className="text-sm text-[var(--accent-secondary)] truncate">
-                                    {item.track.artists.map(a => a.name).join(", ")}
+                                    {item.track.artists.map((a,i) => (
+                                        <span key={a.id}>
+                                            <Link
+                                                to={`/artist/${a.id}`}
+                                                className="hover:text-[var(--accent-primary)] hover:underline"
+                                            >
+                                                {a.name}
+                                            </Link>
+                                            {i < item.track.artists.length - 1 ? ', ' : ''}
+                                        </span>
+                                    ))}
                                 </p>
                             </div>
                             <p className="text-sm text-[var(--accent-secondary)] hidden md:block truncate max-w-[200px]">
