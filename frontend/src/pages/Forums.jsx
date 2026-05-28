@@ -78,6 +78,7 @@ export default function Forums() {
     };
 
     const handleDeleteForum = async (forumId) => {
+        if (!window.confirm('Are you sure you want to delete this post?')) return;
         try {
             await api.delete(`/forums/${forumId}`);
             setForums(prev => prev.filter(f => f.id !== forumId));
@@ -102,6 +103,7 @@ export default function Forums() {
     };
 
     const handleDeleteComment = async (commentId) => {
+        if (!window.confirm('Are you sure you want to dlete this comment?')) return;
         try {
             await api.delete(`/forums/${selectedForum.id}/comments/${commentId}`);
             setComments(prev => prev.filter(c => c.id !== commentId));
@@ -164,6 +166,12 @@ export default function Forums() {
         return (
             <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] p-8">
                 <div className="max-w-3xl mx-auto">
+                    <button
+                        onClick={() => setSelectedForum(null)}
+                        className="mb-6 text-[var(--accent-primary)] hover:opacity-80 flex items-center gap-2"
+                    >
+                        ← Back to Forums
+                    </button>
                     <div className="bg-[var(--bg-dark)] rounded-2xl p-6 mb-6 border border-[var(--accent-secondary)]/20">
                         <h1 className="text-2xl font-bold mb-2">{selectedForum.title}</h1>
                         <p className="text-xs text-[var(--accent-secondary)] mb-2">
@@ -213,8 +221,8 @@ export default function Forums() {
                                 )}
                             </span>
                             <LikeButton
-                                likes={selectedForum.likes}
-                                likedBy={selectedForum.likedBy}
+                                likes={selectedForum.likes || 0}
+                                likedBy={selectedForum.likedBy || []}
                                 userId={userProfile?.id}
                                 onLike={(e) => {
                                     e.stopPropagation();
@@ -270,6 +278,7 @@ export default function Forums() {
                             placeholder="Add a comment..."
                             value={newComment}
                             onChange={e => setNewComment(e.target.value)}
+                            onKeyDown={e => { if (e.key === 'Enter') handleAddComment(); }}
                             className="flex-1 bg-[var(--bg-dark)] border border-[var(--accent-secondary)]/30 rounded-xl px-4 py-2 text-[var(--text-primary)] placeholder-[var(--accent-secondary)] focus:outline-none"
                         />
                         <button

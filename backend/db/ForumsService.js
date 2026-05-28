@@ -63,10 +63,11 @@ const likeForumPost = async (forumId, userId) => {
 };
 
 
-const addCommentToForum = async (forumId, authorId, comment) => {
+const addCommentToForum = async (forumId, authorId, authorName, comment) => {
     const commentsSubcollectionRef = collection(db, "forums", forumId, "comments");
     const docRef = await addDoc(commentsSubcollectionRef, {
         authorId,
+        authorName,
         comment,
         createdAt: serverTimestamp(),
         likes: 0,
