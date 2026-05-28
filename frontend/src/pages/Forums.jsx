@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useSpotify } from '../context/SpotifyContext';
 import LikeButton from '../components/forums/LikeButton';
 import { Link } from 'react-router-dom';
@@ -21,26 +21,16 @@ export default function Forums() {
     const [trackSearch, setTrackSearch] = useState('');
     const [trackResults, setTrackResults] = useState([]);
     const [attachedTrack, setAttachedTrack] = useState(null);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [sortOrder, setSortOrder] = useState('newest');
 
     const sortedForums = sortOrder === 'liked'
         ? [...forums].sort((a,b) => (b.likes || 0) - (a.likes || 0))
         : forums;
 
-    const fetchForums = useCallback(async () => {
-        try {
-            const res = await api.get('/forums');
-            setForums(res.data);
-        } catch (err) {
-            console.error('Error fetching forums:', err);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
     useEffect(() => {
         let cancelled = false;
+        setLoading(true);
         api.get('/forums')
             .then((res) => { if (!cancelled) setForums(res.data); })
             .catch((err) => { console.error('Error fetching forums:', err); })
@@ -72,7 +62,7 @@ export default function Forums() {
             setNewTitle('');
             setNewContent('');
             setShowForm(false);
-            fetchForums();
+            api.get('/forums').then(res => setForums(res.data));
             setAttachedTrack(null);
             setTrackSearch('');
             setTrackResults([]);
@@ -117,7 +107,7 @@ export default function Forums() {
     };
 
     const handleDeleteComment = async (commentId) => {
-        if (!window.confirm('Are you sure you want to dlete this comment?')) return;
+        if (!window.confirm('Are you sure you want to delete this comment?')) return;
         try {
             await api.delete(`/forums/${selectedForum.id}/comments/${commentId}`);
             setComments(prev => prev.filter(c => c.id !== commentId));
@@ -129,7 +119,7 @@ export default function Forums() {
     const handleLike = async (forumId) => {
         try {
             await api.patch(`/forums/${forumId}/like`, { userId: userProfile?.id });
-            fetchForums();
+            api.get('/forums').then(res => setForums(res.data));
             
             if (selectedForum && selectedForum.id === forumId) {
                 const res = await api.get(`/forums/${forumId}`);
