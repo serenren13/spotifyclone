@@ -4,6 +4,7 @@ import LikeButton from '../components/forums/LikeButton';
 import { Link } from 'react-router-dom';
 import ForumCard from '../components/forums/ForumCard';
 import axios from 'axios';
+import RichTextEditor from '../components/forums/RichTextEditor';
 
 const api = axios.create({ baseURL: 'http://127.0.0.1:5001/api' });
 
@@ -363,12 +364,9 @@ export default function Forums() {
                             onChange={e => setNewTitle(e.target.value)}
                             className="w-full bg-[var(--bg-primary)] border border-[var(--accent-secondary)]/30 rounded-xl px-4 py-2 mb-3 text-[var(--text-primary)] placeholder-[var(--accent-secondary)] focus:outline-none"
                         />
-                        <textarea
-                            placeholder="What's on your mind?"
-                            value={newContent}
-                            onChange={e => setNewContent(e.target.value)}
-                            rows={4}
-                            className="w-full bg-[var(--bg-primary)] border border-[var(--accent-secondary)]/30 rounded-xl px-4 py-2 mb-3 text-[var(--text-primary)] placeholder-[var(--accent-secondary)] focus:outline-none resize-none"
+                        <RichTextEditor
+                            content={newContent}
+                            onChange={setNewContent}
                         />
                         {/* Song search */}
                         <div className="mb-3">
