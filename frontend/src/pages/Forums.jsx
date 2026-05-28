@@ -44,17 +44,6 @@ export default function Forums() {
         ? [...forums].sort((a,b) => (b.likes || 0) - (a.likes || 0))
         : forums;
 
-    const fetchForums = useCallback(async () => {
-        try {
-            const res = await api.get('/forums');
-            setForums(res.data);
-        } catch (err) {
-            console.error('Error fetching forums:', err);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
     useEffect(() => {
         let cancelled = false;
         api.get('/forums')
@@ -187,7 +176,7 @@ export default function Forums() {
     const handleLike = async (forumId) => {
         try {
             await api.patch(`/forums/${forumId}/like`, { userId: userProfile?.id });
-            fetchForums();
+            api.get('/forums').then(res => setForums(res.data));
             
             if (selectedForum && selectedForum.id === forumId) {
                 const res = await api.get(`/forums/${forumId}`);
@@ -407,13 +396,7 @@ export default function Forums() {
                             onChange={e => setNewTitle(e.target.value)}
                             className="w-full bg-[var(--bg-primary)] border border-[var(--accent-secondary)]/30 rounded-xl px-4 py-2 mb-3 text-[var(--text-primary)] placeholder-[var(--accent-secondary)] focus:outline-none"
                         />
-                        <textarea
-                            placeholder="What's on your mind?"
-                            value={newContent}
-                            onChange={e => setNewContent(e.target.value)}
-                            rows={4}
-                            className="w-full bg-[var(--bg-primary)] border border-[var(--accent-secondary)]/30 rounded-xl px-4 py-2 mb-3 text-[var(--text-primary)] placeholder-[var(--accent-secondary)] focus:outline-none resize-none"
-                        />
+                        <RichTextEditor content={newContent} onChange={setNewContent} />
                         {/* Song search */}
                         <div className="mb-3">
                             <input
