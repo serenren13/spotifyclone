@@ -137,6 +137,11 @@ export default function LikedSongs() {
                             <p className="text-sm text-[var(--accent-secondary)] w-12 text-right">
                                 {Math.floor(item.track.duration_ms / 60000)}:{String(Math.floor((item.track.duration_ms % 60000) / 1000)).padStart(2, "0")}
                             </p>
+                            <p className="text-xs text-[var(--accent-secondary)] hidden md:block w-24 text-right">
+                                {new Date(item.added_at).toLocaleDateString('en-US', {
+                                    month: 'short', day: 'numeric', year: 'numeric'
+                                })}
+                            </p>
                         </div>
                     ))}
                 </div>
