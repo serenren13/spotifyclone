@@ -210,7 +210,8 @@ spotifyclone/
 │   │   │   ├── forums/             # Forum discussion components
 │   │   │   │   ├── ForumCard.jsx
 │   │   │   │   ├── CommentCard.jsx
-│   │   │   │   └── LikeButton.jsx
+│   │   │   │   ├── LikeButton.jsx
+│   │   │   │   └── RichTextEditor.jsx
 │   │   │   ├── inbox/              # Messaging components
 │   │   │   │   ├── ChatPanel.jsx
 │   │   │   │   ├── ConversationList.jsx
@@ -287,6 +288,7 @@ spotifyclone/
 - [Tailwind CSS](https://tailwindcss.com/)
 - [Socket.io](https://socket.io/)
 - [Vite](https://vitejs.dev/)
+- [TipTap](https://tiptap.dev/)
 
 **Design Resources**
 - [Figma Design System](https://www.figma.com/design/Hq5LtyFPXHw7gBlKTJfusT/Project-Layout)
