@@ -256,4 +256,43 @@ router.put("/user/save-track", async (req, res) => {
   }
 });
 
+// get currently playing track /api/spotify/user/currently-playing
+router.get("/user/currently-playing", async (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.status(401).json({ error: "No token provided" });
+ 
+  try {
+    const userSpecificApi = new SpotifyWebApi({ clientId: process.env.SPOTIFY_CLIENT_ID });
+    userSpecificApi.setAccessToken(token);
+ 
+    const data = await userSpecificApi.getMyCurrentPlayingTrack();
+ 
+    // 204 = nothing playing, return null so frontend can hide the bar
+    if (!data.body || !data.body.item) {
+      return res.status(204).send();
+    }
+ 
+    const { item, is_playing, progress_ms } = data.body;
+ 
+    res.json({
+      is_playing,
+      progress_ms,
+      track: {
+        id: item.id,
+        name: item.name,
+        duration_ms: item.duration_ms,
+        artists: item.artists.map(a => ({ id: a.id, name: a.name })),
+        album: {
+          name: item.album.name,
+          image: item.album.images?.[1]?.url || item.album.images?.[0]?.url || null,
+        },
+        spotify_url: item.external_urls.spotify,
+      },
+    });
+  } catch (err) {
+    console.error("Spotify currently playing error:", err.message);
+    res.status(err.statusCode || 400).json({ error: "Failed to fetch currently playing" });
+  }
+});
+
 module.exports = router;
