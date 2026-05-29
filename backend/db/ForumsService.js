@@ -30,11 +30,19 @@ const createForum = async (title, content, createdBy, creatorId, attachedTrack =
     return docRef.id;
 };
 
-// ordered by newest first
+// ordered by newest first, with comment count from subcollection
 const fetchAllForums = async () => {
     const q = query(collection(db, "forums"), orderBy("createdAt", "desc"));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+
+    const forums = await Promise.all(snapshot.docs.map(async (d) => {
+        const commentsSnap = await getDocs(
+            collection(db, "forums", d.id, "comments")
+        );
+        return { id: d.id, ...d.data(), commentCount: commentsSnap.size };
+    }));
+
+    return forums;
 };
 
 const searchForumsByName = async (searchQuery) => {
@@ -59,7 +67,7 @@ const likeForumPost = async (forumId, userId) => {
         likes: increment(alreadyLiked ? -1 : 1),
     });
 
-    return !alreadyLiked; // returns new liked state
+    return !alreadyLiked;
 };
 
 
