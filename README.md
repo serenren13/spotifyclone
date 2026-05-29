@@ -48,9 +48,10 @@ Audia is a full-stack web application built with **React**, **Express**, and **F
 
 **Social Features**
 - **Messaging System**: Direct messaging between users with real-time updates via Socket.io
-- **Forum System**: Discussion boards where users can create threads and post
-- **Forum Search**: Find discussions by name/topic
-- **Like System**: Like forum posts to show support
+- **Forum System**: Discussion boards with nested replies, rich test editing, and attached Spotify tracks
+- **Forum Search**: Client-side substring search filtering forums by title
+- **Like System**: Like forum posts and comments to show support
+- **Comment Count**: Forum cards display comment counts at a glance
 
 **Discovery**
 - Discover page listing all public user profiles
@@ -154,6 +155,13 @@ FIREBASE_CLIENT_ID=your_client_id
 FIREBASE_AUTH_URI=https://accounts.google.com/o/oauth2/auth
 FIREBASE_TOKEN_URI=https://oauth2.googleapis.com/token
 ```
+
+#### Frontend (`frontend/.env.local`)
+```
+VITE_BACKEND_URL=http://127.0.0.1:5001
+VITE_FRONTEND_URL=http://127.0.0.1:5173
+```
+
 ---
 
 ## How to Use
@@ -205,13 +213,18 @@ spotifyclone/
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── Sidebar.jsx         # Navigation sidebar
-│   │   │   ├── ThemeToggle.jsx     # Light/dark mode toggle
-│   │   │   ├── forums/             # Forum discussion components
-│   │   │   │   ├── ForumCard.jsx
-│   │   │   │   ├── CommentCard.jsx
-│   │   │   │   ├── LikeButton.jsx
-│   │   │   │   └── RichTextEditor.jsx
+│   │   │   ├── Sidebar.jsx          # Navigation sidebar
+│   │   │   ├── ThemeToggle.jsx      # Light/dark mode toggle
+│   │   │   ├── forums/              # Forum discussion components
+│   │   │   │   ├── ForumCard.jsx    # Forum card with comment count
+│   │   │   │   ├── ForumList.jsx    # Forum list view w/ search/create
+│   │   │   │   ├── ForumDetail.jsx  # Forum detail view w/ comment thread
+│   │   │   │   ├── Comment.jsx      # Recursive nested comment
+│   │   │   │   ├── LikeButton.jsx   # Reusable like button
+│   │   │   │   ├── RichTextEditor.jsx # TipTap editor
+│   │   │   │   ├── useForum.jsx     # Forum CRUD, sort, and search
+│   │   │   │   ├── useComments.jsx  # Comment CRUD and reply state
+│   │   │   │   └── useTrackSearch.jsx # Spotify track search
 │   │   │   ├── inbox/              # Messaging components
 │   │   │   │   ├── ChatPanel.jsx
 │   │   │   │   ├── ConversationList.jsx
@@ -234,6 +247,9 @@ spotifyclone/
 │   │   ├── context/
 │   │   │   ├── SpotifyContext.jsx  # Spotify data management
 │   │   │   └── ThemeContext.jsx    # Theme state management
+│   │   ├── lib/
+│   │   │   ├── config.js           # Environment-aware URL config
+│   │   │   └── buildTree.jsx       # Comment tree builder utility
 │   │   ├── styling/
 │   │   │   ├── Landing.css         # Landing page styles
 │   │   │   ├── Sidebar.css         # Sidebar styles
@@ -264,12 +280,13 @@ spotifyclone/
 | **View Other Profiles** | ✅ Complete | See other users' music |
 | **Direct Messaging** | 🔄 In Progress | Messaging works, just not real time |
 | **Inbox Interface** | ✅ Complete | Conversation list and chat panels |
-| **Forum System** | ✅ Complete | Create, post, and like |
-| **Forum Search** | ✅ Complete | Filter forums by name |
+| **Forum System** | ✅ Complete | Create, post, nested replies, attached tracks |
+| **Forum Search** | ✅ Complete | Client-side substring filter |
+| **Comment Count** | ✅ Complete | Displayed on forum cards |
 | **Light/Dark Theme** | ✅ Complete | Fully functional toggle |
 | **Responsive Design** | ✅ Complete | Mobile, tablet, desktop optimized |
 | **Real-time Updates** | ✅ Complete | Socket.io integration |
-| **Database Integration** | ✅ Complete | Firebase Realtime Database |
+| **Database Integration** | ✅ Complete | Firebase Firestore |
 
 ---
 
