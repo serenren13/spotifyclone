@@ -79,7 +79,7 @@ router.get("/top-tracks", async (req, res) => {
 
     const data = await userSpecificApi.getMyTopTracks({
       time_range: timeRange,
-      limit: 10
+      limit: 21
     });
     res.json(data.body.items);
   } catch (err) {
