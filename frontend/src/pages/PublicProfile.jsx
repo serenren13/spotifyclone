@@ -36,6 +36,13 @@ export default function PublicProfile() {
         api.get(`/users/${id}`)
             .then(async (res) => {
                 const userData = res.data;
+                
+                if (!userData) {
+                    setError("User not found in the database.");
+                    setLoading(false);
+                    return;
+                }
+
                 setPublicUser(userData);
 
                 if (userData.isPrivate) {

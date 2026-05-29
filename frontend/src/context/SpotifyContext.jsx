@@ -11,7 +11,7 @@ const backendAPI = axios.create({
 const STORAGE_KEY = "spotify_access_token";
 
 export function SpotifyProvider({ children }) {
-  const [accessToken, setAccessToken] = useState(null);
+  const [accessToken, setAccessToken] = useState(() => localStorage.getItem("spotify_access_token") || null);
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);

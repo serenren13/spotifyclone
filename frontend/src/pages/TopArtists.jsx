@@ -23,6 +23,9 @@ export default function TopArtists() {
 
   useEffect(() => {
     if (!accessToken) return;
+    
+    setLoading(true);
+    
     api.get("/spotify/user/top-artists", {
       headers: { Authorization: `Bearer ${accessToken}` }
     })
@@ -85,6 +88,13 @@ export default function TopArtists() {
           <a href={top.external_urls.spotify} target="_blank" rel="noreferrer" className="spotify-link-muted">
             Listen on Spotify
           </a>
+        </div>
+      )}
+
+      {!loading && artists.length === 0 && (
+        <div style={{ textAlign: 'center', marginTop: '3rem' }}>
+          <p style={{ color: 'var(--accent-secondary)' }}>No top artists found for this time period.</p>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-light)', marginTop: '0.5rem' }}>Go listen to some music on Spotify and come back!</p>
         </div>
       )}
 

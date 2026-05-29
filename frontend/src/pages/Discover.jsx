@@ -9,7 +9,6 @@ export default function Discover() {
   const [users, setUsers] = useState([]);
   const [forums, setForums] = useState([]);
   const [searchText, setSearchText] = useState("");
-  const [selectedUser, setSelectedUser] = useState(null);
   const [status, setStatus] = useState("Loading discover page...");
 
   useEffect(() => {
@@ -34,6 +33,7 @@ export default function Discover() {
   }, []);
 
   const filteredUsers = users.filter((user) => {
+    // Hide the logged-in user from the Discover list
     if (userProfile?.id && user.id === userProfile.id) {
       return false;
     }
@@ -123,18 +123,20 @@ export default function Discover() {
                     )}
 
                     <div>
-                      <button
-                        onClick={() => setSelectedUser(user)}
+                      <Link
+                        to={`/user/${user.id}`}
                         className="discover-name-button"
+                        style={{ textDecoration: "none", display: "inline-block" }}
                       >
                         {name}
-                      </button>
+                      </Link>
                       <p className="discover-user-bio">{bio}</p>
                     </div>
 
                     <Link
                       to={`/user/${user.id}`}
                       className="discover-small-button"
+                      style={{ textDecoration: "none", textAlign: "center", display: "inline-block" }}
                     >
                       View
                     </Link>
@@ -163,35 +165,6 @@ export default function Discover() {
           </aside>
         </div>
       </div>
-
-      {selectedUser && (
-        <div className="discover-modal-overlay">
-          <div className="discover-modal">
-            <h2 className="discover-modal-title">
-              {selectedUser.displayName || selectedUser.name || "Spotify User"}
-            </h2>
-
-            <div className="discover-modal-section">
-              <p className="discover-modal-label">Bio</p>
-              <p className="discover-modal-bio">
-                {selectedUser.bio || "This user has not added a bio yet."}
-              </p>
-            </div>
-
-            <div className="discover-modal-actions">
-              <Link to="/inbox" className="discover-modal-button">
-                Message
-              </Link>
-              <button
-                onClick={() => setSelectedUser(null)}
-                className="discover-modal-button"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
