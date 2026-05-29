@@ -209,4 +209,24 @@ router.get("/search", async (req, res) => {
   }
 });
 
+// save a track to the user's liked songs /api/spotify/user/save-track
+router.put("/user/save-track", async (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.status(401).json({ error: "No token provided" });
+
+  const { trackId } = req.body;
+  if (!trackId) return res.status(400).json({ error: "trackId required" });
+
+  try {
+    const userSpecificApi = new SpotifyWebApi({ clientId: process.env.SPOTIFY_CLIENT_ID });
+    userSpecificApi.setAccessToken(token);
+
+    await userSpecificApi.addToMySavedTracks([trackId]);
+    res.status(200).json({ message: "Track saved to liked songs" });
+  } catch (err) {
+    console.error("Spotify save track error:", err.message);
+    res.status(err.statusCode || 400).json({ error: "Failed to save track" });
+  }
+});
+
 module.exports = router;

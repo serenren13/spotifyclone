@@ -4,6 +4,7 @@ import { useSpotify } from '../../context/SpotifyContext';
 import { useComments } from './useComments';
 import Comment from './Comment';
 import LikeButton from './LikeButton';
+import SaveTrackButton from './SaveTrackButton';
 
 export default function ForumDetail({ forum, onBack, onDelete, onLike, onForumUpdated }) {
     const { userProfile } = useSpotify();
@@ -45,23 +46,26 @@ export default function ForumDetail({ forum, onBack, onDelete, onLike, onForumUp
                         dangerouslySetInnerHTML={{ __html: forum.content }}
                     />
                     {forum.attachedTrack && (
-                        <a
-                            href={forum.attachedTrack.spotifyUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="flex items-center gap-3 p-3 bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 rounded-xl mb-4 hover:opacity-80 transition-all"
-                        >
-                            <img
-                                src={forum.attachedTrack.albumArt}
-                                alt={forum.attachedTrack.name}
-                                className="w-12 h-12 rounded"
-                            />
-                            <div>
-                                <p className="text-xs text-[var(--accent-primary)] mb-0.5">🎵 Attached Track</p>
-                                <p className="text-sm font-medium">{forum.attachedTrack.name}</p>
-                                <p className="text-xs text-[var(--accent-secondary)]">{forum.attachedTrack.artist}</p>
-                            </div>
-                        </a>
+                        <div className="flex items-center gap-3 p-3 bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 rounded-xl mb-4">
+                            <a
+                                href={forum.attachedTrack.spotifyUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="flex items-center gap-3 flex-1 hover:opacity-80 transition-all"
+                            >
+                                <img
+                                    src={forum.attachedTrack.albumArt}
+                                    alt={forum.attachedTrack.name}
+                                    className="w-12 h-12 rounded"
+                                />
+                                <div>
+                                    <p className="text-xs text-[var(--accent-primary)] mb-0.5">🎵 Attached Track</p>
+                                    <p className="text-sm font-medium">{forum.attachedTrack.name}</p>
+                                    <p className="text-xs text-[var(--accent-secondary)]">{forum.attachedTrack.artist}</p>
+                                </div>
+                            </a>
+                            <SaveTrackButton trackId={forum.attachedTrack.id} />
+                        </div>
                     )}
                     <div className="flex items-center justify-between">
                         <span className="text-sm text-[var(--accent-secondary)]">
