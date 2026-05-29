@@ -1,11 +1,14 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import axios from 'axios';
+import { SPOTIFY_API_URL } from '../lib/config';
 
 const SpotifyContext = createContext();
 
 const backendAPI = axios.create({
-  baseURL: "http://127.0.0.1:5001/api/spotify",
+  baseURL: SPOTIFY_API_URL,
 });
+
+const STORAGE_KEY = "spotify_access_token";
 
 export function SpotifyProvider({ children }) {
   const [accessToken, setAccessToken] = useState(() => localStorage.getItem("spotify_access_token") || null);
@@ -14,53 +17,52 @@ export function SpotifyProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const logout = () => {
-    localStorage.removeItem("spotify_access_token");
+    localStorage.removeItem(STORAGE_KEY);
     setAccessToken(null);
     setUserProfile(null);
     setIsAuthenticated(false);
   };
 
-  const fetchProfile = async (token) => {
-    try {
-      const response = await backendAPI.get("/user/profile", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setUserProfile(response.data);
-      setIsAuthenticated(true);
-    } catch (err) {
-      console.error("Error fetching profile from backend:", err);
-      logout();
-    }
-  };
-
   useEffect(() => {
+    const fetchProfile = async (token) => {
+      try {
+        const response = await backendAPI.get("/user/profile", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setUserProfile(response.data);
+        setIsAuthenticated(true);
+        return true;
+      } catch (err) {
+        console.error("Error fetching profile from backend:", err);
+        logout();
+        return false;
+      }
+    };
+
     const initializeAuth = async () => {
       const params = new URLSearchParams(window.location.search);
       const urlToken = params.get('access_token');
+      const storedToken = localStorage.getItem(STORAGE_KEY);
+
+      const activeToken = urlToken ?? storedToken;
 
       if (urlToken) {
-        localStorage.setItem("spotify_access_token", urlToken);
-        setAccessToken(urlToken);
-        
-        window.history.pushState({}, null, "/");
-        
-        await fetchProfile(urlToken);
-      } else if (accessToken) {
-        await fetchProfile(accessToken);
-      } else {
-        setLoading(false);
+        localStorage.setItem(STORAGE_KEY, urlToken);
+        // strip the access_token query param from the URL so it doesn't linger / leak via referrers
+        const url = new URL(window.location.href);
+        url.searchParams.delete('access_token');
+        window.history.replaceState({}, document.title, url.pathname + url.search + url.hash);
       }
+
+      if (activeToken) {
+        setAccessToken(activeToken);
+        await fetchProfile(activeToken);
+      }
+      setLoading(false);
     };
 
     initializeAuth();
   }, []);
-
-  // Automatically turn off loading once userProfile is set successfully
-  useEffect(() => {
-    if (userProfile) {
-      setLoading(false);
-    }
-  }, [userProfile]);
 
   return (
     <SpotifyContext.Provider value={{

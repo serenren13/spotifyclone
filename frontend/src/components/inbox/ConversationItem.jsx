@@ -15,6 +15,14 @@ function ConversationItem({ user, conversation, currentUser, isSelected, onSelec
             }`}
         >
             <Avatar.Root className="shrink-0 w-9 h-9 rounded-full overflow-hidden bg-[var(--brand-color)] flex items-center justify-center">
+                {user.profileImage && (
+                    <Avatar.Image
+                        src={user.profileImage}
+                        alt={user.displayName || "User"}
+                        referrerPolicy="no-referrer"
+                        className="w-full h-full object-cover"
+                    />
+                )}
                 <Avatar.Fallback className="text-xs font-semibold text-[var(--text-on-brand)]">
                     {initials}
                 </Avatar.Fallback>

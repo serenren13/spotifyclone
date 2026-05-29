@@ -3,8 +3,9 @@ import * as Dialog from "@radix-ui/react-dialog";
 import * as Avatar from "@radix-ui/react-avatar";
 import { Cross2Icon } from "@radix-ui/react-icons";
 import axios from "axios";
+import { API_URL } from "../../lib/config";
 
-const api = axios.create({ baseURL: "http://127.0.0.1:5001/api" });
+const api = axios.create({ baseURL: API_URL });
 
 function UserRow({ user, onSelect }) {
     const handleClick = () => onSelect(user);
@@ -15,7 +16,15 @@ function UserRow({ user, onSelect }) {
             onClick={handleClick}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-[var(--accent-secondary)]/20 transition-colors text-left"
         >
-            <Avatar.Root className="w-10 h-10 rounded-full bg-[var(--brand-color)] flex items-center justify-center shrink-0">
+            <Avatar.Root className="w-10 h-10 rounded-full overflow-hidden bg-[var(--brand-color)] flex items-center justify-center shrink-0">
+                {user.profileImage && (
+                    <Avatar.Image
+                        src={user.profileImage}
+                        alt={user.displayName || "User"}
+                        referrerPolicy="no-referrer"
+                        className="w-full h-full object-cover"
+                    />
+                )}
                 <Avatar.Fallback className="text-sm font-semibold text-[var(--text-on-brand)]">
                     {initials}
                 </Avatar.Fallback>
@@ -50,7 +59,7 @@ function NewConversationModal({ open, onClose, currentUser, allUsers, onConversa
                 user2: otherUser.id,
             });
             setSearchQuery("");
-            onConversationStarted(res.data, otherUser.id, otherUser.displayName);
+            onConversationStarted(res.data, otherUser);
         } catch (err) {
             console.error("Error starting conversation:", err);
         }

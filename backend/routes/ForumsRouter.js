@@ -2,7 +2,6 @@ const express = require('express');
 const {
     createForum,
     fetchAllForums,
-    searchForumsByName,
     likeForumPost,
     addCommentToForum,
     fetchForumComments,
@@ -15,14 +14,8 @@ const router = express.Router();
 
 // get all forums or search forums by title query parameter: /forums?search=Rock
 router.get('/', async (req, res) => {
-    const searchQuery = req.query.search;
     try {
-        let forums;
-        if (searchQuery && searchQuery.trim() !== '') {
-            forums = await searchForumsByName(searchQuery);
-        } else {
-            forums = await fetchAllForums();
-        }
+        const forums = await fetchAllForums();
         res.status(200).json(forums);
     } catch (error) {
         console.error('Error handling forum lists:', error);
@@ -97,12 +90,12 @@ router.get('/:id/comments', async (req, res) => {
 
 // add comment
 router.post('/:id/comments', async (req, res) => {
-    const { authorId, authorName, comment } = req.body;
+    const { authorId, authorName, comment, parentId, depth } = req.body;
     if (!authorId?.trim() || !comment?.trim()) {
         return res.status(400).json({ message: 'Comment text and author credentials are required.' });
     }
     try {
-        const commentId = await addCommentToForum(req.params.id, authorId, authorName, comment);
+        const commentId = await addCommentToForum(req.params.id, authorId, authorName, comment, parentId || null, depth || 0);
         res.status(201).json({ message: 'Comment logged successfully', id: commentId });
     } catch (error) {
         console.error('Error appending comment:', error);

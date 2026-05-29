@@ -13,33 +13,38 @@ export default function ForumCard({ forum, userId, onSelect, onLike, onDelete })
                     year: 'numeric', month: 'short', day: 'numeric'
                 })}
             </p>
-            <p className="text-[var(--text-light)] text-sm mb-4 line-clamp-2">{forum.content}</p>
-                {forum.attachedTrack && (
-                    <div
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(forum.attachedTrack.spotifyUrl, '_blank');
-                        }}
-                        className="flex items-center gap-2 p-2 bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 rounded-lg mb-3 hover:opacity-80 cursor-pointer"
-                    >
-                        <img src={forum.attachedTrack.albumArt} alt={forum.attachedTrack.name} className="w-8 h-8 rounded" />
-                        <div>
-                            <p className="text-xs font-medium">{forum.attachedTrack.name}</p>
-                            <p className="text-xs text-[var(--accent-secondary)]">{forum.attachedTrack.artist}</p>
-                        </div>
-                        <span className="ml-auto text-xs text-[var(--accent-primary)]">🎵</span>
+            <div className="text-[var(--text-light)] text-sm mb-4 line-clamp-2" dangerouslySetInnerHTML={{ __html: forum.content }} />
+            {forum.attachedTrack && (
+                <div
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(forum.attachedTrack.spotifyUrl, '_blank');
+                    }}
+                    className="flex items-center gap-2 p-2 bg-[var(--accent-primary)]/10 border border-[var(--accent-primary)]/30 rounded-lg mb-3 hover:opacity-80 cursor-pointer"
+                >
+                    <img src={forum.attachedTrack.albumArt} alt={forum.attachedTrack.name} className="w-8 h-8 rounded" />
+                    <div>
+                        <p className="text-xs font-medium">{forum.attachedTrack.name}</p>
+                        <p className="text-xs text-[var(--accent-secondary)]">{forum.attachedTrack.artist}</p>
                     </div>
-                )}
-            <div className="flex items-center justify-between text-sm text-[var(--accent-secondary)]"> 
-                <span className="flex items-center gap-3">
+                    <span className="ml-auto text-xs text-[var(--accent-primary)]">🎵</span>
+                </div>
+            )}
+            <div className="flex items-center justify-between text-sm text-[var(--accent-secondary)]">
+                <span>
                     by{" "}
-                    <Link 
-                        to={`/user/${forum.creatorId}`} 
-                        onClick={(e) => e.stopPropagation()} 
+                    <Link
+                        to={`/user/${forum.creatorId}`}
+                        onClick={(e) => e.stopPropagation()}
                         className="text-[var(--accent-primary)] hover:underline"
                     >
                         {forum.createdBy}
                     </Link>
+                </span>
+                <div className="flex items-center gap-3">
+                    <span className="flex items-center gap-1 text-xs text-[var(--accent-secondary)]">
+                        💬 {forum.commentCount || 0}
+                    </span>
                     {userId === forum.creatorId && (
                         <button
                             onClick={(e) => {
@@ -51,17 +56,16 @@ export default function ForumCard({ forum, userId, onSelect, onLike, onDelete })
                             delete
                         </button>
                     )}
-                </span>
-
-                <LikeButton
-                    likes={forum.likes}
-                    likedBy={forum.likedBy}
-                    userId={userId}
-                    onLike={(e) => {
-                        e.stopPropagation();
-                        onLike(e, forum.id);
-                    }}
-                />
+                    <LikeButton
+                        likes={forum.likes}
+                        likedBy={forum.likedBy}
+                        userId={userId}
+                        onLike={(e) => {
+                            e.stopPropagation();
+                            onLike(e, forum.id);
+                        }}
+                    />
+                </div>
             </div>
         </div>
     );
