@@ -28,21 +28,48 @@ router.get("/auth/callback", async (req, res) => {
     const userSpecificApi = new SpotifyWebApi({ clientId: process.env.SPOTIFY_CLIENT_ID });
     userSpecificApi.setAccessToken(access_token);
 
-    const spotifyUser = await userSpecificApi.getMe();
+    // Fetch everything in parallel
+    const [spotifyUser, topArtistsRes, topTracksRes, likedRes] = await Promise.all([
+      userSpecificApi.getMe(),
+      userSpecificApi.getMyTopArtists({ limit: 4, time_range: 'long_term' }),
+      userSpecificApi.getMyTopTracks({ limit: 4, time_range: 'long_term' }),
+      userSpecificApi.getMySavedTracks({ limit: 4 }),
+    ]);
 
     const userId = spotifyUser.body.id;
-    const email = spotifyUser.body.email;
-    const displayName = spotifyUser.body.display_name;
-    const profileImage = spotifyUser.body.images?.[0]?.url || null;
+
+    // Slim down to only what you need stored
+    const topArtists = topArtistsRes.body.items.map(a => ({
+      id: a.id,
+      name: a.name,
+      image: a.images?.[0]?.url || null,
+    }));
+
+    const topTracks = topTracksRes.body.items.map(t => ({
+      id: t.id,
+      name: t.name,
+      artist: t.artists[0]?.name || null,
+      albumArt: t.album.images?.[0]?.url || null,
+    }));
+
+    const likedTracks = likedRes.body.items.map(({ track }) => ({
+      id: track.id,
+      name: track.name,
+      artist: track.artists[0]?.name || null,
+      albumArt: track.album.images?.[0]?.url || null,
+    }));
 
     await saveUser(userId, {
-      displayName,
-      email,
+      displayName: spotifyUser.body.display_name,
+      email: spotifyUser.body.email,
       spotifyId: userId,
-      profileImage,
+      profileImage: spotifyUser.body.images?.[0]?.url || null,
+      topArtists,
+      topTracks,
+      likedTracks,
     });
 
-    res.redirect(`${FRONTEND_URL}/?access_token=${access_token}`);
+    res.redirect(`http://127.0.0.1:5173/?access_token=${access_token}`);
   } catch (err) {
     console.error("Auth callback error:", err);
     res.status(400).json({ error: "Authentication and profile sync failed" });

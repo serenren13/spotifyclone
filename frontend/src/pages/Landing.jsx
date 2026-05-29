@@ -25,7 +25,7 @@ export default function LandingPage() {
 
             <div className="aura-content" style={{ padding: '4rem 2rem', textAlign: 'center', color: 'var(--text-light)' }}>
                 <nav style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10vh' }}>
-                    <strong style={{ color:'#ffffff' }}>App Name.</strong>
+                    <strong style={{ color:'#ffffff' }}>Audia.</strong>
                 </nav>
 
                 <h1 style={{ fontSize: '4rem', fontWeight: '800', maxWidth: '700px', margin: '0 auto 1.5rem', color:'#ffffff' }}>
