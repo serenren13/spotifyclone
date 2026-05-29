@@ -32,16 +32,19 @@ export function useForums() {
         return () => { cancelled = true; };
     }, []);
  
-    const handleSearch = async (e) => {
-        const query = e.target.value;
-        setSearchQuery(query);
-        try {
-            const res = await api.get(`/forums?search=${query}`);
-            setForums(res.data);
-        } catch (err) {
-            console.error('Error searching forums:', err);
-        }
+    const handleSearch = (e) => {
+        setSearchQuery(e.target.value);
     };
+
+    const filteredForums = searchQuery.trim()
+        ? forums.filter(f =>
+            f.title.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        : forums;
+
+    const sortedForums = sortOrder === 'liked'
+        ? [...filteredForums].sort((a, b) => (b.likes || 0) - (a.likes || 0))
+        : filteredForums;
 
     const handleCreateForum = async ({ title, content, attachedTrack, onSuccess }) => {
         if (!title.trim() || !content.trim()) return;
@@ -98,10 +101,6 @@ export function useForums() {
             console.error('Error liking forum:', err);
         }
     };
-
-    const sortedForums = sortOrder === 'liked'
-        ? [...forums].sort((a, b) => (b.likes || 0) - (a.likes || 0))
-        : forums;
  
     return {
         forums: sortedForums,
