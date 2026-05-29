@@ -99,16 +99,7 @@ export default function PublicProfile() {
     const handleMessageUser = () => {
         if (!publicUser) return;
 
-        navigate("/inbox", {
-            state: {
-                startChatWith: {
-                    id: publicUser.id,
-                    displayName: publicUser.displayName || "Anonymous",
-                    profileImage: publicUser.profileImage || null,
-                    email: publicUser.email || null
-                }
-            }
-        });
+        navigate("/inbox");
     };
 
     const displayImage = publicUser?.profileImage || "https://i.scdn.co/image/ab6761610000e5eb55d39ab9c21d506aa52f7021";
