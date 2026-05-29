@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 :root {
+  /* Decorative Colors */
   --color-sky-blue: #e0f2fe;
   --color-lavender: #c084fc;
   --color-mint-teal: #2dd4bf;
@@ -11,15 +12,18 @@
 
   /* Semantic Light Mode Settings */
   --bg-primary: #f8fafc;
---bg-surface: #ffffff;    /* pure white works fine against slate */
---bg-elevated: #f1f5f9; 
+  --bg-surface: #ffffff;
+  --bg-elevated: #f1f5f9;
   --text-primary: #0f172a;
   --text-on-brand: #ffffff;
   --text-muted: #64748b;
+  --text-placeholder: #94a3b8;
+  --border-subtle: #e2e8f0;
+  --border-standard: #cbd5e1;
   --brand-color: #0d9488;
   --accent-primary: #14b8a6;
-  --accent-secondary: #c084fc;
-  --accent-tertiary: #f43f5e;
+  --accent-secondary: #0891b2;
+  --accent-tertiary: #dc2626;
 
   --gradient-linear-right: linear-gradient(to right, var(--brand-color), var(--color-mint-teal), var(--color-sky-blue));
   --gradient-linear-bottom: linear-gradient(to bottom, var(--brand-color), var(--color-mint-teal));
@@ -32,11 +36,15 @@ body.dark {
   --bg-elevated: #1e293b;
   --text-primary: #f8fafc;
   --text-muted: #cbd5e1;
-  --text-on-brand: var(--color-space-black);
-
+  --text-placeholder: #64748b;
+  --text-on-brand: #030712;
+  --border-subtle: #334155;
+  --border-standard: #475569;
   --brand-color: #2dd4bf;
   --accent-primary: #67e8f9;
-  --accent-secondary: var(--color-mint-teal);
+  --accent-secondary: #06b6d4;
+  --accent-tertiary: #ef4444;
+
   --gradient-linear-right: linear-gradient(to right, #020617, #0f172a, #134e4a);
   --gradient-linear-bottom: linear-gradient(to bottom, #134e4a, #0f172a, #020617);
   --gradient-radial: radial-gradient(circle, var(--color-slate-700), var(--color-space-black));
@@ -113,7 +121,7 @@ body {
 .tiptap p.is-editor-empty:first-child::before {
     content: attr(data-placeholder);
     float: left;
-    color: var(--accent-secondary);
+    color: var(--text-placeholder);
     pointer-events: none;
     height: 0;
 }

@@ -36,7 +36,7 @@ export default function PublicProfile() {
         api.get(`/users/${id}`)
             .then(async (res) => {
                 const userData = res.data;
-                
+
                 if (!userData) {
                     setError("User not found in the database.");
                     setLoading(false);
@@ -50,19 +50,15 @@ export default function PublicProfile() {
                     return;
                 }
 
-                // Top artists and top songs come straight from DB
                 setTopArtists(userData.topArtists || []);
                 setTopSongs(userData.topTracks || []);
 
-                // Favorite songs: use saved IDs if set, otherwise fall back to stored likedTracks
                 const hasFavoriteSongs = userData.favoriteSongs?.length > 0;
 
                 if (hasFavoriteSongs && userData.favoriteTracksData?.length > 0) {
-                    // Full track data already stored — no Spotify call needed
                     setFavoriteTracks(userData.favoriteTracksData);
                     setUsingFavorites(true);
                 } else {
-                    // No favorites set, fall back to stored likedTracks
                     setFavoriteTracks(userData.likedTracks || []);
                     setUsingFavorites(false);
                 }
@@ -96,6 +92,11 @@ export default function PublicProfile() {
         );
     }
 
+    const handleMessageUser = () => {
+        if (!publicUser) return;
+        navigate("/inbox");
+    };
+
     const displayImage = publicUser?.profileImage || "https://i.scdn.co/image/ab6761610000e5eb55d39ab9c21d506aa52f7021";
 
     return (
@@ -107,8 +108,14 @@ export default function PublicProfile() {
                     <div className="flex flex-col items-center mt-4">
                         <img src={displayImage} alt={`${publicUser.displayName}'s Profile`} className="w-48 h-48 rounded-full object-cover bg-[var(--bg-dark)] mb-4 border-4 border-[var(--text-primary)]/10 shadow-lg" />
                         <h2 className="text-3xl font-medium mb-6">{publicUser?.displayName || "Anonymous"}</h2>
+                        <button
+                            onClick={handleMessageUser}
+                            className="w-full max-w-[200px] bg-[#1DB954] hover:bg-[#1ed760] text-black font-semibold py-2 px-4 rounded-full transition-colors duration-200 mt-2 shadow cursor-pointer"
+                        >
+                            Message User
+                        </button>
                     </div>
-                    <div className="border border-[var(--text-primary)]/30 p-4 bg-[var(--bg-dark)] flex flex-col rounded-xl">
+                    <div className="border border-[var(--text-primary)]/30 p-4 bg-[var(--bg-dark)] flex flex-col rounded-xl overflow-hidden shadow-sm">
                         <p className="text-sm font-semibold mb-2 text-[#1DB954]">Bio:</p>
                         <p className="text-sm min-h-[5rem] whitespace-pre-wrap">
                             {publicUser?.bio || <span className="text-[var(--accent-secondary)] italic">No bio provided.</span>}
@@ -119,7 +126,7 @@ export default function PublicProfile() {
                 {/* RIGHT CONTENT */}
                 <div className="w-full md:w-2/3 flex flex-col">
 
-                    {/* TOP ARTISTS — from DB: { id, name, image } */}
+                    {/* TOP ARTISTS */}
                     <div className="mb-12 border-b border-[var(--text-primary)]/20 pb-8">
                         <h3 className="text-2xl font-medium mb-6">Top Artists</h3>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -137,15 +144,15 @@ export default function PublicProfile() {
 
                     <div className="flex flex-col md:flex-row gap-8">
 
-                        {/* TOP SONGS — from DB: { id, name, artist, albumArt } */}
+                        {/* TOP SONGS */}
                         <div className="flex-1">
                             <div className="text-center mb-4">
                                 <h3 className="text-xl font-medium">Top Songs</h3>
                             </div>
-                            <div className="border border-[var(--text-primary)]/30 flex flex-col bg-[var(--bg-dark)]">
+                            <div className="border border-[var(--text-primary)]/30 flex flex-col bg-[var(--bg-dark)] rounded-xl overflow-hidden shadow-sm">
                                 {topSongs.map(song => (
-                                    <div key={song.id} className="flex border-b border-[var(--text-primary)]/30 last:border-0 h-16 hover:bg-[var(--text-primary)]/5 transition-colors">
-                                        <div className="w-16 h-full border-r border-[var(--text-primary)]/30 flex-shrink-0">
+                                    <div key={song.id} className="flex border-b border-[var(--text-primary)]/20 last:border-0 h-16 hover:bg-[var(--text-primary)]/5 transition-colors">
+                                        <div className="w-16 h-full border-r border-[var(--text-primary)]/20 flex-shrink-0">
                                             <img src={song.albumArt} alt="Cover" className="w-full h-full object-cover" />
                                         </div>
                                         <div className="flex-1 flex flex-col justify-center px-3 min-w-0 overflow-hidden">
@@ -163,10 +170,10 @@ export default function PublicProfile() {
                             <div className="text-center mb-4 flex items-baseline justify-center gap-2">
                                 <h3 className="text-xl font-medium">Current Favorites</h3>
                             </div>
-                            <div className="border border-[var(--text-primary)]/30 flex flex-col bg-[var(--bg-dark)]">
+                            <div className="border border-[var(--text-primary)]/30 flex flex-col bg-[var(--bg-dark)] rounded-xl overflow-hidden shadow-sm">
                                 {favoriteTracks.map(track => (
-                                    <div key={track.id} className="flex border-b border-[var(--text-primary)]/30 last:border-0 h-16 hover:bg-[var(--text-primary)]/5 transition-colors">
-                                        <div className="w-16 h-full border-r border-[var(--text-primary)]/30 flex-shrink-0">
+                                    <div key={track.id} className="flex border-b border-[var(--text-primary)]/20 last:border-0 h-16 hover:bg-[var(--text-primary)]/5 transition-colors">
+                                        <div className="w-16 h-full border-r border-[var(--text-primary)]/20 flex-shrink-0">
                                             {track.albumArt
                                                 ? <img src={track.albumArt} alt="Cover" className="w-full h-full object-cover" />
                                                 : <div className="w-full h-full bg-[var(--bg-primary)]" />

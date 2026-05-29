@@ -28,36 +28,53 @@ router.get("/auth/callback", async (req, res) => {
     const userSpecificApi = new SpotifyWebApi({ clientId: process.env.SPOTIFY_CLIENT_ID });
     userSpecificApi.setAccessToken(access_token);
 
-    // Fetch everything in parallel
-    const [spotifyUser, topArtistsRes, topTracksRes, likedRes] = await Promise.all([
-      userSpecificApi.getMe(),
-      userSpecificApi.getMyTopArtists({ limit: 4, time_range: 'long_term' }),
-      userSpecificApi.getMyTopTracks({ limit: 4, time_range: 'long_term' }),
-      userSpecificApi.getMySavedTracks({ limit: 4 }),
-    ]);
-
+    // Fetch user info
+    const spotifyUser = await userSpecificApi.getMe();
     const userId = spotifyUser.body.id;
 
-    // Slim down to only what you need stored
-    const topArtists = topArtistsRes.body.items.map(a => ({
+    // Fetch top artists - try multiple time ranges to ensure we get data
+    let topArtistsRes = await userSpecificApi.getMyTopArtists({ limit: 4, time_range: 'long_term' }).catch(() => null);
+    if (!topArtistsRes?.body?.items?.length) {
+      topArtistsRes = await userSpecificApi.getMyTopArtists({ limit: 4, time_range: 'medium_term' }).catch(() => null);
+    }
+    if (!topArtistsRes?.body?.items?.length) {
+      topArtistsRes = await userSpecificApi.getMyTopArtists({ limit: 4, time_range: 'short_term' }).catch(() => null);
+    }
+
+    // Fetch top tracks - try multiple time ranges to ensure we get data
+    let topTracksRes = await userSpecificApi.getMyTopTracks({ limit: 4, time_range: 'long_term' }).catch(() => null);
+    if (!topTracksRes?.body?.items?.length) {
+      topTracksRes = await userSpecificApi.getMyTopTracks({ limit: 4, time_range: 'medium_term' }).catch(() => null);
+    }
+    if (!topTracksRes?.body?.items?.length) {
+      topTracksRes = await userSpecificApi.getMyTopTracks({ limit: 4, time_range: 'short_term' }).catch(() => null);
+    }
+
+    // Fetch liked songs
+    const likedRes = await userSpecificApi.getMySavedTracks({ limit: 4 }).catch(() => null);
+
+    // Map artists - handle empty arrays gracefully
+    const topArtists = topArtistsRes?.body?.items?.map(a => ({
       id: a.id,
       name: a.name,
       image: a.images?.[0]?.url || null,
-    }));
+    })) || [];
 
-    const topTracks = topTracksRes.body.items.map(t => ({
+    // Map tracks - handle empty arrays gracefully
+    const topTracks = topTracksRes?.body?.items?.map(t => ({
       id: t.id,
       name: t.name,
       artist: t.artists[0]?.name || null,
       albumArt: t.album.images?.[0]?.url || null,
-    }));
+    })) || [];
 
-    const likedTracks = likedRes.body.items.map(({ track }) => ({
+    // Map liked tracks - handle empty arrays gracefully
+    const likedTracks = likedRes?.body?.items?.map(({ track }) => ({
       id: track.id,
       name: track.name,
       artist: track.artists[0]?.name || null,
       albumArt: track.album.images?.[0]?.url || null,
-    }));
+    })) || [];
 
     await saveUser(userId, {
       displayName: spotifyUser.body.display_name,

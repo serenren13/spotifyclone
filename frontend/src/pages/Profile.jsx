@@ -7,6 +7,12 @@ import { API_URL } from "../lib/config";
 
 const api = axios.create({ baseURL: API_URL });
 
+const TERM_LABELS = {
+    short_term: "Last 4 weeks",
+    medium_term: "Last 6 months",
+    long_term: "All time",
+};
+
 export default function Profile() {
     const navigate = useNavigate();
     const { accessToken, logout } = useSpotify();
@@ -188,13 +194,14 @@ export default function Profile() {
         <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] p-8 flex justify-center relative">
             <button
                 onClick={handleLogout}
-                className="absolute top-8 right-8 border border-[var(--text-primary)]/30 text-[var(--text-primary)] py-2 px-5 rounded-full font-medium hover:border-[#1DB954] hover:text-[#1DB954] transition-all text-sm tracking-wide bg-[var(--bg-dark)]/40 shadow-sm backdrop-blur-sm z-10"
+                className="absolute top-8 right-8 border border-[var(--text-primary)]/30 text-[var(--text-primary)] py-2 px-5 rounded-full font-medium cursor-pointer hover:border-[#1DB954] hover:text-[#1DB954] transition-all text-sm tracking-wide bg-[var(--bg-dark)]/40 shadow-sm backdrop-blur-sm z-10"
             >
                 Logout
             </button>
 
             {isEditingFavorites && (
                 <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+                    {/* UPDATED: Added rounded-xl */}
                     <div className="bg-[var(--bg-primary)] p-6 rounded-xl max-w-2xl w-full max-h-[80vh] flex flex-col border border-[var(--text-primary)]/20 shadow-2xl">
                         <div className="mb-4">
                             <h2 className="text-2xl font-bold">Pick Your Favorite Songs</h2>
@@ -209,9 +216,10 @@ export default function Profile() {
                                     <div
                                         key={item.track.id}
                                         onClick={() => handleToggleFavoriteSelection(item.track.id)}
-                                        className={`flex items-center gap-4 p-2 rounded cursor-pointer border-2 transition-colors ${isSelected ? 'border-[#1DB954] bg-[#1DB954]/10' : 'border-transparent hover:bg-[var(--bg-dark)]'}`}
+                                        className={`flex items-center gap-4 p-2 rounded-lg border-2 transition-colors ${isSelected ? 'border-[#1DB954] bg-[#1DB954]/10' : 'border-transparent hover:bg-[var(--bg-dark)]'}`}
                                     >
-                                        <img src={item.track.album?.images?.[2]?.url || item.track.album?.images?.[0]?.url} alt="Cover" className="w-10 h-10 rounded object-cover" />
+                                        {/* UPDATED: Changed rounded to rounded-md */}
+                                        <img src={item.track.album?.images?.[2]?.url || item.track.album?.images?.[0]?.url} alt="Cover" className="w-10 h-10 rounded-md object-cover" />
                                         <div className="flex-1 min-w-0">
                                             <p className="text-sm font-medium truncate">{item.track.name}</p>
                                             <p className="text-xs text-[var(--accent-secondary)] truncate">{item.track.artists?.map(a => a.name).join(", ")}</p>
@@ -223,7 +231,8 @@ export default function Profile() {
 
                         <div className="flex justify-end gap-4 mt-6 pt-4 border-t border-[var(--text-primary)]/10">
                             <button onClick={() => setIsEditingFavorites(false)} className="px-4 py-2 text-sm hover:underline">Cancel</button>
-                            <button onClick={handleSaveFavorites} className="bg-[#1DB954] text-white px-6 py-2 rounded font-medium hover:bg-green-600 transition-colors">Save Selection</button>
+                            {/* UPDATED: Changed rounded to rounded-full */}
+                            <button onClick={handleSaveFavorites} className="bg-[#1DB954] text-white px-6 py-2 rounded-full font-medium hover:bg-green-600 transition-colors">Save Selection</button>
                         </div>
                     </div>
                 </div>
@@ -241,7 +250,7 @@ export default function Profile() {
                         </div>
                         <button
                             onClick={handleTogglePrivacy}
-                            className={`w-12 h-6 rounded-full relative transition-colors ${isPrivate ? 'bg-[#1DB954]' : 'bg-gray-500'}`}
+                            className={`w-12 h-6 rounded-full relative transition-colors ${isPrivate ? 'bg-[#1DB954]' : 'bg-gray-500'} cursor-pointer`}
                         >
                             <span className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${isPrivate ? 'translate-x-6' : ''}`}></span>
                         </button>
@@ -250,16 +259,14 @@ export default function Profile() {
                     <p className="text-center text-sm font-semibold mt-2">Current Status: {isPrivate ? "Private" : "Public"}</p>
 
                     <div className="flex flex-col items-center mt-4">
-                        <div className="relative group cursor-pointer" onClick={handleEditProfileImage}>
-                            <img src={displayImage} alt="Profile" className="w-48 h-48 rounded-full object-cover bg-[var(--bg-dark)] mb-4 border-4 border-[var(--text-primary)]/10 group-hover:opacity-80 transition-opacity" />
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity mb-4">
-                                <span className="text-xs text-white font-medium">Change Photo</span>
-                            </div>
+                        <div className="relative group">
+                            <img src={displayImage} alt="Profile" className="w-48 h-48 rounded-full object-cover bg-[var(--bg-dark)] mb-4 border-4 border-[var(--text-primary)]/10" />
                         </div>
                         <h2 className="text-3xl font-medium mb-6">{profile?.display_name || "Username"}</h2>
                     </div>
 
-                    <div className="border border-[var(--text-primary)]/30 p-3 h-auto relative bg-[var(--bg-dark)] flex flex-col">
+                    {/* UPDATED: Added rounded-xl to container wrapper */}
+                    <div className="border border-[var(--text-primary)]/30 p-4 h-auto relative bg-[var(--bg-dark)] flex flex-col rounded-xl overflow-hidden shadow-sm">
                         <p className="text-sm font-semibold mb-2">Bio:</p>
                         <textarea
                             value={bioText}
@@ -271,7 +278,7 @@ export default function Profile() {
                             <button
                                 onClick={handleSaveBio}
                                 disabled={savingBio}
-                                className="text-xs bg-[#1DB954] text-white px-4 py-1.5 rounded hover:bg-green-600 transition-colors disabled:opacity-50 font-medium"
+                                className="text-xs bg-[#1DB954] text-white px-5 py-2 rounded-full hover:bg-green-600 transition-colors disabled:opacity-50 font-medium cursor-pointer"
                             >
                                 {savingBio ? "Saved!" : "Save Bio"}
                             </button>
@@ -307,7 +314,8 @@ export default function Profile() {
                             <div className="text-center mb-4">
                                 <h3 className="text-xl font-medium">Top Songs</h3>
                             </div>
-                            <div className="border border-[var(--text-primary)]/30 flex flex-col bg-[var(--bg-dark)]">
+                            {/* UPDATED: Added rounded-xl and overflow-hidden to the track container */}
+                            <div className="border border-[var(--text-primary)]/30 flex flex-col bg-[var(--bg-dark)] rounded-xl overflow-hidden shadow-sm">
                                 {topSongs.map(song => (
                                     <div key={song.id} className="flex border-b border-[var(--text-primary)]/30 last:border-0 h-16 hover:bg-[var(--text-primary)]/5 transition-colors cursor-pointer">
                                         <div className="w-16 h-full border-r border-[var(--text-primary)]/30 flex-shrink-0">
@@ -336,17 +344,18 @@ export default function Profile() {
                             <div className="text-center mb-4">
                                 <h3 className="text-xl font-medium">Favorite Songs</h3>
                             </div>
-                            <div className="border border-[var(--text-primary)]/30 flex flex-col bg-[var(--bg-dark)]">
+                            {/* UPDATED: Added rounded-xl and overflow-hidden to the track container */}
+                            <div className="border border-[var(--text-primary)]/30 flex flex-col bg-[var(--bg-dark)] rounded-xl overflow-hidden shadow-sm">
                                 {displayFavorites.map(song => (
-                                    <div key={song?.id} className="flex border-b border-[var(--text-primary)]/30 last:border-0 h-16 hover:bg-[var(--text-primary)]/5 transition-colors">
-                                        <div className="w-16 h-full border-r border-[var(--text-primary)]/30 flex-shrink-0">
+                                    <div key={song?.id} className="flex border-b border-[var(--text-primary)]/20 last:border-0 h-16 hover:bg-[var(--text-primary)]/5 transition-colors">
+                                        <div className="w-16 h-full border-r border-[var(--text-primary)]/20 flex-shrink-0">
                                             {song?.albumArt ? (
                                                 <img src={song.albumArt} alt="Cover" className="w-full h-full object-cover" />
                                             ) : (
                                                 <div className="w-full h-full bg-neutral-800 flex items-center justify-center text-xs">🎵</div>
                                             )}
                                         </div>
-                                        <div className="flex-1 flex flex-col justify-center px-3 min-w-0 overflow-hidden">
+                                        <div className="flex-1 flex flex-col justify-center px-4 min-w-0 overflow-hidden">
                                             <p className="text-sm truncate font-medium">{song?.name || "Unknown Track"}</p>
                                             <p className="text-xs text-[var(--accent-secondary)] truncate">{song?.artist}</p>
                                         </div>

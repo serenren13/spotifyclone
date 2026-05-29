@@ -152,7 +152,7 @@ export default function ForumDetail({ forum, onBack, onDelete, onLike, onForumUp
                         />
                         <button
                             onClick={handleAddComment}
-                            className="bg-[var(--accent-primary)] text-white px-4 py-2 rounded-xl hover:opacity-90"
+                            className="bg-[var(--brand-color)] text-white px-4 py-2 rounded-xl hover:opacity-90"
                         >
                             Post
                         </button>
