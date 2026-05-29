@@ -13,7 +13,7 @@ const FRONTEND_URL = process.env.FRONTEND_URL ?? "http://127.0.0.1:5173";
 
 // redirect to login /api/spotify/auth/login
 router.get("/auth/login", (req, res) => {
-  const scopes = ["user-read-private", "user-read-email", "user-top-read", "user-library-read"];
+  const scopes = ["user-read-private", "user-read-email", "user-top-read", "user-library-read", "user-read-currently-playing"];
   const authorizeURL = spotifyApi.createAuthorizeURL(scopes);
   res.redirect(authorizeURL);
 });
