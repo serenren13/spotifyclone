@@ -317,7 +317,7 @@ export default function Profile() {
                             {/* UPDATED: Added rounded-xl and overflow-hidden to the track container */}
                             <div className="border border-[var(--text-primary)]/30 flex flex-col bg-[var(--bg-dark)] rounded-xl overflow-hidden shadow-sm">
                                 {topSongs.map(song => (
-                                    <div key={song.id} className="flex border-b border-[var(--text-primary)]/30 last:border-0 h-16 hover:bg-[var(--text-primary)]/5 transition-colors cursor-pointer">
+                                    <div key={song.id} className="flex border-b border-[var(--text-primary)]/30 last:border-0 h-16 hover:bg-[var(--text-primary)]/5 transition-colors">
                                         <div className="w-16 h-full border-r border-[var(--text-primary)]/30 flex-shrink-0">
                                             <div className="w-16 h-full border-r border-[var(--text-primary)]/30 flex-shrink-0">
                                             {/* Checks for Firebase schema first, falls back to Spotify schema, then placeholder */}
