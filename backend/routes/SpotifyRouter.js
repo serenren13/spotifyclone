@@ -9,9 +9,6 @@ const spotifyApi = new SpotifyWebApi({
   redirectUri: process.env.SPOTIFY_REDIRECT_URI,
 });
 
-// Where to send the user back to after Spotify auth. Defaults to local dev;
-// override via the FRONTEND_URL env var when the frontend lives elsewhere
-// (deployed, tunnel, etc.).
 const FRONTEND_URL = process.env.FRONTEND_URL ?? "http://127.0.0.1:5173";
 
 // redirect to login /api/spotify/auth/login
@@ -80,9 +77,9 @@ router.get("/top-tracks", async (req, res) => {
 
     const timeRange = req.query.time_range || 'long_term';
 
-    const data = await userSpecificApi.getMyTopTracks({ 
-        time_range: timeRange, 
-        limit: 10 
+    const data = await userSpecificApi.getMyTopTracks({
+      time_range: timeRange,
+      limit: 10
     });
     res.json(data.body.items);
   } catch (err) {
@@ -92,6 +89,7 @@ router.get("/top-tracks", async (req, res) => {
 });
 
 // get user liked songs /api/spotify/user/liked-songs
+// fetches up to 300 songs (6 requests of 50) to avoid quota issues
 router.get("/user/liked-songs", async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) return res.status(401).json({ error: "No token provided" });
@@ -100,10 +98,20 @@ router.get("/user/liked-songs", async (req, res) => {
     const userSpecificApi = new SpotifyWebApi({ clientId: process.env.SPOTIFY_CLIENT_ID });
     userSpecificApi.setAccessToken(token);
 
-    const data = await userSpecificApi.getMySavedTracks({ limit: 50 });
-    
-    // FIXED: Extracted data from body.items instead of relying on undefined allTracks variable
-    res.json({ items: data.body.items });
+    const BATCH_SIZE = 50;
+    const MAX_SONGS = 300;
+    const offsets = [0, 50, 100, 150, 200, 250]; // 6 requests = 300 songs max
+
+    const results = await Promise.all(
+      offsets.map(offset =>
+        userSpecificApi.getMySavedTracks({ limit: BATCH_SIZE, offset })
+          .then(res => res.body.items)
+          .catch(() => []) // if an offset fails (e.g. user has fewer songs), return empty
+      )
+    );
+
+    const items = results.flat().slice(0, MAX_SONGS);
+    res.json({ items });
   } catch (err) {
     console.error("Spotify API Error fetching liked songs:", err.message);
     res.status(err.statusCode || 400).json({ error: "Failed to fetch liked songs" });
