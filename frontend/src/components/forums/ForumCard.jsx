@@ -1,4 +1,5 @@
 import LikeButton from './LikeButton';
+import SaveTrackButton from './SaveTrackButton';
 import { Link } from 'react-router-dom';
 
 export default function ForumCard({ forum, userId, onSelect, onLike, onDelete }) {
@@ -27,7 +28,10 @@ export default function ForumCard({ forum, userId, onSelect, onLike, onDelete })
                         <p className="text-xs font-medium">{forum.attachedTrack.name}</p>
                         <p className="text-xs text-[var(--accent-secondary)]">{forum.attachedTrack.artist}</p>
                     </div>
-                    <span className="ml-auto text-xs text-[var(--accent-primary)]">🎵</span>
+                    <div className="ml-auto flex items-center gap-2">
+                        <SaveTrackButton trackId={forum.attachedTrack.id} />
+                        <span className="text-xs text-[var(--accent-primary)]">🎵</span>
+                    </div>
                 </div>
             )}
             <div className="flex items-center justify-between text-sm text-[var(--accent-secondary)]">
