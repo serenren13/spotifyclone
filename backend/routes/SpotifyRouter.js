@@ -18,9 +18,70 @@ router.get("/auth/login", (req, res) => {
   res.redirect(authorizeURL);
 });
 
+async function fetchMusicSnapshot(userApi) {
+  const empty = { topArtists: [], topTracks: [], likedTracks: [] };
+
+  const [topArtistsRes, topTracksRes, likedRes] = await Promise.allSettled([
+    userApi.getMyTopArtists({ limit: 4, time_range: "long_term" }),
+    userApi.getMyTopTracks({ limit: 4, time_range: "long_term" }),
+    userApi.getMySavedTracks({ limit: 4 }),
+  ]);
+
+  if (topArtistsRes.status === "rejected") {
+    console.warn("Auth callback: top artists fetch failed:", topArtistsRes.reason?.message);
+  }
+  if (topTracksRes.status === "rejected") {
+    console.warn("Auth callback: top tracks fetch failed:", topTracksRes.reason?.message);
+  }
+  if (likedRes.status === "rejected") {
+    console.warn("Auth callback: liked tracks fetch failed:", likedRes.reason?.message);
+  }
+
+  const topArtists =
+    topArtistsRes.status === "fulfilled"
+      ? (topArtistsRes.value.body.items ?? []).map((a) => ({
+          id: a.id,
+          name: a.name,
+          image: a.images?.[0]?.url || null,
+        }))
+      : empty.topArtists;
+
+  const topTracks =
+    topTracksRes.status === "fulfilled"
+      ? (topTracksRes.value.body.items ?? []).map((t) => ({
+          id: t.id,
+          name: t.name,
+          artist: t.artists?.[0]?.name || null,
+          albumArt: t.album?.images?.[0]?.url || null,
+        }))
+      : empty.topTracks;
+
+  const likedTracks =
+    likedRes.status === "fulfilled"
+      ? (likedRes.value.body.items ?? [])
+          .map(({ track }) => track)
+          .filter(Boolean)
+          .map((track) => ({
+            id: track.id,
+            name: track.name,
+            artist: track.artists?.[0]?.name || null,
+            albumArt: track.album?.images?.[0]?.url || null,
+          }))
+      : empty.likedTracks;
+
+  return { topArtists, topTracks, likedTracks };
+}
+
 // gets token and redirects back to frontend /api/spotify/auth/callback
 router.get("/auth/callback", async (req, res) => {
-  const { code } = req.query;
+  const { code, error: spotifyError } = req.query;
+  if (spotifyError) {
+    return res.status(400).json({ error: `Spotify denied login: ${spotifyError}` });
+  }
+  if (!code) {
+    return res.status(400).json({ error: "Missing authorization code. Start login again from the app." });
+  }
+
   try {
     const data = await spotifyApi.authorizationCodeGrant(code);
     const { access_token } = data.body;
@@ -28,51 +89,30 @@ router.get("/auth/callback", async (req, res) => {
     const userSpecificApi = new SpotifyWebApi({ clientId: process.env.SPOTIFY_CLIENT_ID });
     userSpecificApi.setAccessToken(access_token);
 
-    // Fetch everything in parallel
-    const [spotifyUser, topArtistsRes, topTracksRes, likedRes] = await Promise.all([
-      userSpecificApi.getMe(),
-      userSpecificApi.getMyTopArtists({ limit: 4, time_range: 'long_term' }),
-      userSpecificApi.getMyTopTracks({ limit: 4, time_range: 'long_term' }),
-      userSpecificApi.getMySavedTracks({ limit: 4 }),
-    ]);
-
+    const spotifyUser = await userSpecificApi.getMe();
     const userId = spotifyUser.body.id;
 
-    // Slim down to only what you need stored
-    const topArtists = topArtistsRes.body.items.map(a => ({
-      id: a.id,
-      name: a.name,
-      image: a.images?.[0]?.url || null,
-    }));
-
-    const topTracks = topTracksRes.body.items.map(t => ({
-      id: t.id,
-      name: t.name,
-      artist: t.artists[0]?.name || null,
-      albumArt: t.album.images?.[0]?.url || null,
-    }));
-
-    const likedTracks = likedRes.body.items.map(({ track }) => ({
-      id: track.id,
-      name: track.name,
-      artist: track.artists[0]?.name || null,
-      albumArt: track.album.images?.[0]?.url || null,
-    }));
+    const musicSnapshot = await fetchMusicSnapshot(userSpecificApi);
 
     await saveUser(userId, {
       displayName: spotifyUser.body.display_name,
       email: spotifyUser.body.email,
       spotifyId: userId,
       profileImage: spotifyUser.body.images?.[0]?.url || null,
-      topArtists,
-      topTracks,
-      likedTracks,
+      ...musicSnapshot,
     });
 
-    res.redirect(`http://127.0.0.1:5173/?access_token=${access_token}`);
+    res.redirect(`${FRONTEND_URL}/?access_token=${access_token}`);
   } catch (err) {
-    console.error("Auth callback error:", err);
-    res.status(400).json({ error: "Authentication and profile sync failed" });
+    console.error("Auth callback error:", err?.message || err);
+    const hint =
+      err?.statusCode === 400
+        ? "Auth code may be expired or already used — click Login with Spotify again (do not refresh the callback URL)."
+        : err?.message;
+    res.status(400).json({
+      error: "Authentication and profile sync failed",
+      detail: hint,
+    });
   }
 });
 
