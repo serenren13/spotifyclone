@@ -28,6 +28,7 @@ Audia is a full-stack web application built with **React**, **Express**, and **F
 - **Communicate directly**: Send private messages to other users through an intuitive inbox
 - **Participate in discussions**: Create and engage in music-related forums / discussion boards
 - **Like and engage**: Show support for forum posts and build community connections
+- **Save tracks**: Save attached forum tracks directly to your Spotify liked songs
 
 ---
 
@@ -42,13 +43,14 @@ Audia is a full-stack web application built with **React**, **Express**, and **F
 
 **Spotify Integration**
 - Real-time Spotify data retrieval
-- Top Artists (All Time, Last 6 Months, Last Month)
-- Top Songs (All Time, Last Year, Last Month)
-- Liked Songs display with album artwork
+- Top Artists (All Time, Last 6 Months, Last Month) with Spotify links
+- Top Songs (All Time, Last Year, Last Month) with featured #1 song and Spotify links
+- Liked Songs display with search, decade filter, sort, and Spotify links (most recent 300)
 
 **Social Features**
 - **Messaging System**: Direct messaging between users with real-time updates via Socket.io
 - **Forum System**: Discussion boards with nested replies, rich test editing, and attached Spotify tracks
+- **Save to Spotify**: Save attached forum tracks directly to your Spotify liked songs
 - **Forum Search**: Client-side substring search filtering forums by title
 - **Like System**: Like forum posts and comments to show support
 - **Comment Count**: Forum cards display comment counts at a glance
@@ -60,7 +62,7 @@ Audia is a full-stack web application built with **React**, **Express**, and **F
 
 **Design & UX**
 - Light and dark mode toggle
-- Fully responsive design (mobile, tablet, desktop)
+- Fully responsive design - bottom nav on mobile, sidebar on desktop
 - Clean, professional UI with custom design using Tailwind
 - Smooth transitions and animations
 
@@ -213,18 +215,19 @@ spotifyclone/
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── Sidebar.jsx          # Navigation sidebar
+│   │   │   ├── Sidebar.jsx          # Navigation sidebar + mobile bottom nav
 │   │   │   ├── ThemeToggle.jsx      # Light/dark mode toggle
 │   │   │   ├── forums/              # Forum discussion components
-│   │   │   │   ├── ForumCard.jsx    # Forum card with comment count
-│   │   │   │   ├── ForumList.jsx    # Forum list view w/ search/create
+│   │   │   │   ├── ForumCard.jsx    # Forum card w/ comment count
+│   │   │   │   ├── ForumList.jsx    # Forum list view w/ search + create
 │   │   │   │   ├── ForumDetail.jsx  # Forum detail view w/ comment thread
 │   │   │   │   ├── Comment.jsx      # Recursive nested comment
 │   │   │   │   ├── LikeButton.jsx   # Reusable like button
-│   │   │   │   ├── RichTextEditor.jsx # TipTap editor
-│   │   │   │   ├── useForum.jsx     # Forum CRUD, sort, and search
-│   │   │   │   ├── useComments.jsx  # Comment CRUD and reply state
-│   │   │   │   └── useTrackSearch.jsx # Spotify track search
+│   │   │   │   ├── SaveTrackButton.jsx  # Save attached track to Spotify liked songs
+│   │   │   │   ├── RichTextEditor.jsx # TipTap rich text editor
+│   │   │   │   ├── useForum.jsx     # Forum CRUD, sort, and search logic
+│   │   │   │   ├── useComments.jsx  # Comment CRUD + reply state
+│   │   │   │   └── useTrackSearch.jsx # Spotify track search + attach
 │   │   │   ├── inbox/              # Messaging components
 │   │   │   │   ├── ChatPanel.jsx
 │   │   │   │   ├── ConversationList.jsx
@@ -238,12 +241,12 @@ spotifyclone/
 │   │   │   ├── Landing.jsx         # Landing/home page
 │   │   │   ├── Discover.jsx        # Browse user profiles
 │   │   │   ├── Forums.jsx          # Discussion boards
-│   │   │   ├── Inbox.jsx           # Messaging interface
+│   │   │   ├── Inbox.jsx           # Messaging interface w/ mobile panel switching
 │   │   │   ├── Profile.jsx         # User profile page
 │   │   │   ├── PublicProfile.jsx   # Public user profile view
-│   │   │   ├── TopArtists.jsx      # Top artists display
-│   │   │   ├── TopSongs.jsx        # Top songs display
-│   │   │   └── LikedSongs.jsx      # Liked songs display
+│   │   │   ├── TopArtists.jsx      # Top artists display w/ Spotify links
+│   │   │   ├── TopSongs.jsx        # Top songs w/ featured layout + Spotify links
+│   │   │   └── LikedSongs.jsx      # Liked songs w/ search, decade filter, sort
 │   │   ├── context/
 │   │   │   ├── SpotifyContext.jsx  # Spotify data management
 │   │   │   └── ThemeContext.jsx    # Theme state management
@@ -252,9 +255,10 @@ spotifyclone/
 │   │   │   └── buildTree.jsx       # Comment tree builder utility
 │   │   ├── styling/
 │   │   │   ├── Landing.css         # Landing page styles
-│   │   │   ├── Sidebar.css         # Sidebar styles
-│   │   │   └── TopArtists.css      # Top artists styles
-│   │   ├── App.jsx                 # Root component
+│   │   │   ├── Sidebar.css         # Sidebar + mobile bottom nav styles
+│   │   │   ├── Discover.css        # Discover page styles
+│   │   │   └── TopArtists.css      # Shared styles for TopArtists and TopSongs
+│   │   ├── App.jsx                 # Root component with responsive padding
 │   │   ├── main.jsx                # Route configuration
 │   │   └── index.css               # Global styles & CSS variables
 │   ├── index.html                  # HTML entry point
@@ -272,19 +276,20 @@ spotifyclone/
 | Feature | Status | Notes |
 |---------|--------|-------|
 | **Spotify Login** | ✅ Complete | OAuth integration functional |
-| **Top Artists Display** | ✅ Complete | All time ranges supported |
-| **Top Songs Display** | ✅ Complete | All time ranges supported |
-| **Liked Songs Display** | ✅ Complete | Album artwork included |
+| **Top Artists Display** | ✅ Complete | All time ranges, Spotify links |
+| **Top Songs Display** | ✅ Complete | Featured layout, Spotify links, 21 tracks |
+| **Liked Songs Display** | ✅ Complete | Search, decade filter, sort, Spotify links, 300 songs |
 | **User Profiles** | ✅ Complete | Create, edit, public/private toggle |
-| **Discover Page** | ✅ Complete | Browse public profiles |
+| **Discover Page** | ✅ Complete | Browse public profiles, responsive layout |
 | **View Other Profiles** | ✅ Complete | See other users' music |
-| **Direct Messaging** | 🔄 In Progress | Messaging works, just not real time |
-| **Inbox Interface** | ✅ Complete | Conversation list and chat panels |
+| **Direct Messaging** | 🔄 In Progress | Messaging works, real-time in progress |
+| **Inbox Interface** | ✅ Complete | Conversation list and chat panels, mobile panel switching |
 | **Forum System** | ✅ Complete | Create, post, nested replies, attached tracks |
+| **Save to Spotify** | ✅ Complete | Save attached forum tracks to liked songs |
 | **Forum Search** | ✅ Complete | Client-side substring filter |
 | **Comment Count** | ✅ Complete | Displayed on forum cards |
 | **Light/Dark Theme** | ✅ Complete | Fully functional toggle |
-| **Responsive Design** | ✅ Complete | Mobile, tablet, desktop optimized |
+| **Responsive Design** | ✅ Complete | Bottom nav mobile, sidebar desktop, responsive grids |
 | **Real-time Updates** | ✅ Complete | Socket.io integration |
 | **Database Integration** | ✅ Complete | Firebase Firestore |
 
