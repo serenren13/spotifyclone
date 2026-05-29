@@ -36,7 +36,7 @@ export default function PublicProfile() {
         api.get(`/users/${id}`)
             .then(async (res) => {
                 const userData = res.data;
-                
+
                 if (!userData) {
                     setError("User not found in the database.");
                     setLoading(false);
@@ -96,6 +96,21 @@ export default function PublicProfile() {
         );
     }
 
+    const handleMessageUser = () => {
+        if (!publicUser) return;
+
+        navigate("/inbox", {
+            state: {
+                startChatWith: {
+                    id: publicUser.id,
+                    displayName: publicUser.displayName || "Anonymous",
+                    profileImage: publicUser.profileImage || null,
+                    email: publicUser.email || null
+                }
+            }
+        });
+    };
+
     const displayImage = publicUser?.profileImage || "https://i.scdn.co/image/ab6761610000e5eb55d39ab9c21d506aa52f7021";
 
     return (
@@ -107,6 +122,12 @@ export default function PublicProfile() {
                     <div className="flex flex-col items-center mt-4">
                         <img src={displayImage} alt={`${publicUser.displayName}'s Profile`} className="w-48 h-48 rounded-full object-cover bg-[var(--bg-dark)] mb-4 border-4 border-[var(--text-primary)]/10 shadow-lg" />
                         <h2 className="text-3xl font-medium mb-6">{publicUser?.displayName || "Anonymous"}</h2>
+                        <button
+                            onClick={handleMessageUser}
+                            className="w-full max-w-[200px] bg-[#1DB954] hover:bg-[#1ed760] text-black font-semibold py-2 px-4 rounded-full transition-colors duration-200 mt-2 shadow"
+                        >
+                            Message User
+                        </button>
                     </div>
                     <div className="border border-[var(--text-primary)]/30 p-4 bg-[var(--bg-dark)] flex flex-col rounded-xl">
                         <p className="text-sm font-semibold mb-2 text-[#1DB954]">Bio:</p>
