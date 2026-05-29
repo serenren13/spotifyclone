@@ -7,9 +7,9 @@ import "../styling/TopSongs.css";
 const api = axios.create({ baseURL: API_URL });
 
 const TERM_LABELS = {
-    long_term: "All time",
+    short_term: "Last 4 weeks",
     medium_term: "Last year",
-    short_term: "Last month",
+    long_term: "All time",
 };
 
 const formatDuration = (ms) =>
@@ -19,7 +19,7 @@ export default function TopSongs() {
     const { accessToken } = useSpotify();
     const [songs, setSongs] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [timeRange, setTimeRange] = useState("long_term");
+    const [timeRange, setTimeRange] = useState("short_term");
 
     useEffect(() => {
         if (!accessToken) return;
