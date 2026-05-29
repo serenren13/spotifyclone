@@ -2,9 +2,18 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useSpotify } from "../context/SpotifyContext";
 import { API_URL } from "../lib/config";
-// import '../styling/TopSongs.css';
+import "../styling/TopArtists.css";
 
 const api = axios.create({ baseURL: API_URL });
+
+const TERM_LABELS = {
+    long_term: "All time",
+    medium_term: "Last year",
+    short_term: "Last month",
+};
+
+const formatDuration = (ms) =>
+    `${Math.floor(ms / 60000)}:${String(Math.floor((ms % 60000) / 1000)).padStart(2, "0")}`;
 
 export default function TopSongs() {
     const { accessToken } = useSpotify();
@@ -14,7 +23,7 @@ export default function TopSongs() {
 
     useEffect(() => {
         if (!accessToken) return;
-
+        setLoading(true);
         api.get(`/spotify/top-tracks?time_range=${timeRange}`, {
             headers: { Authorization: `Bearer ${accessToken}` }
         })
@@ -29,81 +38,139 @@ export default function TopSongs() {
         });
     }, [accessToken, timeRange]);
 
-    const selectTimeRange = (next) => {
-        if (next === timeRange) return;
-        setLoading(true);
-        setTimeRange(next);
-    };
+    const top = songs[0];
+    const rest = songs.slice(1);
+
+    if (loading) return (
+        <div className="loading-container">
+            <p className="loading-text">Loading your top songs...</p>
+        </div>
+    );
 
     return (
-        <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] p-8">
-            <div className="max-w-6xl mx-auto">
-                <h1 className="text-4xl font-bold text-center mb-6">Your Top Songs</h1>
-                
-                <div className="flex justify-center mb-10">
-                    <div className="flex border border-[var(--text-primary)]/30 rounded overflow-hidden">
-                        <button
-                            onClick={() => selectTimeRange("long_term")}
-                            className={`px-6 py-2 transition-colors ${timeRange === "long_term" ? "bg-[#1DB954] text-white" : "bg-[var(--bg-dark)] hover:bg-[var(--text-primary)]/10"}`}
-                        >
-                            All Time
-                        </button>
-                        <button
-                            onClick={() => selectTimeRange("medium_term")}
-                            className={`px-6 py-2 border-l border-r border-[var(--text-primary)]/30 transition-colors ${timeRange === "medium_term" ? "bg-[#1DB954] text-white" : "bg-[var(--bg-dark)] hover:bg-[var(--text-primary)]/10"}`}
-                        >
-                            Last Year
-                        </button>
-                        <button
-                            onClick={() => selectTimeRange("short_term")}
-                            className={`px-6 py-2 transition-colors ${timeRange === "short_term" ? "bg-[#1DB954] text-white" : "bg-[var(--bg-dark)] hover:bg-[var(--text-primary)]/10"}`}
-                        >
-                            Last Month
-                        </button>
-                    </div>
+        <div className="top-artists-container">
+            <div className="header-container">
+                <h1 className="header-title">Top Songs</h1>
+                <div className="select-wrapper">
+                    <select
+                        value={timeRange}
+                        onChange={(e) => setTimeRange(e.target.value)}
+                        className="term-select"
+                    >
+                        {Object.entries(TERM_LABELS).map(([key, label]) => (
+                            <option key={key} value={key} className="term-option">
+                                {label}
+                            </option>
+                        ))}
+                    </select>
+                    <span className="select-arrow">▾</span>
                 </div>
+            </div>
 
-                {loading ? (
-                    <p className="text-center text-[var(--accent-secondary)]">Loading tracks...</p>
-                ) : songs.length === 0 ? (
-                    <div className="text-center p-10 border border-[var(--text-primary)]/20 rounded-xl bg-[var(--bg-dark)]">
-                        <p className="text-xl mb-2">No top songs found for this time range.</p>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-4">
-                        {songs.map((track, index) => (
-                            <div key={track.id} className="flex items-center gap-4">
-                                <span className="text-3xl font-light w-8 text-right">
-                                    {index + 1}
-                                </span>
-                                
-                                <div className="flex-1 flex border border-[var(--text-primary)]/20 bg-[var(--bg-primary)] h-24 overflow-hidden">
-                                    <div className="w-24 h-full border-r border-[var(--text-primary)]/20 flex-shrink-0">
-                                        <img
-                                            src={track.album?.images?.[1]?.url || track.album?.images?.[0]?.url || "https://i.scdn.co/image/ab6761610000e5eb55d39ab9c21d506aa52f7021"}
-                                            alt="Cover"
-                                            className="w-full h-full object-cover"
-                                        />
-                                    </div>
-                                    
-                                    <div className="flex-1 p-3 flex flex-col justify-center border-r border-[var(--text-primary)]/20 min-w-0 overflow-hidden">
-                                        <p className="text-lg font-semibold truncate w-full flex items-center gap-2">
+            {songs.length === 0 ? (
+                <p style={{ textAlign: 'center', color: 'var(--accent-secondary)', marginTop: '48px' }}>
+                    No top songs found for this time range.
+                </p>
+            ) : (
+                <>
+                    {/* Featured #1 song */}
+                    {top && (
+                        <div className="featured-artist">
+                            <p className="featured-badge">#1 this period</p>
+                            <div className="featured-avatar-ring" style={{ borderRadius: '12px' }}>
+                                <img
+                                    src={top.album?.images?.[1]?.url || top.album?.images?.[0]?.url}
+                                    alt={top.album?.name}
+                                    style={{ width: '120px', height: '120px', borderRadius: '10px', display: 'block' }}
+                                />
+                                <div className="featured-rank-badge">1</div>
+                            </div>
+                            <h2 className="featured-name">
+                                <a
+                                    href={top.external_urls?.spotify}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    style={{ color: 'inherit', textDecoration: 'none' }}
+                                    onMouseEnter={e => { e.currentTarget.style.color = 'var(--accent-primary)'; e.currentTarget.style.textDecoration = 'underline'; }}
+                                    onMouseLeave={e => { e.currentTarget.style.color = 'inherit'; e.currentTarget.style.textDecoration = 'none'; }}
+                                >
+                                    {top.name}
+                                </a>
+                                {top.explicit && (
+                                    <span style={{ fontSize: '10px', background: 'var(--accent-secondary)', color: 'var(--bg-primary)', padding: '2px 5px', borderRadius: '3px', fontWeight: 700, marginLeft: '8px', verticalAlign: 'middle' }}>E</span>
+                                )}
+                            </h2>
+                            <p style={{ color: 'var(--accent-secondary)', fontSize: '14px', marginBottom: '4px' }}>
+                                {top.artists?.map((a, i) => (
+                                    <span key={a.id}>
+                                        <a
+                                            href={a.external_urls?.spotify}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="spotify-link-muted"
+                                        >
+                                            {a.name}
+                                        </a>
+                                        {i < top.artists.length - 1 ? ', ' : ''}
+                                    </span>
+                                ))}
+                            </p>
+                            <a
+                                href={top.external_urls?.spotify}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="spotify-link-muted"
+                            >
+                                Listen on Spotify · {formatDuration(top.duration_ms)}
+                            </a>
+                        </div>
+                    )}
+
+                    {/* Rest of the songs grid */}
+                    <div className="artists-grid">
+                        {rest.map((track, i) => (
+                            <div key={track.id} className="artist-card">
+                                <div className="avatar-wrapper">
+                                    <img
+                                        src={track.album?.images?.[1]?.url || track.album?.images?.[0]?.url}
+                                        alt={track.album?.name}
+                                        style={{ width: '80px', height: '80px', borderRadius: '8px', display: 'block' }}
+                                    />
+                                    <p className="rank-badge">{i + 2}</p>
+                                </div>
+                                <div className="artist-info">
+                                    <p className="artist-name">
+                                        <a
+                                            href={track.external_urls?.spotify}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            style={{ color: 'inherit', textDecoration: 'none' }}
+                                            onMouseEnter={e => { e.currentTarget.style.color = 'var(--accent-primary)'; e.currentTarget.style.textDecoration = 'underline'; }}
+                                            onMouseLeave={e => { e.currentTarget.style.color = 'inherit'; e.currentTarget.style.textDecoration = 'none'; }}
+                                        >
                                             {track.name}
-                                            {track.explicit && <span className="text-[10px] bg-[var(--text-primary)] text-[var(--bg-primary)] px-1.5 py-0.5 rounded font-bold">E</span>}
-                                        </p>
-                                        <p className="text-sm text-[var(--accent-secondary)] truncate w-full">{track.artists?.map(a => a.name).join(", ")}</p>
-                                    </div>
-                                    
-                                    <div className="w-36 p-3 flex flex-col justify-center text-sm text-[var(--accent-secondary)] flex-shrink-0 min-w-0 overflow-hidden">
-                                        <p className="truncate w-full">{track.album?.name}</p>
-                                        <p>Length: {Math.floor(track.duration_ms / 60000)}:{String(Math.floor((track.duration_ms % 60000) / 1000)).padStart(2, "0")}</p>
-                                    </div>
+                                        </a>
+                                        {track.explicit && (
+                                            <span style={{ fontSize: '9px', background: 'var(--accent-secondary)', color: 'var(--bg-primary)', padding: '1px 4px', borderRadius: '3px', fontWeight: 700, marginLeft: '6px', verticalAlign: 'middle' }}>E</span>
+                                        )}
+                                    </p>
+                                    <a
+                                        href={track.artists?.[0]?.external_urls?.spotify}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="spotify-link-grid"
+                                    >
+                                        {track.artists?.map(a => a.name).join(", ")}
+                                    </a>
+                                    <span className="spotify-link-grid" style={{ marginTop: '2px' }}>
+                                        {formatDuration(track.duration_ms)}
+                                    </span>
                                 </div>
                             </div>
                         ))}
                     </div>
-                )}
-            </div>
+                </>
+            )}
         </div>
     );
 }
