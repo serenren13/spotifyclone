@@ -53,7 +53,7 @@ export default function ForumList({ onSelect }) {
                     <h1 className="text-3xl font-bold">Forums</h1>
                     <button
                         onClick={() => setShowForm(!showForm)}
-                        className="bg-[var(--accent-primary)] text-white px-4 py-2 rounded-xl hover:opacity-90"
+                        className="bg-[var(--brand-color)] text-white px-4 py-2 rounded-xl hover:opacity-90"
                     >
                         {showForm ? 'Cancel' : '+ New Post'}
                     </button>
@@ -65,7 +65,7 @@ export default function ForumList({ onSelect }) {
                         onClick={() => setSortOrder('newest')}
                         className={`px-3 py-1 rounded-full text-sm transition-all ${
                             sortOrder === 'newest'
-                                ? 'bg-[var(--accent-primary)] text-white'
+                                ? 'bg-[var(--brand-color)] text-white'
                                 : 'bg-[var(--bg-dark)] text-[var(--accent-secondary)] hover:opacity-80'
                         }`}
                     >
@@ -75,7 +75,7 @@ export default function ForumList({ onSelect }) {
                         onClick={() => setSortOrder('liked')}
                         className={`px-3 py-1 rounded-full text-sm transition-all ${
                             sortOrder === 'liked'
-                                ? 'bg-[var(--accent-primary)] text-white'
+                                ? 'bg-[var(--brand-color)] text-white'
                                 : 'bg-[var(--bg-dark)] text-[var(--accent-secondary)] hover:opacity-80'
                         }`}
                     >
@@ -144,7 +144,7 @@ export default function ForumList({ onSelect }) {
                         </div>
                         <button
                             onClick={onSubmit}
-                            className="bg-[var(--accent-primary)] text-white px-6 py-2 rounded-xl hover:opacity-90"
+                            className="bg-[var(--brand-color)] text-white px-6 py-2 rounded-xl hover:opacity-90"
                         >
                             Post
                         </button>
