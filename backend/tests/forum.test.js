@@ -5,7 +5,6 @@ jest.mock('../db/ForumsService.js', () => ({
     fetchAllForums: jest.fn().mockResolvedValue([
         { id: 'forum1', title: 'Test Forum', content: 'Content', createdBy: 'testuser', likes: 0 }
     ]),
-    searchForumsByName: jest.fn().mockResolvedValue([]),
     createForum: jest.fn().mockResolvedValue('forum1'),
     likeForumPost: jest.fn().mockResolvedValue(true),
     fetchForumComments: jest.fn().mockResolvedValue([]),
@@ -32,7 +31,7 @@ describe("Forum Routes", () => {
             expect(Array.isArray(res.body)).toBe(true);
         });
 
-        test("returns 200 and array when searching", async() => {
+        test("returns 200 when search query provided (client-side filter)", async() => {
             const res = await request(app).get("/api/forums?search=test");
             expect(res.status).toBe(200);
             expect(Array.isArray(res.body)).toBe(true);
@@ -61,7 +60,7 @@ describe("Forum Routes", () => {
                 title: "Test Forum",
                 content: "This is a test forum post",
                 createdBy: "testuser",
-                creatorId: "testuser123" // <-- You just need to add this missing line!
+                creatorId: "testuser123"
             });
             expect(res.status).toBe(201);
             expect(res.body).toHaveProperty("id");
@@ -77,15 +76,15 @@ describe("Forum Routes", () => {
 
     // DELETE /:id
     describe("DELETE /api/forums/:id", () => {
-        test("returns 200 and deletes forum test", async () => {
+        test("returns 200 and deletes forum", async () => {
             const res = await request(app).delete("/api/forums/forum1");
             expect(res.status).toBe(200);
             expect(res.body).toHaveProperty("message", "Forum deleted successfully");
         });
     });
 
-    // PATCH /:id/like/:amount
-    describe("PATCH /api/forums/:id/like/:amount", () => {
+    // PATCH /:id/like
+    describe("PATCH /api/forums/:id/like", () => {
         test("returns 200 and likes a forum post", async () => {
             const res = await request(app)
                 .patch("/api/forums/forum1/like")
@@ -122,7 +121,7 @@ describe("Forum Routes", () => {
         });
     });
 
-    // PATCH /:id/comments/:commentId/like/:amount
+    // PATCH /:id/comments/:commentId/like
     describe("PATCH /api/forums/:id/comments/:commentId/like", () => {
         test("returns 200 and likes a comment", async () => {
             const res = await request(app).patch(
