@@ -22,6 +22,17 @@ const getDecade = (releaseDate) => {
 const formatDuration = (ms) =>
     `${Math.floor(ms / 60000)}:${String(Math.floor((ms % 60000) / 1000)).padStart(2, "0")}`;
 
+// Hook to detect mobile viewport
+const useIsMobile = () => {
+    const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640);
+    useEffect(() => {
+        const handler = () => setIsMobile(window.innerWidth < 640);
+        window.addEventListener("resize", handler);
+        return () => window.removeEventListener("resize", handler);
+    }, []);
+    return isMobile;
+};
+
 export default function LikedSongs() {
     const { accessToken } = useSpotify();
     const [songs, setSongs] = useState([]);
@@ -29,6 +40,7 @@ export default function LikedSongs() {
     const [searchQuery, setSearchQuery] = useState('');
     const [sortOrder, setSortOrder] = useState('newest');
     const [selectedDecade, setSelectedDecade] = useState('All');
+    const isMobile = useIsMobile();
 
     useEffect(() => {
         if (!accessToken) return;
@@ -77,7 +89,8 @@ export default function LikedSongs() {
 
     return (
         <div className="top-artists-container">
-            <div className="header-container">
+            {/* Header */}
+            <div className="header-container" style={{ flexWrap: 'wrap', gap: '12px' }}>
                 <div>
                     <h1 className="header-title">Liked Songs</h1>
                     <p style={{ color: 'var(--accent-secondary)', fontSize: '13px', marginTop: '4px' }}>
@@ -156,26 +169,39 @@ export default function LikedSongs() {
                         style={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '16px',
-                            padding: '10px 12px',
+                            gap: isMobile ? '10px' : '16px',
+                            padding: isMobile ? '10px 8px' : '10px 12px',
                             borderRadius: '10px',
                             borderBottom: '1px solid rgba(var(--accent-secondary-rgb, 107,101,128), 0.15)',
                             transition: 'background 0.15s',
                             cursor: 'default',
+                            // Prevent any horizontal overflow
+                            minWidth: 0,
+                            overflow: 'hidden',
                         }}
                         onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-dark, rgba(255,255,255,0.04))'}
                         onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                     >
-                        <span style={{ color: 'var(--accent-secondary)', fontSize: '12px', width: '24px', textAlign: 'right', flexShrink: 0 }}>
-                            {index + 1}
-                        </span>
+                        {/* Index number — hidden on mobile to save space */}
+                        {!isMobile && (
+                            <span style={{ color: 'var(--accent-secondary)', fontSize: '12px', width: '24px', textAlign: 'right', flexShrink: 0 }}>
+                                {index + 1}
+                            </span>
+                        )}
 
+                        {/* Album art */}
                         <img
                             src={item.track.album.images[2]?.url}
                             alt={item.track.album.name}
-                            style={{ width: '40px', height: '40px', borderRadius: '6px', flexShrink: 0 }}
+                            style={{
+                                width: isMobile ? '36px' : '40px',
+                                height: isMobile ? '36px' : '40px',
+                                borderRadius: '6px',
+                                flexShrink: 0,
+                            }}
                         />
 
+                        {/* Track name + artists — takes remaining space */}
                         <div style={{ flex: 1, minWidth: 0 }}>
                             <a
                                 href={item.track.external_urls.spotify}
@@ -184,6 +210,7 @@ export default function LikedSongs() {
                                 style={{
                                     display: 'block',
                                     fontWeight: '500',
+                                    fontSize: isMobile ? '13px' : '14px',
                                     color: 'var(--text-primary)',
                                     textDecoration: 'none',
                                     overflow: 'hidden',
@@ -214,25 +241,33 @@ export default function LikedSongs() {
                             </p>
                         </div>
 
-                        <p style={{ fontSize: '12px', color: 'var(--accent-secondary)', flexShrink: 0, maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-                           className="hidden-mobile">
-                            {item.track.album.name}
-                        </p>
+                        {/* Album name — desktop only */}
+                        {!isMobile && (
+                            <p style={{ fontSize: '12px', color: 'var(--accent-secondary)', flexShrink: 0, maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {item.track.album.name}
+                            </p>
+                        )}
 
-                        <span style={{ fontSize: '11px', color: 'var(--accent-secondary)', flexShrink: 0, background: 'var(--bg-surface, rgba(255,255,255,0.06))', padding: '2px 7px', borderRadius: '10px' }}>
-                            {getDecade(item.track.album.release_date)}
-                        </span>
+                        {/* Decade badge — desktop only */}
+                        {!isMobile && (
+                            <span style={{ fontSize: '11px', color: 'var(--accent-secondary)', flexShrink: 0, background: 'var(--bg-surface, rgba(255,255,255,0.06))', padding: '2px 7px', borderRadius: '10px' }}>
+                                {getDecade(item.track.album.release_date)}
+                            </span>
+                        )}
 
+                        {/* Duration */}
                         <p style={{ fontSize: '12px', color: 'var(--accent-secondary)', flexShrink: 0, width: '40px', textAlign: 'right' }}>
                             {formatDuration(item.track.duration_ms)}
                         </p>
 
-                        <p style={{ fontSize: '11px', color: 'var(--accent-secondary)', flexShrink: 0, width: '88px', textAlign: 'right' }}
-                           className="hidden-mobile">
-                            {new Date(item.added_at).toLocaleDateString('en-US', {
-                                month: 'short', day: 'numeric', year: 'numeric'
-                            })}
-                        </p>
+                        {/* Date added — desktop only */}
+                        {!isMobile && (
+                            <p style={{ fontSize: '11px', color: 'var(--accent-secondary)', flexShrink: 0, width: '88px', textAlign: 'right' }}>
+                                {new Date(item.added_at).toLocaleDateString('en-US', {
+                                    month: 'short', day: 'numeric', year: 'numeric'
+                                })}
+                            </p>
+                        )}
                     </div>
                 ))}
             </div>
