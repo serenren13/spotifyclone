@@ -45,7 +45,6 @@ function Inbox() {
         };
 
         const handleNewMessage = (message) => {
-            // ignore events for conversations the user isn't currently viewing
             if (message?.conversationId && message.conversationId !== conversationIdRef.current) return;
 
             setMessages((prev) => {
@@ -111,10 +110,8 @@ function Inbox() {
 
         try {
             const res = await api.get(`/conversations/${id}/messages`);
-            // make sure the user hasn't switched again while we were loading
             if (conversationIdRef.current === id) {
                 setMessages((prev) => {
-                    // preserve any optimistic / socket messages that arrived during the fetch
                     const fetched = res.data ?? [];
                     const fetchedIds = new Set(fetched.map((m) => m.id));
                     const liveExtras = prev.filter((m) => !fetchedIds.has(m.id));
@@ -126,6 +123,13 @@ function Inbox() {
         }
     };
 
+    const handleBack = () => {
+        setConversationId(null);
+        setOtherUser(null);
+        setMessages([]);
+        conversationIdRef.current = null;
+    };
+
     if (!currentUser) return (
         <div className="flex items-center justify-center h-screen text-[var(--accent-secondary)]">
             <p>Please log in to use inbox.</p>
@@ -135,24 +139,48 @@ function Inbox() {
     return (
         <div className="flex flex-col h-screen bg-[var(--bg-primary)] overflow-hidden">
             <div className="flex flex-1 min-h-0 overflow-hidden">
-                <ConversationList
-                    currentUser={currentUser}
-                    conversationId={conversationId}
-                    onSelectConversation={handleSelectConversation}
-                    updatePreviewRef={updatePreviewRef}
-                    unreadUpdateRef={unreadUpdateRef}
-                />
 
-                <div className="flex-1 border-l border-[var(--accent-secondary)]/30">
+                {/* Conversation list — hidden on mobile when a chat is open */}
+                <div className={`
+                    w-80 shrink-0 h-full
+                    ${conversationId ? 'hidden md:flex' : 'flex'}
+                    flex-col
+                `}>
+                    <ConversationList
+                        currentUser={currentUser}
+                        conversationId={conversationId}
+                        onSelectConversation={handleSelectConversation}
+                        updatePreviewRef={updatePreviewRef}
+                        unreadUpdateRef={unreadUpdateRef}
+                    />
+                </div>
+
+                {/* Chat panel — full width on mobile when open */}
+                <div className={`
+                    flex-1 border-l border-[var(--accent-secondary)]/30
+                    ${conversationId ? 'flex' : 'hidden md:flex'}
+                    flex-col
+                `}>
                     {conversationId ? (
-                        <ChatPanel
-                            currentUser={currentUser}
-                            conversationId={conversationId}
-                            otherUser={otherUser}
-                            messages={messages}
-                            setMessages={setMessages}
-                            onMessageSent={handleMessageSent}
-                        />
+                        <div className="flex flex-col h-full">
+                            {/* Mobile back button */}
+                            <div className="md:hidden flex items-center px-4 py-2 border-b border-[var(--accent-secondary)]/30">
+                                <button
+                                    onClick={handleBack}
+                                    className="text-[var(--accent-primary)] text-sm flex items-center gap-1 hover:opacity-80"
+                                >
+                                    ← Back
+                                </button>
+                            </div>
+                            <ChatPanel
+                                currentUser={currentUser}
+                                conversationId={conversationId}
+                                otherUser={otherUser}
+                                messages={messages}
+                                setMessages={setMessages}
+                                onMessageSent={handleMessageSent}
+                            />
+                        </div>
                     ) : (
                         <div className="flex flex-col items-center justify-center h-full gap-3 text-[var(--accent-secondary)]">
                             <svg xmlns="http://www.w3.org/2000/svg" className="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
