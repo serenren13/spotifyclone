@@ -312,15 +312,20 @@ export default function Profile() {
                                     <div key={song.id} className="flex border-b border-[var(--text-primary)]/30 last:border-0 h-16 hover:bg-[var(--text-primary)]/5 transition-colors cursor-pointer">
                                         <div className="w-16 h-full border-r border-[var(--text-primary)]/30 flex-shrink-0">
                                             <div className="w-16 h-full border-r border-[var(--text-primary)]/30 flex-shrink-0">
-                                                <img
-                                                    src={song.albumArt || song.album?.images?.[2]?.url || song.album?.images?.[0]?.url || "https://via.placeholder.com/150"}
-                                                    alt="Cover"
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            </div>
+                                            {/* Checks for Firebase schema first, falls back to Spotify schema, then placeholder */}
+                                            <img
+                                                src={song.albumArt || song.album?.images?.[2]?.url || song.album?.images?.[0]?.url || "https://via.placeholder.com/150"}
+                                                alt="Cover"
+                                                className="w-full h-full object-cover"
+                                            />
                                         </div>
-                                        <div className="flex-1 flex items-center px-3 min-w-0 overflow-hidden">
+                                        </div>
+                                        <div className="flex-1 flex flex-col justify-center px-3 min-w-0 overflow-hidden">
                                             <p className="text-sm truncate w-full font-medium">{song.name}</p>
+                                            {/* Checks for Firebase artist first, falls back to raw Spotify artists array */}
+                                            <p className="text-xs text-[var(--accent-secondary)] truncate">
+                                                {song.artist || song.artists?.map(a => a.name).join(", ")}
+                                            </p>
                                         </div>
                                     </div>
                                 ))}
