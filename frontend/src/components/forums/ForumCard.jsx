@@ -13,7 +13,7 @@ export default function ForumCard({ forum, userId, onSelect, onLike, onDelete })
                     year: 'numeric', month: 'short', day: 'numeric'
                 })}
             </p>
-            <div className="text-[var(--text-light)] text-sm mb-4 line-clamp-2" dangerouslySetInnerHTML={{ __html: forum.content}} />
+            <div className="text-[var(--text-light)] text-sm mb-4 line-clamp-2" dangerouslySetInnerHTML={{ __html: forum.content }} />
             {forum.attachedTrack && (
                 <div
                     onClick={(e) => {
@@ -30,18 +30,21 @@ export default function ForumCard({ forum, userId, onSelect, onLike, onDelete })
                     <span className="ml-auto text-xs text-[var(--accent-primary)]">🎵</span>
                 </div>
             )}
-            <div className="flex items-center justify-between text-sm text-[var(--accent-secondary)]"> 
+            <div className="flex items-center justify-between text-sm text-[var(--accent-secondary)]">
                 <span>
                     by{" "}
-                    <Link 
-                        to={`/user/${forum.creatorId}`} 
-                        onClick={(e) => e.stopPropagation()} 
+                    <Link
+                        to={`/user/${forum.creatorId}`}
+                        onClick={(e) => e.stopPropagation()}
                         className="text-[var(--accent-primary)] hover:underline"
                     >
                         {forum.createdBy}
                     </Link>
                 </span>
                 <div className="flex items-center gap-3">
+                    <span className="flex items-center gap-1 text-xs text-[var(--accent-secondary)]">
+                        💬 {forum.commentCount || 0}
+                    </span>
                     {userId === forum.creatorId && (
                         <button
                             onClick={(e) => {
