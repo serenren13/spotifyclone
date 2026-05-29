@@ -7,11 +7,10 @@ export default function App() {
 
   return (
     <>
-        {!isLandingPage && <Sidebar />}
-
-        <main className={`transition-all duration-300 ${!isLandingPage ? 'pl-16' : ''}`}>
-          <Outlet />
-        </main>
+      {!isLandingPage && <Sidebar />}
+      <main className={`transition-all duration-300 ${!isLandingPage ? 'pl-0 pb-16 md:pl-16 md:pb-0' : ''}`}>
+        <Outlet />
+      </main>
     </>
   );
 }

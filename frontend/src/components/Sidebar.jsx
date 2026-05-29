@@ -15,9 +15,7 @@ export default function Sidebar() {
 
     const handleMouseEnter = () => {
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
-        timeoutRef.current = setTimeout(() => {
-            setIsOpen(true);
-        }, 150);
+        timeoutRef.current = setTimeout(() => setIsOpen(true), 150);
     };
 
     const handleMouseLeave = () => {
@@ -35,77 +33,86 @@ export default function Sidebar() {
     ];
 
     return (
-        <div
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            className={`sidebar ${isOpen ? 'open' : 'closed'}`}
-        >
-            {/* Top Logo / Header Section */}
-            <div>
-                <div className="sidebar-header">
-                    <Link to="/profile" className="profile-link">
-                        {/* Avatar Circle Container */}
-                        <div className="avatar-container">
-                            {userProfile?.images?.[0]?.url ? (
-                                <img
-                                    src={userProfile.images[0].url}
-                                    alt={userProfile.display_name || "User profile"}
-                                    className="avatar-image"
-                                />
-                            ) : (
-                                <span>{(userProfile?.display_name || "U").charAt(0).toUpperCase()}</span>
-                            )}
-                        </div>
-
-                        {/* Profile Name */}
-                        <div className="profile-info" style={{ opacity: isOpen ? 1 : 0 }}>
-                            <span className="profile-name">
-                                {userProfile?.display_name || "User"}
-                            </span>
-                            <span className="profile-subtext">View Profile</span>
-                        </div>
-                    </Link>
-                </div>
-
-                {/* Navigation Items */}
-                <nav className="sidebar-nav">
-                    <div className="sidebar-nav-list">
-                        {menuItems.map((item, index) => {
-                            const isActive = location.pathname === item.path;
-                            return (
-                                <Link
-                                    key={index}
-                                    to={item.path}
-                                    className={`nav-link ${isActive ? 'active' : 'inactive'}`}
-                                >
-                                    <div className="nav-icon">
-                                        {item.icon}
-                                    </div>
-                                    <span className={`sidebar-label ${isOpen ? 'label-open' : 'label-closed'}`}>
-                                        {item.label}
-                                    </span>
-
-                                    {!isOpen && (
-                                        <div className="nav-tooltip">
-                                            {item.label}
-                                        </div>
-                                    )}
-                                </Link>
-                            );
-                        })}
+        <>
+            {/* Desktop sidebar — hidden on mobile */}
+            <div
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+                className={`sidebar ${isOpen ? 'open' : 'closed'}`}
+            >
+                <div>
+                    <div className="sidebar-header">
+                        <Link to="/profile" className="profile-link">
+                            <div className="avatar-container">
+                                {userProfile?.images?.[0]?.url ? (
+                                    <img
+                                        src={userProfile.images[0].url}
+                                        alt={userProfile.display_name || "User profile"}
+                                        className="avatar-image"
+                                    />
+                                ) : (
+                                    <span>{(userProfile?.display_name || "U").charAt(0).toUpperCase()}</span>
+                                )}
+                            </div>
+                            <div className="profile-info" style={{ opacity: isOpen ? 1 : 0 }}>
+                                <span className="profile-name">
+                                    {userProfile?.display_name || "User"}
+                                </span>
+                                <span className="profile-subtext">View Profile</span>
+                            </div>
+                        </Link>
                     </div>
-                </nav>
-            </div>
 
-            {/* Bottom Footer / Theme Section */}
-            <div className="sidebar-footer">
-                <div className="footer-content">
-                    <ThemeToggle />
-                    <span className={`sidebar-label ${isOpen ? 'label-open' : 'label-closed'}`}>
-                        Switch to {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-                    </span>
+                    <nav className="sidebar-nav">
+                        <div className="sidebar-nav-list">
+                            {menuItems.map((item, index) => {
+                                const isActive = location.pathname === item.path;
+                                return (
+                                    <Link
+                                        key={index}
+                                        to={item.path}
+                                        className={`nav-link ${isActive ? 'active' : 'inactive'}`}
+                                    >
+                                        <div className="nav-icon">{item.icon}</div>
+                                        <span className={`sidebar-label ${isOpen ? 'label-open' : 'label-closed'}`}>
+                                            {item.label}
+                                        </span>
+                                        {!isOpen && (
+                                            <div className="nav-tooltip">{item.label}</div>
+                                        )}
+                                    </Link>
+                                );
+                            })}
+                        </div>
+                    </nav>
+                </div>
+
+                <div className="sidebar-footer">
+                    <div className="footer-content">
+                        <ThemeToggle />
+                        <span className={`sidebar-label ${isOpen ? 'label-open' : 'label-closed'}`}>
+                            Switch to {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+                        </span>
+                    </div>
                 </div>
             </div>
-        </div>
+
+            {/* Mobile bottom nav — hidden on desktop */}
+            <nav className="bottom-nav">
+                {menuItems.map((item, index) => {
+                    const isActive = location.pathname === item.path;
+                    return (
+                        <Link
+                            key={index}
+                            to={item.path}
+                            className={`bottom-nav-item ${isActive ? 'bottom-nav-active' : ''}`}
+                        >
+                            {item.icon}
+                            <span className="bottom-nav-label">{item.label}</span>
+                        </Link>
+                    );
+                })}
+            </nav>
+        </>
     );
 }
