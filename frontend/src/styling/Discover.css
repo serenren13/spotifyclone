@@ -88,6 +88,7 @@
   outline: none;
   font-size: 1rem;
   transition: border-color 0.2s ease;
+  box-sizing: border-box;
 }
 
 .discover-input:focus {
@@ -279,4 +280,43 @@
 
 .discover-modal-button:hover {
   opacity: 0.9;
+}
+
+/* ── Mobile responsive ── */
+@media (max-width: 767px) {
+  .discover-page {
+    padding: 1.25rem 1rem 5rem;
+  }
+
+  .discover-title {
+    font-size: 2rem;
+  }
+
+  .discover-layout {
+    grid-template-columns: 1fr;
+    padding: 1.25rem;
+    border-radius: 20px;
+    gap: 1.25rem;
+  }
+
+  /* Hide browse sidebar on mobile — bottom nav covers it */
+  .discover-side-panel {
+    display: none;
+  }
+
+  .discover-modal {
+    width: calc(100vw - 2rem);
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .discover-layout {
+    grid-template-columns: 1fr 220px;
+  }
+
+  /* Hide browse sidebar on tablet too */
+  .discover-side-panel {
+    display: none;
+  }
 }
