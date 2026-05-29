@@ -1,5 +1,6 @@
 import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
+import NowPlayingBar from "./components/NowPlayingBar";
 
 export default function App() {
   const location = useLocation();
@@ -11,6 +12,7 @@ export default function App() {
       <main className={`transition-all duration-300 ${!isLandingPage ? 'pl-0 pb-16 md:pl-16 md:pb-0' : ''}`}>
         <Outlet />
       </main>
+      {!isLandingPage && <NowPlayingBar />}
     </>
   );
 }
