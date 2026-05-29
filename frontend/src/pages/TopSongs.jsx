@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useSpotify } from "../context/SpotifyContext";
 import { API_URL } from "../lib/config";
-import "../styling/TopArtists.css";
+import "../styling/TopSongs.css";
 
 const api = axios.create({ baseURL: API_URL });
 

@@ -3,7 +3,7 @@ import axios from "axios";
 import ArtistAvatar from "../components/top-artists/ArtistAvatar";
 import { useSpotify } from "../context/SpotifyContext";
 import { API_URL } from "../lib/config";
-import "../styling/TopArtists.css"; 
+import "../styling/TopArtists.css";
 
 const api = axios.create({ baseURL: API_URL });
 
@@ -23,9 +23,9 @@ export default function TopArtists() {
 
   useEffect(() => {
     if (!accessToken) return;
-    
+
     setLoading(true);
-    
+
     api.get("/spotify/user/top-artists", {
       headers: { Authorization: `Bearer ${accessToken}` }
     })
@@ -46,46 +46,50 @@ export default function TopArtists() {
   const rest = artists.slice(1, 21);
 
   if (loading) return (
-    <div className="loading-container">
-      <p className="loading-text">Loading your top artists...</p>
+    <div className="art-loading-container">
+      <p className="art-loading-text">Loading your top artists...</p>
     </div>
   );
 
   return (
-    <div className="top-artists-container">
-      <div className="header-container">
-        <h1 className="header-title">Top Artists</h1>
-        
-        <div className="select-wrapper">
+    <div className="art-page-container">
+      <div className="art-header-container">
+        <h1 className="art-header-title">Top Artists</h1>
+
+        <div className="art-select-wrapper">
           <select
             value={term}
             onChange={(e) => setTerm(e.target.value)}
-            className="term-select"
+            className="art-term-select"
           >
             {Object.entries(TERM_LABELS).map(([key, label]) => (
-              <option key={key} value={key} className="term-option">
+              <option key={key} value={key} className="art-term-option">
                 {label}
               </option>
             ))}
           </select>
-          <span className="select-arrow">▾</span>
+          <span className="art-select-arrow">▾</span>
         </div>
       </div>
 
       {top && (
-        <div className="featured-artist">
-          <p className="featured-badge">#1 this period</p>
-          
-          <div className="featured-avatar-ring">
+        <div className="art-featured-container">
+          <p className="art-featured-badge">#1 this period</p>
+
+          <div className="art-featured-avatar-ring">
             <ArtistAvatar
               artist={top}
               size={120}
             />
-            <div className="featured-rank-badge">1</div>
+            <div className="art-featured-rank-badge">1</div>
           </div>
-          
-          <h2 className="featured-name">{top.name}</h2>
-          <a href={top.external_urls.spotify} target="_blank" rel="noreferrer" className="spotify-link-muted">
+
+          <h2 className="art-featured-name">
+            <a href={top.external_urls.spotify} target="_blank" rel="noreferrer">
+              {top.name}
+            </a>
+          </h2>
+          <a href={top.external_urls.spotify} target="_blank" rel="noreferrer" className="art-spotify-link-muted">
             Listen on Spotify
           </a>
         </div>
@@ -98,17 +102,21 @@ export default function TopArtists() {
         </div>
       )}
 
-      <div className="artists-grid">
+      <div className="art-grid-container">
         {rest.map((artist, i) => (
-          <div key={artist.id ?? artist.name} className="artist-card">
-            <div className="avatar-wrapper">
+          <div key={artist.id ?? artist.name} className="art-card">
+            <div className="art-avatar-wrapper">
               <ArtistAvatar artist={artist} size={80} />
-              <p className="rank-badge">{i + 2}</p>
+              <p className="art-rank-badge">{i + 2}</p>
             </div>
 
-            <div className="artist-info">
-              <p className="artist-name">{artist.name}</p>
-              <a href={artist.external_urls.spotify} target="_blank" rel="noreferrer" className="spotify-link-grid">
+            <div className="art-info-wrapper">
+              <p className="art-name-heading">
+                <a href={artist.external_urls.spotify} target="_blank" rel="noreferrer">
+                  {artist.name}
+                </a>
+              </p>
+              <a href={artist.external_urls.spotify} target="_blank" rel="noreferrer" className="art-spotify-link-grid">
                 Listen on Spotify
               </a>
             </div>
