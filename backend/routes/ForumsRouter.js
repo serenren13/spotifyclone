@@ -2,7 +2,6 @@ const express = require('express');
 const {
     createForum,
     fetchAllForums,
-    searchForumsByName,
     likeForumPost,
     addCommentToForum,
     fetchForumComments,
@@ -15,14 +14,8 @@ const router = express.Router();
 
 // get all forums or search forums by title query parameter: /forums?search=Rock
 router.get('/', async (req, res) => {
-    const searchQuery = req.query.search;
     try {
-        let forums;
-        if (searchQuery && searchQuery.trim() !== '') {
-            forums = await searchForumsByName(searchQuery);
-        } else {
-            forums = await fetchAllForums();
-        }
+        const forums = await fetchAllForums();
         res.status(200).json(forums);
     } catch (error) {
         console.error('Error handling forum lists:', error);

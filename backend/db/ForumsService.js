@@ -44,17 +44,6 @@ const fetchAllForums = async () => {
 
     return forums;
 };
-
-const searchForumsByName = async (searchQuery) => {
-    const q = query(
-        collection(db, "forums"),
-        where("title", ">=", searchQuery),
-        where("title", "<=", searchQuery + "\uf8ff")
-    );
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-};
-
 // 1 for like -1 for removing a like
 const likeForumPost = async (forumId, userId) => {
     const forumRef = doc(db, "forums", forumId);
@@ -111,7 +100,6 @@ const likeForumComment = async (forumId, commentId, userId) => {
 module.exports = {
     createForum,
     fetchAllForums,
-    searchForumsByName,
     likeForumPost,
     addCommentToForum,
     fetchForumComments,
