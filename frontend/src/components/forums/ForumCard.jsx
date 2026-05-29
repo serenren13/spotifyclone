@@ -46,20 +46,20 @@ export default function ForumCard({ forum, userId, onSelect, onLike, onDelete })
                     </Link>
                 </span>
                 <div className="flex items-center gap-3">
-                    <span className="flex items-center gap-1 text-xs text-[var(--accent-secondary)]">
-                        💬 {forum.commentCount || 0}
-                    </span>
                     {userId === forum.creatorId && (
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
                                 onDelete(forum.id);
                             }}
-                            className="text-red-400 hover:text-red-500 text-xs"
+                            className="ml-3 text-red-400 hover:underline cursor-pointer"
                         >
                             delete
                         </button>
                     )}
+                    <span className="flex items-center gap-1 text-xs text-[var(--accent-secondary)]">
+                        💬 {forum.commentCount || 0}
+                    </span>
                     <LikeButton
                         likes={forum.likes}
                         likedBy={forum.likedBy}

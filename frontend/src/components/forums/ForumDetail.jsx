@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSpotify } from '../../context/SpotifyContext';
 import { useComments } from './useComments';
@@ -9,6 +9,7 @@ import ConfirmationModal from './ConfirmationModal';
 
 export default function ForumDetail({ forum, onBack, onDelete, onLike, onForumUpdated }) {
     const { userProfile } = useSpotify();
+    const [showPostDeleteConfirm, setShowPostDeleteConfirm] = useState(false);
     const {
         commentTree,
         newComment,
@@ -82,11 +83,8 @@ export default function ForumDetail({ forum, onBack, onDelete, onLike, onForumUp
                             </Link>
                             {userProfile?.id === forum.creatorId && (
                                 <button
-                                    onClick={() => {
-                                        onDelete(forum.id);
-                                        onBack();
-                                    }}
-                                    className="ml-3 text-red-400 hover:text-red-500 text-xs"
+                                    onClick={() => setShowPostDeleteConfirm(true)}
+                                    className="ml-3 text-red-400 hover:underline cursor-pointer"
                                 >
                                     delete
                                 </button>
@@ -163,6 +161,21 @@ export default function ForumDetail({ forum, onBack, onDelete, onLike, onForumUp
                     </div>
                 </div>
             </div>
+
+            <ConfirmationModal
+                isOpen={showPostDeleteConfirm}
+                title="Delete Post?"
+                message="This post and all its comments will be permanently deleted. This action cannot be undone."
+                onConfirm={() => {
+                    setShowPostDeleteConfirm(false);
+                    onDelete(forum.id);
+                    onBack();
+                }}
+                onCancel={() => setShowPostDeleteConfirm(false)}
+                confirmText="Delete"
+                cancelText="Cancel"
+                isDangerous={true}
+            />
 
             <ConfirmationModal
                 isOpen={deleteConfirm.isOpen}
