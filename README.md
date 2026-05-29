@@ -206,7 +206,9 @@ spotifyclone/
 │   │   ├── ConversationsService.js # Message database operations
 │   │   └── ForumsService.js        # Forum database operations
 │   ├── tests/
-│   │   └── forum.test.js           # Forum functionality tests
+│   │   ├── conversations.test.js   # Conversations functionality tests
+│   │   ├── forum.test.js           # Forums functionality tests
+│   │   └── users.test.js           # Users functionality tests
 │   ├── app.js                      # Express app configuration
 │   ├── server.js                   # Server entry point with Socket.io
 │   ├── firebase.js                 # Firebase configuration
