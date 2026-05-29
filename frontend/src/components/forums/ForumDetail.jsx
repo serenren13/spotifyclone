@@ -5,6 +5,7 @@ import { useComments } from './useComments';
 import Comment from './Comment';
 import LikeButton from './LikeButton';
 import SaveTrackButton from './SaveTrackButton';
+import ConfirmationModal from './ConfirmationModal';
 
 export default function ForumDetail({ forum, onBack, onDelete, onLike, onForumUpdated }) {
     const { userProfile } = useSpotify();
@@ -17,6 +18,9 @@ export default function ForumDetail({ forum, onBack, onDelete, onLike, onForumUp
         fetchComments,
         handleAddComment,
         handleDeleteComment,
+        handleConfirmDeleteComment,
+        handleCancelDeleteComment,
+        deleteConfirm,
         handleCommentLike,
     } = useComments(forum.id);
 
@@ -159,6 +163,17 @@ export default function ForumDetail({ forum, onBack, onDelete, onLike, onForumUp
                     </div>
                 </div>
             </div>
+
+            <ConfirmationModal
+                isOpen={deleteConfirm.isOpen}
+                title="Delete Comment?"
+                message="This comment will be permanently deleted. This action cannot be undone."
+                onConfirm={handleConfirmDeleteComment}
+                onCancel={handleCancelDeleteComment}
+                confirmText="Delete"
+                cancelText="Cancel"
+                isDangerous={true}
+            />
         </div>
     );
 }

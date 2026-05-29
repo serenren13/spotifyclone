@@ -11,6 +11,7 @@ export function useComments(forumId) {
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [replyingTo, setReplyingTo] = useState(null);
+    const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, commentId: null });
 
     const commentTree = useMemo(() => buildTree(comments), [comments]);
 
@@ -58,14 +59,23 @@ export function useComments(forumId) {
         }
     };
 
-    const handleDeleteComment = async (commentId) => {
-        if (!window.confirm('Are you sure you want to delete this comment?')) return;
+    const handleDeleteComment = (commentId) => {
+        setDeleteConfirm({ isOpen: true, commentId });
+    };
+
+    const handleConfirmDeleteComment = async () => {
+        const commentId = deleteConfirm.commentId;
+        setDeleteConfirm({ isOpen: false, commentId: null });
         try {
             await api.delete(`/forums/${forumId}/comments/${commentId}`);
             setComments(prev => prev.filter(c => c.id !== commentId));
         } catch (err) {
             console.error('Error deleting comment:', err);
         }
+    };
+
+    const handleCancelDeleteComment = () => {
+        setDeleteConfirm({ isOpen: false, commentId: null });
     };
 
     const handleCommentLike = async (e, commentId) => {
@@ -101,6 +111,9 @@ export function useComments(forumId) {
         fetchComments,
         handleAddComment,
         handleDeleteComment,
+        handleConfirmDeleteComment,
+        handleCancelDeleteComment,
+        deleteConfirm,
         handleCommentLike,
     };
 }

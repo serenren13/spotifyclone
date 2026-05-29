@@ -3,6 +3,7 @@ import { useForums } from './useForums';
 import { useTrackSearch } from './useTrackSearch';
 import ForumCard from './ForumCard';
 import RichTextEditor from './RichTextEditor';
+import ConfirmationModal from './ConfirmationModal';
 import { useSpotify } from '../../context/SpotifyContext';
 
 export default function ForumList({ onSelect }) {
@@ -16,6 +17,9 @@ export default function ForumList({ onSelect }) {
         handleSearch,
         handleCreateForum,
         handleDeleteForum,
+        handleConfirmDelete,
+        handleCancelDelete,
+        deleteConfirm,
         handleLike,
     } = useForums();
 
@@ -179,6 +183,17 @@ export default function ForumList({ onSelect }) {
                         onDelete={handleDeleteForum}
                     />
                 ))}
+
+                <ConfirmationModal
+                    isOpen={deleteConfirm.isOpen}
+                    title="Delete Post?"
+                    message="This post and all its comments will be permanently deleted. This action cannot be undone."
+                    onConfirm={handleConfirmDelete}
+                    onCancel={handleCancelDelete}
+                    confirmText="Delete"
+                    cancelText="Cancel"
+                    isDangerous={true}
+                />
             </div>
         </div>
     );

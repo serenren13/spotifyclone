@@ -11,6 +11,7 @@ export function useForums() {
     const [searchQuery, setSearchQuery] = useState('');
     const [sortOrder, setSortOrder] = useState('newest');
     const [loading, setLoading] = useState(true);
+    const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, forumId: null });
 
     const fetchForums = async () => {
         try {
@@ -79,14 +80,23 @@ export function useForums() {
         }
     };
 
-    const handleDeleteForum = async (forumId) => {
-        if (!window.confirm('Are you sure you want to delete this post?')) return;
+    const handleDeleteForum = (forumId) => {
+        setDeleteConfirm({ isOpen: true, forumId });
+    };
+
+    const handleConfirmDelete = async () => {
+        const forumId = deleteConfirm.forumId;
+        setDeleteConfirm({ isOpen: false, forumId: null });
         try {
             await api.delete(`/forums/${forumId}`);
             setForums(prev => prev.filter(f => f.id !== forumId));
         } catch (err) {
             console.error('Error deleting forum:', err);
         }
+    };
+
+    const handleCancelDelete = () => {
+        setDeleteConfirm({ isOpen: false, forumId: null });
     };
 
     const handleLike = async (forumId, onForumUpdated) => {
@@ -111,6 +121,9 @@ export function useForums() {
         handleSearch,
         handleCreateForum,
         handleDeleteForum,
+        handleConfirmDelete,
+        handleCancelDelete,
+        deleteConfirm,
         handleLike,
     };
 }

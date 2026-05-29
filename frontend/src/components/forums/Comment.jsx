@@ -64,6 +64,7 @@ export default function Comment({ comment, userId, onLike, onReply, onDelete, ma
                             userId={userId}
                             onLike={onLike}
                             onReply={onReply}
+                            onDelete={onDelete}
                             maxDepth={maxDepth}
                         />
                     ))}
