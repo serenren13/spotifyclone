@@ -250,11 +250,8 @@ export default function Profile() {
                     <p className="text-center text-sm font-semibold mt-2">Current Status: {isPrivate ? "Private" : "Public"}</p>
 
                     <div className="flex flex-col items-center mt-4">
-                        <div className="relative group cursor-pointer" onClick={handleEditProfileImage}>
-                            <img src={displayImage} alt="Profile" className="w-48 h-48 rounded-full object-cover bg-[var(--bg-dark)] mb-4 border-4 border-[var(--text-primary)]/10 group-hover:opacity-80 transition-opacity" />
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity mb-4">
-                                <span className="text-xs text-white font-medium">Change Photo</span>
-                            </div>
+                        <div className="relative group" onClick={handleEditProfileImage}>
+                            <img src={displayImage} alt="Profile" className="w-48 h-48 rounded-full object-cover bg-[var(--bg-dark)] mb-4 border-4 border-[var(--text-primary)]/10" />
                         </div>
                         <h2 className="text-3xl font-medium mb-6">{profile?.display_name || "Username"}</h2>
                     </div>
