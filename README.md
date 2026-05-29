@@ -11,7 +11,6 @@
   - [Spotify API Configuration](#spotify-api-configuration)
   - [Firebase Configuration](#firebase-configuration)
 - [How to Use](#how-to-use)
-- [Project Structure](#project-structure)
 - [Feature Status](#feature-status)
 - [Credits](#credits)
 - [Project Resources](#project-resources)
@@ -191,88 +190,6 @@ VITE_FRONTEND_URL=http://127.0.0.1:5173
 
 ---
 
-## Project Structure
-
-```
-spotifyclone/
-├── backend/
-│   ├── routes/
-│   │   ├── SpotifyRouter.js        # Spotify API endpoints
-│   │   ├── UsersRouter.js          # User profile management
-│   │   ├── ConversationsRouter.js  # Messaging endpoints
-│   │   └── ForumsRouter.js         # Forum management
-│   ├── db/
-│   │   ├── UsersService.js         # User database operations
-│   │   ├── ConversationsService.js # Message database operations
-│   │   └── ForumsService.js        # Forum database operations
-│   ├── tests/
-│   │   ├── conversations.test.js   # Conversations functionality tests
-│   │   ├── forum.test.js           # Forums functionality tests
-│   │   └── users.test.js           # Users functionality tests
-│   ├── app.js                      # Express app configuration
-│   ├── server.js                   # Server entry point with Socket.io
-│   ├── firebase.js                 # Firebase configuration
-│   └── package.json
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── Sidebar.jsx          # Navigation sidebar + mobile bottom nav
-│   │   │   ├── ThemeToggle.jsx      # Light/dark mode toggle
-│   │   │   ├── forums/              # Forum discussion components
-│   │   │   │   ├── ForumCard.jsx    # Forum card w/ comment count
-│   │   │   │   ├── ForumList.jsx    # Forum list view w/ search + create
-│   │   │   │   ├── ForumDetail.jsx  # Forum detail view w/ comment thread
-│   │   │   │   ├── Comment.jsx      # Recursive nested comment
-│   │   │   │   ├── LikeButton.jsx   # Reusable like button
-│   │   │   │   ├── SaveTrackButton.jsx  # Save attached track to Spotify liked songs
-│   │   │   │   ├── RichTextEditor.jsx # TipTap rich text editor
-│   │   │   │   ├── useForum.jsx     # Forum CRUD, sort, and search logic
-│   │   │   │   ├── useComments.jsx  # Comment CRUD + reply state
-│   │   │   │   └── useTrackSearch.jsx # Spotify track search + attach
-│   │   │   ├── inbox/              # Messaging components
-│   │   │   │   ├── ChatPanel.jsx
-│   │   │   │   ├── ConversationList.jsx
-│   │   │   │   ├── ConversationItem.jsx
-│   │   │   │   ├── MessageBubble.jsx
-│   │   │   │   ├── MessageInput.jsx
-│   │   │   │   └── NewConversationModal.jsx
-│   │   │   └── top-artists/        # Top artists display components
-│   │   │       └── ArtistAvatar.jsx
-│   │   ├── pages/
-│   │   │   ├── Landing.jsx         # Landing/home page
-│   │   │   ├── Discover.jsx        # Browse user profiles
-│   │   │   ├── Forums.jsx          # Discussion boards
-│   │   │   ├── Inbox.jsx           # Messaging interface w/ mobile panel switching
-│   │   │   ├── Profile.jsx         # User profile page
-│   │   │   ├── PublicProfile.jsx   # Public user profile view
-│   │   │   ├── TopArtists.jsx      # Top artists display w/ Spotify links
-│   │   │   ├── TopSongs.jsx        # Top songs w/ featured layout + Spotify links
-│   │   │   └── LikedSongs.jsx      # Liked songs w/ search, decade filter, sort
-│   │   ├── context/
-│   │   │   ├── SpotifyContext.jsx  # Spotify data management
-│   │   │   └── ThemeContext.jsx    # Theme state management
-│   │   ├── lib/
-│   │   │   ├── config.js           # Environment-aware URL config
-│   │   │   └── buildTree.jsx       # Comment tree builder utility
-│   │   ├── styling/
-│   │   │   ├── Landing.css         # Landing page styles
-│   │   │   ├── Sidebar.css         # Sidebar + mobile bottom nav styles
-│   │   │   ├── Discover.css        # Discover page styles
-│   │   │   └── TopArtists.css      # Shared styles for TopArtists and TopSongs
-│   │   ├── App.jsx                 # Root component with responsive padding
-│   │   ├── main.jsx                # Route configuration
-│   │   └── index.css               # Global styles & CSS variables
-│   ├── index.html                  # HTML entry point
-│   ├── vite.config.js              # Vite configuration
-│   ├── eslint.config.js            # ESLint configuration
-│   └── package.json
-│
-└── README.md
-```
-
----
-
 ## Feature Status
 
 | Feature | Status | Notes |
@@ -284,7 +201,7 @@ spotifyclone/
 | **User Profiles** | ✅ Complete | Create, edit, public/private toggle |
 | **Discover Page** | ✅ Complete | Browse public profiles, responsive layout |
 | **View Other Profiles** | ✅ Complete | See other users' music |
-| **Direct Messaging** | 🔄 In Progress | Messaging works, real-time in progress |
+| **Direct Messaging** | ✅ Complete | Real time messaging with notifications |
 | **Inbox Interface** | ✅ Complete | Conversation list and chat panels, mobile panel switching |
 | **Forum System** | ✅ Complete | Create, post, nested replies, attached tracks |
 | **Save to Spotify** | ✅ Complete | Save attached forum tracks to liked songs |
