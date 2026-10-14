@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import ForumList from '../components/forums/ForumList';
-import ForumDetail from '../components/forums/ForumDetail';
-import { useForums } from '../components/forums/useForums';
+import ForumList from '../features/forums/ForumList';
+import ForumDetail from '../features/forums/ForumDetail';
+import { useForums } from '../features/forums/useForums';
 
 export default function Forums() {
     const [selectedForum, setSelectedForum] = useState(null);

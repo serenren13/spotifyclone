@@ -1,9 +1,6 @@
 import { useState } from 'react';
-import axios from 'axios';
-import { API_URL } from '../../lib/config';
 import { useSpotify } from '../../context/SpotifyContext';
-
-const api = axios.create({ baseURL: API_URL });
+import { api } from './forumApi';
 
 export function useTrackSearch() {
     const { accessToken } = useSpotify();

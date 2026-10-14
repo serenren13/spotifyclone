@@ -1,11 +1,7 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
-import ArtistAvatar from "../components/top-artists/ArtistAvatar";
-import { useSpotify } from "../context/SpotifyContext";
-import { API_URL } from "../lib/config";
+import TopArtistFeatured from "../features/music/TopArtistFeatured";
+import TopArtistCard from "../features/music/TopArtistCard";
+import { useTopArtists } from "../features/music/useTopArtists";
 import "../styling/TopArtists.css";
-
-const api = axios.create({ baseURL: API_URL });
 
 const TERM_LABELS = {
   short_term: "Last 4 weeks",
@@ -14,42 +10,17 @@ const TERM_LABELS = {
 };
 
 export default function TopArtists() {
-  const { accessToken } = useSpotify();
-  const [short, setShort] = useState([]);
-  const [medium, setMedium] = useState([]);
-  const [long, setLong] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [term, setTerm] = useState("short_term");
-
-  useEffect(() => {
-    if (!accessToken) return;
-
-    setLoading(true);
-
-    api.get("/spotify/user/top-artists", {
-      headers: { Authorization: `Bearer ${accessToken}` }
-    })
-      .then(res => {
-        setShort(res.data.short_term ?? []);
-        setMedium(res.data.medium_term ?? []);
-        setLong(res.data.long_term ?? []);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Error fetching top artists:", err);
-        setLoading(false);
-      });
-  }, [accessToken]);
-
-  const artists = term === "short_term" ? short : term === "medium_term" ? medium : long;
+  const { term, setTerm, data, isPending, isError, artists } = useTopArtists();
   const top = artists[0];
   const rest = artists.slice(1, 21);
 
-  if (loading) return (
+  if (isPending) return (
     <div className="art-loading-container">
       <p className="art-loading-text">Loading your top artists...</p>
     </div>
   );
+
+  if (isError && !data) return <p role="alert">Could not load your top artists.</p>;
 
   return (
     <div className="art-page-container">
@@ -72,30 +43,9 @@ export default function TopArtists() {
         </div>
       </div>
 
-      {top && (
-        <div className="art-featured-container">
-          <p className="art-featured-badge">#1 this period</p>
+      {top && <TopArtistFeatured top={top} />}
 
-          <div className="art-featured-avatar-ring">
-            <ArtistAvatar
-              artist={top}
-              size={120}
-            />
-            <div className="art-featured-rank-badge">1</div>
-          </div>
-
-          <h2 className="art-featured-name">
-            <a href={top.external_urls.spotify} target="_blank" rel="noreferrer">
-              {top.name}
-            </a>
-          </h2>
-          <a href={top.external_urls.spotify} target="_blank" rel="noreferrer" className="art-spotify-link-muted">
-            Listen on Spotify
-          </a>
-        </div>
-      )}
-
-      {!loading && artists.length === 0 && (
+      {artists.length === 0 && (
         <div style={{ textAlign: 'center', marginTop: '3rem' }}>
           <p style={{ color: 'var(--accent-secondary)' }}>No top artists found for this time period.</p>
           <p style={{ fontSize: '0.875rem', color: 'var(--text-light)', marginTop: '0.5rem' }}>Go listen to some music on Spotify and come back!</p>
@@ -104,23 +54,7 @@ export default function TopArtists() {
 
       <div className="art-grid-container">
         {rest.map((artist, i) => (
-          <div key={artist.id ?? artist.name} className="art-card">
-            <div className="art-avatar-wrapper">
-              <ArtistAvatar artist={artist} size={80} />
-              <p className="art-rank-badge">{i + 2}</p>
-            </div>
-
-            <div className="art-info-wrapper">
-              <p className="art-name-heading">
-                <a href={artist.external_urls.spotify} target="_blank" rel="noreferrer">
-                  {artist.name}
-                </a>
-              </p>
-              <a href={artist.external_urls.spotify} target="_blank" rel="noreferrer" className="art-spotify-link-grid">
-                Listen on Spotify
-              </a>
-            </div>
-          </div>
+          <TopArtistCard key={artist.id ?? artist.name} artist={artist} i={i} />
         ))}
       </div>
     </div>

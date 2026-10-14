@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import axios from 'axios';
-import { API_URL } from '../../lib/config';
+import { useQueryClient } from '@tanstack/react-query';
 import { useSpotify } from '../../context/SpotifyContext';
-
-const api = axios.create({ baseURL: API_URL });
+import { spotifyKeys } from '../../lib/spotifyQueries';
+import { api } from './forumApi';
 
 export default function SaveTrackButton({ trackId }) {
-    const { accessToken } = useSpotify();
+    const { accessToken, userProfile } = useSpotify();
+    const queryClient = useQueryClient();
     const [saved, setSaved] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -19,6 +19,9 @@ export default function SaveTrackButton({ trackId }) {
                 headers: { Authorization: `Bearer ${accessToken}` },
             });
             setSaved(true);
+            if (userProfile?.id) {
+                await queryClient.invalidateQueries({ queryKey: spotifyKeys.likedSongs(userProfile.id) });
+            }
         } catch (err) {
             console.error('Error saving track:', err);
         } finally {

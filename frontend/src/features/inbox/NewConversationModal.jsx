@@ -1,11 +1,7 @@
-import { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as Avatar from "@radix-ui/react-avatar";
 import { Cross2Icon } from "@radix-ui/react-icons";
-import axios from "axios";
-import { API_URL } from "../../lib/config";
-
-const api = axios.create({ baseURL: API_URL });
+import { useNewConversationModal } from "./useNewConversationModal";
 
 function UserRow({ user, onSelect }) {
     const handleClick = () => onSelect(user);
@@ -38,32 +34,8 @@ function UserRow({ user, onSelect }) {
 }
 
 function NewConversationModal({ open, onClose, currentUser, allUsers, onConversationStarted }) {
-    const [searchQuery, setSearchQuery] = useState("");
-
-    const filtered = allUsers.filter(
-        (user) =>
-            user.id !== currentUser.id &&
-            user.displayName?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
-    const handleSearchChange = (e) => setSearchQuery(e.target.value);
-
-    const handleOpenChange = (isOpen) => {
-        if (!isOpen) onClose();
-    };
-
-    const handleStartChat = async (otherUser) => {
-        try {
-            const res = await api.post("/conversations/initialize", {
-                user1: currentUser.id,
-                user2: otherUser.id,
-            });
-            setSearchQuery("");
-            onConversationStarted(res.data, otherUser);
-        } catch (err) {
-            console.error("Error starting conversation:", err);
-        }
-    };
+    const { searchQuery, filtered, handleSearchChange, handleOpenChange, handleStartChat } =
+        useNewConversationModal({ onClose, currentUser, allUsers, onConversationStarted });
 
     return (
         <Dialog.Root open={open} onOpenChange={handleOpenChange}>

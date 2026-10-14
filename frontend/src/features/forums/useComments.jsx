@@ -1,10 +1,7 @@
 import { useState, useMemo } from 'react';
-import axios from 'axios';
-import { API_URL } from '../../lib/config';
 import { useSpotify } from '../../context/SpotifyContext';
-import { buildTree } from '../../lib/buildTree';
-
-const api = axios.create({ baseURL: API_URL });
+import { buildTree } from './buildTree';
+import { api } from './forumApi';
 
 export function useComments(forumId) {
     const { userProfile } = useSpotify();

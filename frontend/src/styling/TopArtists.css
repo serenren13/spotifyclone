@@ -96,8 +96,8 @@
 
 .art-featured-rank-badge {
     position: absolute;
-    bottom: 0;
-    right: 0;
+    bottom: 6px;
+    right: 6px;
     background: var(--brand-color);
     color: var(--text-on-brand);
     width: 24px;
@@ -171,8 +171,8 @@
 
 .art-rank-badge {
     position: absolute;
-    top: -1px;
-    left: -1px;
+    top: 4px;
+    left: 10px;
     font-size: 10px;
     color: var(--text-on-brand);
     background: var(--brand-color);

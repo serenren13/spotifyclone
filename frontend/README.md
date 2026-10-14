@@ -1,3 +1,12 @@
+# Frontend structure
+
+- `src/pages` contains route entry points. Their filenames and exports match the existing routes.
+- `src/features` groups feature-specific UI, hooks, and API clients for discover, forums, inbox, music, and profiles.
+- `src/components` holds shared navigation and theme controls; `src/context` holds application providers.
+- `src/lib` holds shared configuration and Spotify query setup; `src/styling` holds the existing stylesheets.
+
+Run `npm test`, `npm run lint`, and `npm run build` from this directory after frontend changes.
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

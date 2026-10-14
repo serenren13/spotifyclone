@@ -29,7 +29,6 @@ export default function ForumCard({ forum, userId, onSelect, onLike, onDelete })
                         <p className="text-xs text-[var(--accent-secondary)]">{forum.attachedTrack.artist}</p>
                     </div>
                     <div className="ml-auto flex items-center gap-2">
-                        <SaveTrackButton trackId={forum.attachedTrack.id} />
                         <span className="text-xs text-[var(--accent-primary)]">🎵</span>
                     </div>
                 </div>
